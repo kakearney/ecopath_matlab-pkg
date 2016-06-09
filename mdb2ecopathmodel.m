@@ -252,6 +252,14 @@ EM.stanzadata.stanzaID = A.Stanza.StanzaID;
 EM.stanzadata.BABsplit = A.Stanza.BABsplit;
 
 EM.groupdata.vbK = A.EcopathGroup.vbK;
+if iscell(EM.groupdata.vbK)
+    % I think this only occurs when no multistanza groups present
+    isemp = cellfun('isempty', EM.groupdata.vbK);
+    if ~all(isemp)
+        error('TODO: Found something new in vbK field... fix! (or contact Kelly to fix!)');
+    end
+    EM.groupdata.vbK = nan(size(EM.groupdata.vbK));
+end
 EM.groupdata.vbK(EM.groupdata.vbK == -1) = NaN;
 
 % Pedigree: EwE6 allows pedigree values for B, PB, QB, DC, and catch, on a
