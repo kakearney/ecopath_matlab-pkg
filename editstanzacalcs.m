@@ -1,7 +1,8 @@
-function [Out, D] = editstanzacalcs(a, k, bab, blead, qblead, z, da)
+function [Out, D] = editstanzacalcs(a, k, bab, blead, qblead, z, da, bflag)
 %EDITSTANZACALCS Replicate multi-stanza calculations from Ecopath
 %
 % [Out, D] = editstanzacalcs(a, k, bab, blead, qblead, z, da)
+% [Out, D] = editstanzacalcs(a, k, bab, blead, qblead, z, da, bflag)
 %
 % This function replicates the EwE "Edit multi-stanza" calculations for a
 % single species group.  It calculates B and QB for all mutli-stanza
@@ -19,14 +20,21 @@ function [Out, D] = editstanzacalcs(a, k, bab, blead, qblead, z, da)
 %   bab:    relative biomass accumulation rate (BA/B), (annual).  Can be
 %           either a scalar, applying to all subgroups, or a n x 1 vector
 %
-%   blead:  scalar, biomass of leading stanza
+%   blead:  scalar, biomass of leading stanza (bflag = 'lead') or total
+%           biomass across all stanzas (bflag = 'total')
 %
-%   qblead: scalar, consumption rate of leading stanza (/yr)
+%   qblead: scalar, consumption rate (/yr) of leading stanza
 %
 %   z:      n x 1 vector, mortality rate (/yr) of each subgroup, assumed to
 %           be equal to the production rate (P/B) of the subgroup  
 %
 %   da:     discretization interval (months)
+%
+%   bflag:  string indicating what type of data is in the blead input
+%           variable.  If 'lead', calculations replicate the EwE software,
+%           using the leading stanza biomass as the reference value.  If
+%           'total', then the sum biomass across all stanza groups is used
+%           as a reference.  Default is 'lead'.
 %
 % Output variables
 %
@@ -53,6 +61,11 @@ function [Out, D] = editstanzacalcs(a, k, bab, blead, qblead, z, da)
 %                   months
 
 % Copyright 2015 Kelly Kearney
+
+narginchk(7,8);
+if nargin < 8
+    bflag = 'lead';
+end
 
 % Setup of discretization.  Note that Ecopath uses 90% as the upper
 % bound, and then has an accumulator function later on to deal with the 
@@ -108,8 +121,18 @@ for ia = 1:length(a)
 
 end
 
-btot = blead./bs(end);
-Out.b = btot .* bs;
+switch bflag
+    case 'lead'
+        btot = blead./bs(end);
+        Out.b = btot .* bs;
+    case 'total'
+        btot = blead;
+        Out.b = btot .* bs;
+        blead = Out.b(end);
+    otherwise
+        error('bflag value must be either ''lead'' or ''total''');
+end
+
 
 % Note: I'm not getting the exact same values here as in EwE6. I
 % think this might be related to the K calculation in the original

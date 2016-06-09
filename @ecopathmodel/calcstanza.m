@@ -95,12 +95,18 @@ for is = 1:ns
         bab = A.stanzadata.BABsplit(is);
     end
     z = A.groupdata.pb(idx);
-    blead = A.groupdata.b(idx(end));
+    if isnan(A.groupdata.b(idx(end)))
+        blead = A.stanzadata.Btot(is);
+        bflag = 'total';
+    else
+        blead = A.groupdata.b(idx(end));
+        bflag = 'lead';
+    end
     qblead = A.groupdata.qb(idx(end));
     
     % Fill in non-leading group values
     
-    [Out,D] = editstanzacalcs(a, k, bab, blead, qblead, z, Opt.da);
+    [Out,D] = editstanzacalcs(a, k, bab, blead, qblead, z, Opt.da, bflag);
     
     A.groupdata.b(idx)  = Out.b;
     A.groupdata.qb(idx) = Out.qb;
@@ -132,8 +138,8 @@ if Opt.plot
             'w*l'
             '$\sum_{0}^{a}{Z_a} - a\frac{BA}{B}$'};
     hleg = legendflex(h.ax(1), lbl, 'ref', h.ax(1), 'nrow', 1, 'anchor', {'n','s'}, ...
-        'xscale', 0.5, 'buffer', [0 5]);
-    set(findall(hleg, 'type', 'text'), 'interpreter', 'Latex');
+        'xscale', 0.5, 'buffer', [0 5], 'interpreter', 'latex');
+%     set(findall(hleg, 'type', 'text'), 'interpreter', 'Latex');
 end
     
 

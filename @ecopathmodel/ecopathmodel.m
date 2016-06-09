@@ -170,7 +170,7 @@ classdef ecopathmodel
             obj.discardFate = array2table(zeros(ngear,ndet), ...
                 'RowNames', obj.fleet, 'VariableNames', obj.name(nlive+1:end));
             
-            svars = {'stanzaID', 'BABsplit'};
+            svars = {'stanzaID', 'BABsplit', 'Btot'};
             
             obj.stanzadata = array2table(nan(nstan, length(svars)), ...
                 'RowNames', obj.stanza, 'VariableNames', svars);
