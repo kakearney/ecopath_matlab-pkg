@@ -209,13 +209,22 @@ EM.df(:,:) = num2cell(df);
 % Immigration/emigration
 
 EM.groupdata.immig    = A.EcopathGroup.Immigration;
-EM.groupdata.emig     = A.EcopathGroup.Emigration;
-EM.groupdata.emigRate = A.EcopathGroup.EmigRate;
+
+userate = A.EcopathGroup.EmigRate ~= 0 & A.EcopathGroup.Emigration == 0;
+EM.groupdata.emig(~userate)    = A.EcopathGroup.Emigration(~userate);
+EM.groupdata.emigRate(userate) = A.EcopathGroup.EmigRate(userate);
+
+% EM.groupdata.emig     = A.EcopathGroup.Emigration;
+% EM.groupdata.emigRate = A.EcopathGroup.EmigRate;
 
 % Biomass accumulation
 
-EM.groupdata.ba       = A.EcopathGroup.BiomAcc;
-EM.groupdata.baRate   = A.EcopathGroup.BiomAccRate;
+userate = A.EcopathGroup.BiomAccRate ~= 0 & A.EcopathGroup.BiomAcc == 0;
+EM.groupdata.ba(~userate)    = A.EcopathGroup.BiomAcc(~userate);
+EM.groupdata.baRate(userate) = A.EcopathGroup.BiomAccRate(userate);
+
+% EM.groupdata.ba       = A.EcopathGroup.BiomAcc;
+% EM.groupdata.baRate   = A.EcopathGroup.BiomAccRate;
 
 % Landings and discards
 
