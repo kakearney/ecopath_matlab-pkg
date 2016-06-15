@@ -1,7 +1,197 @@
 classdef ecopathmodel
 %ECOPATHMODEL A Matlab-based version of the Ecopath food web model
 %   
+% The ecopathmodel class forms the basis for my Matlab-based implementation
+% of Ecopath, adapted from the Ecopath with Ecosim (EwE) model
+% (www.ecopath.org). 
 %
+% The EwE model is a ecosystem model used primarily in the fisheries
+% modeling community.  In this community, the term "Ecopath model" is used
+% in two contexts: 
+% - To refer to the algorithm that estimates a snapshot of an ecosystem
+%   (including the amount of biomass in various ecosystem components, and
+%   the fluxes between these components) 
+% - To refer to a set of input data for a particular ecosystem, intended to
+%   be used with the Ecopath (and/or Ecosim, Ecospace, etc.) algorithm(s)
+%
+% In this code, the ecopathmodel object represents the latter of these: a
+% storage-container for input data related to the Ecopath algorithm.  
+%
+% The units used in the property descriptions are defined in terms of three
+% dimensions: M = mass, A = area (or volume), and T = time. In the original
+% software, the default is M = metric tons wet weight, A = km^2, and T =
+% year.  You can use whatever units work best for your own purposes, as
+% long as they remain consistent across all variables.      
+% 
+% Constructor method syntax:
+%
+%   obj = ecopathmodel(ngroup, nlive, ngear, p1, v1, ...)
+%
+% Please type "help ecopathmodel.ecopathmodel" for full syntax details
+% 
+% ecopathmodel Properties:
+%
+%   ngroup:     scalar, Number of groups (living and detrital) in the model
+%
+%   nlive:      scalar, Number of living groups (non-detrital) in model
+%
+%   ngear:      scalar, Number of fishing gears/fleets in model
+%
+%   name:       ngroup x 1 cell array of strings, names corresponding to
+%               each group in the model. 
+%
+%   fleet:      ngear x 1 cell array of strings, names corresponding to
+%               each fishing gear in the model 
+%
+%   groupdata:  table of parameters related to functional groups.  Rows
+%               correspond to functional groups; columns as follows: 
+%
+%               b:          biomass (M A^-1).  A NaN indicates a value to
+%                           be estimated by the ecopath algorithm.           
+%
+%               pb:         production/biomass ratio (T^-1). A NaN
+%                           indicates a value to be estimated by the
+%                           ecopath algorithm.  
+%
+%               qb:         consumption/biomass ratio (T^-1). A NaN
+%                           indicates a value to be estimated by the
+%                           ecopath algorithm.  
+%
+%               ee:         ecotrophic efficiency (unitless). A NaN
+%                           indicates a value to be estimated by the
+%                           ecopath algorithm.  
+%
+%               ge:         growth efficiency (unitless). A NaN indicates a
+%                           value to be estimated by the ecopath algorithm. 
+%
+%               gs:         fraction of consumed food that is not
+%                           assimilated (unitless)
+%
+%               dtImp:      detritus import (should be zero for all
+%                           non-detrital groups) (MA^-1 T^-1) 
+%
+%               bh:         habitat biomass, i.e. biomass per unit
+%                           habitable area (M A^-1).  This variable is
+%                           designed as a shortcut if all your critters are
+%                           clustered in only a small portion of the
+%                           habitat area, such that bh = b/areafrac.  For
+%                           each group, either b or bh can be defined;
+%                           leave as NaN to calculate based on the other.
+%
+%               pp:         fraction of diet consisting of primary
+%                           production. pp = 0 indicates a strict consumer,
+%                           pp = 1 is a primary producer, pp = 2 indicates
+%                           a detrital group, 0<pp<1 indicates a mixotroph.
+%
+%               areafrac:   fraction of habitat area occupied by each group
+%                           (unitless, 0-1)  
+%
+%               ba:         biomass accumulation (M A^-1 T^-1)
+%
+%               baRate:     biomass accumulation per unit biomass (T^-1).
+%                           For each group, a value may be entered for
+%                           either ba or baRate; leave as NaN to calculate
+%                           based on the other.
+%
+%               immig:      immigration into area (M A^-1 T^-1)  
+%
+%               emig:       emigration out of area (M A^-1 T^-1) 
+%
+%               emigRate:   emigration per unit biomass (T^-1).  For each
+%                           group, a value may be entered for either ba or
+%                           baRate; leave as NaN to calculate based on the
+%                           other.  
+%
+%               stanza:     index of stanza set to which each group
+%                           belongs.  A value of 0 indicates that the group
+%                           is not part of a multi-stanza set.
+%
+%               ageStart:   Age (in months) at which this group begins.
+%                           Will be 0 for all non-stanza groups.
+%
+%               vbK:        K parameter from von Bertalanffy growth curve,
+%                           applicable to groups that are part of a
+%                           multi-stanza set.  Should be same value for all
+%                           age groups within a single stanza set.  NaN for
+%                           all non-stanza groups.
+%
+%               detpb:      detrital production rate (T^-1). If not NaN,
+%                           (for detrital groups only), indicates that the
+%                           biomass for this group should be estimated
+%                           assuming a turnover rate of the detrital pool
+%                           equal to this value. 
+%
+%               import:     fraction of group's diet that comes from
+%                           outside the system (unitless, 0-1)
+%
+%   dc:         table of diet fraction data. Rows correspond to prey
+%               groups, columns to predators.  The sum of each column (plus
+%               import) should be 1.
+%
+%   landing:    table of landing data (M A^-1 T^-1).  Fisheries landings of
+%               each group by each gear.  Rows correspond to functional
+%               groups, columns to gear types.
+%
+%   discard:    table of discard data (M A^-1 T^-1).  Fisheries discards of
+%               each group by each gear.  Rows correspond to functional
+%               groups, columns to gear types.
+%
+%   df:         table of detritus fate (unitless, 0-1).  Values represent
+%               fraction of non-predatory losses (unassimilated
+%               consumption, non-predatory mortality) that go into each
+%               detrital pool. Rows correspond to functional groups,
+%               columns to detrital groups.
+%
+%   discardFate:table of discard fate (unitless, 0-1).  Values represent
+%               fraction of fisheries discards that go into each detrital
+%               pool. Rows correspond to gear types, columns to detrital
+%               groups.   
+%
+%   stanza:     nstanza x 1 cell array of strings, names corresponding to
+%               stanza sets.  Stanza sets are used to indicate that 2 or
+%               more functional groups represent different life stages of a
+%               single species/classification. (In EwE, these are sometimes
+%               referred to as multi-stanza groups.  I find the use of the
+%               word "group" a little confusing, since it sometimes refers
+%               to the all-ages parent grouping and sometimes to the
+%               individual sub-groups, so in this code I use the term
+%               "stanza set" for the parent container and "stanza group"
+%               for a functional group that is part of a set).
+%
+%   stanzadata: table holding parameters related to each multi-stanza set.
+%               Rows correspond to stanza sets; columns are as follows:
+%
+%               stanzaID:   index of each stanza set
+%
+%               BABsplit:   biomass accumulation rate for the stanza set
+%                           (T^-1).  
+%
+%               Btot:       total biomass across all stanza groups in a
+%                           set.  Can be used as an alternative reference
+%                           (as opposed to leading stanza biomass) when
+%                           calculating biomass-per-stanza-group curves.
+%
+%   pedigree:   table of pedigree values for a model.  These values
+%               represent the uncertainty of a value as a fraction of that
+%               value. Pedigree values can be applied to any element in the
+%               ecopathmodel table properties.  Columns are as
+%               follows:
+%           
+%               property:   name of table (groupdata, dc, landing,
+%                           discard, df, discardFate, stanzadata)
+%
+%               row:        row index
+%
+%               column:     column index
+%
+%               pedigree:   pedigree value for the parameter stored in
+%                           EM.property(row,column)
+%               
+%
+% ecopathmodel Methods:
+%
+%   
+
     
     properties (SetAccess = immutable)
         %NGROUP Number of groups (living and detrital) in model
@@ -69,16 +259,24 @@ classdef ecopathmodel
         %               corresponding to each group.  If not included,
         %               defaults will be groupX, where X is the group
         %               index.  Note that detrital groups should be listed
-        %               last.    
+        %               last.  Because these will be used as table
+        %               row/column headers, these strings should conform to
+        %               Matlab's restrictions for a valid variable name.
         %
         %   fleets:     ngear x 1 cell array of strings, names
-        %               corresponding to each fishing gear. 
+        %               corresponding to each fishing gear. Because these
+        %               will be used as table row/column headers, these
+        %               strings should conform to Matlab's restrictions for
+        %               a valid variable name.   
         %
         %   stanzas:    nstanza x 1 cell array of strings, where nstanza
         %               refers to the number of multi-stanza sets of
         %               groups.  Functional groups that are part of a
         %               multi-stanza set have certain constraints set on
-        %               their B, P/B, and Q/B values.  
+        %               their B, P/B, and Q/B values. Because these will be
+        %               used as table row/column headers, these strings
+        %               should conform to Matlab's restrictions for a valid
+        %               variable name.
         %
         %   pp:         ngroup x 1 array, functional group types, where 0 =
         %               consumer, 1 = producer, 0 < x < 1 = partial primary
@@ -281,29 +479,57 @@ classdef ecopathmodel
                 val.areafrac(afmissing) = 1;
             end
             
-            % Check the either/or properties, make sure they aren't set out
-            % of sync
-            
+            % There are a few values in the groupdata table where you can
+            % choose to set values for either one or another property
+            %
+            % B or BH
+            % BA or BA Rate
+            % Emig or Emig Rate
+            %
+            % Check these, make sure user doesn't set both
+           
             bothb = ~isnan(val.b) & ~isnan(val.bh);
-            unsynced = val.b(bothb) ~= val.bh(bothb).*val.areafrac(bothb);
-            if any(unsynced)
-                str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
-                error('b and bh*areafrac values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
+            if any(bothb)
+                str = sprintf('%s, ', val.Properties.RowNames{bothb});
+                str = str(1:end-2);
+                error('Cannot set both B and BH (%s) for a group; choose one and set the other to NaN', str);
             end
             
-            bothe = ~isnan(val.emig) & ~isnan(val.emigRate) & ~isnan(val.b);
-            unsynced = val.emig(bothe) ~= val.emigRate(bothe).*val.b(bothe);
-            if any(unsynced)
-                str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
-                error('emig and b*emigRate values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
+            bothba = ~isnan(val.ba) & ~isnan(val.baRate);
+            if any(bothba)
+                str = sprintf('%s, ', val.Properties.RowNames{bothba});
+                str = str(1:end-2);
+                error('Cannot set both BA and BARATE (%s) for a group; choose one and set the other to NaN', str);
             end
             
-            bothba = ~isnan(val.ba) & ~isnan(val.baRate) & ~isnan(val.b);
-            unsynced = val.ba(bothba) ~= val.baRate(bothba).*val.b(bothba);
-            if any(unsynced)
-                str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
-                error('ba and b*baRate values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
+            bothem = ~isnan(val.emig) & ~isnan(val.emigRate);
+            if any(bothem)
+                str = sprintf('%s, ', val.Properties.RowNames{bothem});
+                str = str(1:end-2);
+                error('Cannot set both EMIG and EMIGRATE (%s) for a group; choose one and set the other to NaN', str);
             end
+            
+            
+%             bothb = ~isnan(val.b) & ~isnan(val.bh);
+%             unsynced = val.b(bothb) ~= val.bh(bothb).*val.areafrac(bothb);
+%             if any(unsynced)
+%                 str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
+%                 error('b and bh*areafrac values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
+%             end
+%             
+%             bothe = ~isnan(val.emig) & ~isnan(val.emigRate) & ~isnan(val.b);
+%             unsynced = val.emig(bothe) ~= val.emigRate(bothe).*val.b(bothe);
+%             if any(unsynced)
+%                 str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
+%                 error('emig and b*emigRate values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
+%             end
+%             
+%             bothba = ~isnan(val.ba) & ~isnan(val.baRate) & ~isnan(val.b);
+%             unsynced = val.ba(bothba) ~= val.baRate(bothba).*val.b(bothba);
+%             if any(unsynced)
+%                 str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
+%                 error('ba and b*baRate values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
+%             end
             
             % Set groupdata after all adjustments have been made
             
@@ -327,7 +553,8 @@ classdef ecopathmodel
         % methods, and therefore can differ due to rounding error).
         %
         % If the values differ by more than the specified tolerance
-        % (0.005), the values are recalculated, with warnings issued.
+        % (relative error > 0.005), the values are recalculated, with
+        % warnings issued. 
         
             % If non-leading stanza group data was missing, fill it in (all or
             % nothing... if one stanza-group is missing, all other stanzas of that
@@ -357,6 +584,7 @@ classdef ecopathmodel
             qwrong = abs(qerr) > tol;
             bawrong = abs(baerr) > tol;    
         
+            warnoff = false;
             if any([bwrong; qwrong; bawrong])
 
                 bchange = ismember(A.groupdata.stanza, unique(A.groupdata.stanza(bwrong)));
@@ -382,7 +610,7 @@ classdef ecopathmodel
                 bachange = ismember(A.groupdata.stanza, unique(A.groupdata.stanza(bawrong)));
                 if ~warnoff
                     msg = '... and BA';
-                    tmp = [A.name(bawrong) num2cell([A.groupdata.ba(bawrong) Tm.groupdatap.ba(bawrong)])]';
+                    tmp = [A.name(bawrong) num2cell([A.groupdata.ba(bawrong) Tmp.groupdata.ba(bawrong)])]';
                     str = sprintf('  %s: %.4g -> %.4g\n', tmp{:});
                     warning('%s:\n%s', msg, str);
                 end
