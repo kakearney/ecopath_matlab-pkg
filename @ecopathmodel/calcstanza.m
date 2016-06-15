@@ -75,9 +75,16 @@ if Opt.plot
         h.ax(ii) = axes('position', [0.05 yax(ii) 0.9 hght2]);
     end
 end
-    
+
+% Make sure all multi-stanza groups have B and BA (not BH or BARATE) set. 
+% TODO: Right now BAsplit override BA... still need to figure this out.
+
+calcb = A.groupdata.stanza > 0 & isnan(A.groupdata.b) & ~isnan(A.groupdata.bh);
+btmp = A.groupdata.areafrac(calcb) .*  A.groupdata.bh(calcb);
+A.groupdata.bh(calcb) = NaN;
+A.groupdata.b(calcb) = btmp;
+
 % Loop over multi-stanza groups
-% TODO: start rewrite here
 
 for is = 1:ns
     
