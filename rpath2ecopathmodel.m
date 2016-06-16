@@ -15,7 +15,7 @@ function [EM,B] = rpath2ecopathmodel(basename, varargin)
 % Optional input variables (passed as paramete/value pairs)
 %
 %   basestr:    string appended to basename for basic data, not including
-%               .csv extension ['_base']
+%               .csv extension ['_model']
 %
 %   dietstr:    string appended to basename for diet data, not including
 %               .csv extension ['_diet']
@@ -25,7 +25,7 @@ function [EM,B] = rpath2ecopathmodel(basename, varargin)
 %               ['_juvs'] 
 %
 %   pedstr:     string appended to basename for pedigree data, not
-%               including .csv extension ['_ped'] 
+%               including .csv extension ['_pedigree'] 
 %
 %   stanzastr:  string appended to basename for stanza data (only 
 %               applicable if old = false), not including .csv extension
@@ -166,13 +166,10 @@ EM.groupdata.ee       = Base.EE(isgroup);
 EM.groupdata.ge       = Base.ProdCons(isgroup);
 EM.groupdata.gs       = Base.Unassim(isgroup);
 EM.groupdata.dtImp    = Base.DetInput(isgroup);
-% EM.groupdata.bh       = EM.groupdata.b;
 EM.groupdata.ba       = Base.BioAcc(isgroup);
-% EM.groupdata.baRate   = zeros(ngroup,1);
 
 EM.groupdata.immig    = zeros(ngroup,1);
 EM.groupdata.emig     = zeros(ngroup,1);
-% EM.groupdata.emigRate = zeros(ngroup,1);
 
 % Diet
 
@@ -214,14 +211,33 @@ EM.groupdata.vbK(tf) = Sgrp.VBGF_Ksp(loc(tf));
 EM.stanzadata.stanzaID = Sgrp.StGroupNum;
 
 % The way Rpath deals with BA across stanza sets has changed over time, and
-% still isn't completely clear to me... consider this bit a work in
-% progress still.
+% still isn't completely clear to me... some of Kerim's tables include
+% different values in the _juvs and _base files. Consider this bit a work
+% in progress still.
 
 if Opt.old
-    % Allows different BA for juvs and adults, and doesn't match BA
-    EM.stanzadata.BABsplit = arrayfun(@(x,y) [x y], Juvs.JuvZ_BAB, Juvs.AduZ_BAB, 'uni', 0);
+    % Allows different BA for juvs and adults, and doesn't always match BA
+    bab1 = [Juvs.JuvZ_BAB, Juvs.AduZ_BAB];
+    ajidx = [Juvs.JuvNum Juvs.AduNum];
+    bab2 = Base.BioAcc(ajidx)./Base.Biomass(ajidx);
+    
+    if ~isequal(bab1, bab2)
+        tmp = [EM.name(ajidx(:)) num2cell([bab1(:) bab2(:)])]';
+        str = sprintf('  %s: %g (base) vs %g (juvs)\n', tmp{:});
+        warning('Found conflicting BA/B data for multi-stanza groups in Base and Juvs tables:\n%sReplacing Base values with those from Juvs', str);
+    end
+    
+    if isequal(bab1(:,1), bab1(:,2))
+        EM.stanzadata.BABsplit = bab1(:,1);
+    else
+        EM.stanzadata.BABsplit(:) = NaN;
+        EM.groupdata.ba([Juvs.JuvNum; Juvs.AduNum]) = NaN;
+        EM.groupdata.baRate([Juvs.JuvNum; Juvs.AduNum]) = bab1(:);
+    end
+
+%     EM.stanzadata.BABsplit = arrayfun(@(x,y) [x y], Juvs.JuvZ_BAB, Juvs.AduZ_BAB, 'uni', 0);
 else
-    % TODO: Take from BA?  For now, leaving as NaN
+    % Will have to ask Sean how this is stored now.
 end
 
 % Pedigree: Rpath allows pedigree values for B, PB, QB, DC, and each

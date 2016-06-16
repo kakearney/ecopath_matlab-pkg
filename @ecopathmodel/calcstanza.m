@@ -96,8 +96,10 @@ for is = 1:ns
     % Parameters
     
     k = A.groupdata.vbK(idx(1));               % Curvature parameter
-    if iscell(A.stanzadata.BABsplit)
-        bab = A.stanzadata.BABsplit{is}; % TODO: check with new Rpath
+    if any(isnan(A.stanzadata.BABsplit))
+        bab = A.groupdata.baRate(idx);
+        isn = isnan(bab);
+        bab(isn) = A.groupdata.ba(idx(isn))./A.groupdata.b(idx(isn));
     else
         bab = A.stanzadata.BABsplit(is);
     end
@@ -117,6 +119,7 @@ for is = 1:ns
     
     A.groupdata.b(idx)  = Out.b;
     A.groupdata.qb(idx) = Out.qb;
+    A.groupdata.baRate(idx) = NaN; % Remove BARATE if present, going to use BA instead
     A.groupdata.ba(idx) = Out.ba;
     
     % Plot to check, mimicking the one in EwE6
