@@ -698,6 +698,39 @@ classdef ecopathmodel
                 idx = cell(0);
             end
         end
+        
+        function vmid = getpedigreevals(A)
+        %GETPEDIGREEVALS Extract values corresponding to pedigree entries
+        %
+        % vmid = getpedigreevals(A)
+        %
+        % Extracts the model values that correspond to each pedigree table
+        % entry.
+        %
+        % Input variables:
+        %
+        %   A:      ecopathmodel object
+        %
+        % Output variables:
+        %
+        %   vmid:   nped x 1 array, where nped is the number of rows in the
+        %           pedigree table
+        
+            nvar = height(A.pedigree);
+            if nvar > 0
+                [tbl, pedidx] = aggregate(A.pedigree.property, [A.pedigree.row A.pedigree.column (1:nvar)']);
+
+                vmid = zeros(nvar,1);
+                for it = 1:length(tbl)
+                    tmp = table2array(A.(tbl{it}));
+                    idx = sub2ind(size(tmp), pedidx{it}(:,1), pedidx{it}(:,2));
+                    vmid(pedidx{it}(:,3)) = tmp(idx);
+                end
+            else
+                vmid = [];
+            end
+        end
+
 
     end
 end

@@ -116,15 +116,7 @@ Opt.sample = validatestring(Opt.sample, {'mcs', 'lhs'}, 'createensemble', 'sampl
 
 % Get values corresponding to each pedigree entry
 
-nvar = height(A.pedigree);
-[tbl, pedidx] = aggregate(A.pedigree.property, [A.pedigree.row A.pedigree.column (1:nvar)']);
-
-vmid = zeros(nvar,1);
-for it = 1:length(tbl)
-    tmp = table2array(A.(tbl{it}));
-    idx = sub2ind(size(tmp), pedidx{it}(:,1), pedidx{it}(:,2));
-    vmid(pedidx{it}(:,3)) = tmp(idx);
-end
+vmid = getpedigreevals(A);
 
 vped = A.pedigree.pedigree;
 vciv = vmid.*vped;
