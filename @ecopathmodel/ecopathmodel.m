@@ -376,7 +376,7 @@ classdef ecopathmodel
             warning(W);
             
             obj.pedigree = array2table(zeros(0,4), 'VariableNames', ...
-                {'table', 'row', 'column', 'value'});
+                {'property', 'row', 'column', 'pedigree'});
             
         end
         
@@ -538,6 +538,57 @@ classdef ecopathmodel
         end
         
         %------------------------------------------------------------------
+        function obj = set.pedigree(obj, val)
+            if isempty(val)
+                obj.pedigree = val;
+            else
+                idx = stanzaindices(obj);
+                nonlead = cellfun(@(x) x(2:end), idx, 'uni', 0);
+                nonlead = cat(1, nonlead{:});
+
+                [tf, loc] = ismember({'b','pb','qb','ba','baRate'}, obj.groupdata.Properties.VariableNames);
+                
+                % Can't apply pedigree to non-leading stanza group B, PB,
+                % or QB
+                
+                isnonlead = strcmp(val.property, 'groupdata') & ...
+                            ismember(val.column, loc(1:3)) & ...
+                            ismember(val.row, nonlead);
+                        
+                if any(isnonlead)
+                    warning('Cannot set pedigree value for non-leading stanza group B, PB, or QB; removing from table')
+                end
+                       
+                % Can't alter stanza group BA or BARATE (for now... may
+                % change as I update Rpath-related calcs), must use
+                % BABsplit
+                
+                isstzba = strcmp(val.property, 'groupdata') & ...
+                          ismember(val.column, loc(4:5)) & ...
+                          ismember(val.row, cat(1, idx{:}));
+               
+                if any(isnonlead)
+                    warning('Cannot set pedigree value for stanza group BA or BARATE (use BABSPLIT in stanzadata table instead); removing from table');
+                end
+                
+                % Can't touch stanza index
+                
+                issidx = strcmp(val.property, 'stanzadata') & ...
+                         val.column == 1;
+                     
+                if any(issidx)
+                    warning('Cannot set pedigree value for stanza ID; removing from table');
+                end
+                
+                isbad = isnonlead | isstzba | issidx;
+                obj.pedigree = val(~isbad,:);
+
+            end
+            
+            
+        end
+        
+        %------------------------------------------------------------------
         function A = setstanzas(A)
         %SETSTANZAS Fill in (or validate) B, QB, and BA values for stanzas
         %
@@ -619,6 +670,35 @@ classdef ecopathmodel
             end   
        
         end
+        
+        %------------------------------------------------------------------
+        function idx = stanzaindices(A)
+        %STANZAINDICES Extract indices of stanza groups, in order of age
+        %
+        % idx = stanzaindices(A)
+        %
+        % Input variables:
+        %
+        %   A:      ecopathmodel object
+        %
+        % Output variables:
+        %
+        %   idx:    nstanza x 1 cell array, each cell holds vector of group
+        %           indices belonging to that stanza set, ordered from
+        %           youngest to oldest (oldest  = leading)  
+
+            grp = [(1:A.ngroup)' A.groupdata.stanza A.groupdata.ageStart];
+            iss = grp(:,2) > 0;
+            if any(iss)
+                [sidx, grpdata] = aggregate(grp(iss,2), grp(iss,[1 3]));
+                grpdata = cellfun(@(x) sortrows(x,2), grpdata, 'uni', 0);
+
+                idx = cellfun(@(x) x(:,1), grpdata, 'uni', 0);
+            else
+                idx = cell(0);
+            end
+        end
+
     end
 end
 
