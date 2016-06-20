@@ -1,10 +1,11 @@
 function varargout = ecopath(EM, varargin)
-%ECOPATHLITE Rewrite of Ecopath algorithms
+%ECOPATH Rewrite of Ecopath algorithms
 %
-% ecopathlite(S)
-% C = ecopathlite(S)
-% [C, flag, fillinfo, sc] = ecopathlite(S)
-% [C, CE] = ecopathlite(S, 'x', x, 'idx', idx, ...)
+% ecopath(EM)
+% C = ecopath(EM)
+% [C, flag, fillinfo, sc] = ecopath(EM)
+% [C, CE] = ecopathlite(EM, 'ensemble', x, ...)
+% [...] = ecopathlite(EM, p1, v1, ...)
 %
 % This function reproduces the main calculations performed by the Ecopath
 % portion of the EwE model (www.ecopath.org).  
@@ -12,25 +13,14 @@ function varargout = ecopath(EM, varargin)
 % Ecopath is used to calculate a snapshot of an ecosystem, including the
 % biomass of all functional groups (living groups, fishing gears, and
 % detrital pools) and the fluxes between these groups.  This function is a
-% bare-bones version of the algorithm; it is not really meant to be used to
-% set up and balance a model for the first time, since it does not provide
-% any of the visual checks on the results (e.g. whether EE values are > 1,
-% etc); use the original Ecopath software if you're looking for this type
-% of behavior.  Nor does it include many of the more complicated setup
-% options, such as economic variables (e.g. market prices, fleet dynamics),
-% etc.  It simply provides the initial mass-balance calculations, in a
-% stripped-down, easy-to-automate format.  
+% bare-bones version of the algorithm that provides these initial
+% mass-balance calculations, in a stripped-down, easy-to-automate format.
 %
-% The units below are defined in terms of three variables: M = mass, A =
-% area (or volume), and T = time. In the original software, the default is
-% M = metric tons wet weight, A = km^2, and T = year.  You can use whatever
-% units work best for your own purposes, as long as they remain consistent
-% across all variables.  
-%
-% Input and output variables were chosen to be somewhat consistent with the
-% tables seen in Ecopath with Ecosim version 5.  If no output variable is
-% provided, the results are printed in the command window, mimicing the
-% Basic Estimates table from EwE.
+% Output variables were chosen to be somewhat consistent with the
+% tables seen in Ecopath with Ecosim version 5.  In the more recent EwE6,
+% these are found in the Basic Estimates, Key Indices, Mortality rates,
+% Consumption, and Respiration tables under the "Parameterization
+% (Ecopath)" section.
 %
 % For more information on the Ecopath concept, see:
 %
@@ -48,124 +38,17 @@ function varargout = ecopath(EM, varargin)
 %
 % Input variables:
 %
-%   S:          structure with the following fields.  Values of the fields
-%               b, pb, qb, ee, ge, gs, and/or dtImp that are defined as NaN
-%               indicate unknown values, which will be filled in by the
-%               ecopath algorithm.
-% 
-%               ngroup:         1 x 1 array, number of functional groups in
-%                               the model 
-%
-%               nlive:          1 x 1 array, number of live (non-detrital)
-%                               groups in the model    
-%
-%               ngear:          1 x 1, number of fishing gear types in the
-%                               model 
-%
-%               areafrac:       ngroup x 1 array, fraction of habitat area
-%                               occupied by each group (no units, 0-1) 
-%
-%               b:              ngroup x 1 array, biomass (M A^-1)
-%
-%               pb:             ngroup x 1 array, production over biomass
-%                               ratios (T^-1)   
-%   
-%               qb:             ngroup x 1 array, consumption over biomass
-%                               ratios (T^-1) 
-%
-%               ee:             ngroup x 1 array, ecotrophic efficiencies
-%                               (no units, 0-1) 
-% 
-%               ge:             ngroup x 1 array, gross efficiency, i.e.
-%                               production over consumption ratio (no
-%                               units)
-%
-%               gs:             ngroup x 1 array, fraction of consumed food
-%                               that is not assimilated (no units)  
-%
-%               dtImp:          ngroup x 1 array, detritus import (should
-%                               be zero for all non-detrital groups) (M
-%                               A^-1 T^-1)
-%
-%               bh:             ngroup x 1 array,  habitat biomass, i.e.
-%                               biomass per unit habitable area (M A^-1).
-%                               This variable is designed as a shortcut if
-%                               all your critters are clustered in only a
-%                               small portion of the habitat area, such
-%                               that bh = b/areafrac.
-%
-%               pp:             ngroup x 1 array, fraction of diet
-%                               consisting of primary production, pp = 2
-%                               indicates detritus 
-%
-%               import:         ngroup x 1 array, fraction of diet coming
-%                               from outside the system. 
-% 
-%               dc:             ngroup x ngroup array, diet composition,
-%                               dc(i,j) tells fraction predator j's diet
-%                               consisting of prey i (no units, 0-1)
-% 
-%               df:             ngroup x (ngroup - nlive) array, fraction
-%                               of each group that goes to each detrital
-%                               group due to other mortality and egestion
-%                               (no units, 0-1)
-%
-%               immig:          ngroup x 1 array, immigration into area  (M
-%                               A^-1 T^-1)  
-%
-%               emig:           ngroup x 1 array, emigration out of area
-%                               (M A^-1 T^-1) 
-%
-%               emigRate:       ngroup x 1 array, emigration per unit
-%                               biomass (T^-1)
-% 
-%               ba:             ngroup x 1 array, biomass accumulation  (M
-%                               A^-1 T^-1) 
-%
-%               baRate          ngroup x 1 array, biomass accumulation per
-%                               unit biomass (T^-1) 
-%
-%               landing         ngroup x ngear array, landings of each
-%                               group by each gear type (M A^-1 T^-1) 
-%
-%               discard         ngroup x ngear array, discards of each
-%                               group by each gear type (M A^-1 T^-1) 
-%
-%               discardFate:    ngear x (ngroup - nlive) array, fraction of
-%                               discards from each gear type that go to
-%                               each detritus group (no units, 0-1)
-%
-%               stanzadata:     dataset array holding properties of each
-%                               multi-stanza group (only necessary if at
-%                               least one multi-stanza group in the model)
-%
-%               stanza:         ngroup x 1 array, stanza ID corresponding
-%                               to each group, 0 if not a multi-stanza
-%                               group (only necessary if at least one
-%                               multi-stanza group in the model)
-%
-%               ageStart:       ngroup x 1 array, age (in months) at which
-%                               each stanza group starts  (only necessary
-%                               if at least one multi-stanza group in the
-%                               model)
-%
-%               vbK:            ngroup x 1 array, K parameter from von
-%                               Bertalanffy growth curve.  Should be same
-%                               value for all age groups in a single
-%                               stanza.  EwE6 uses -1 as a placeholder for
-%                               non-stanza groups (only necessary if at
-%                               least one multi-stanza group in the model)
+%   EM:         ecopathmodel object
 %
 % Optional input variables (passed as parameter/value pairs):
 %
-%   x:          1 x 6 cell array of varying parameter values (see
-%               createensemble.m).  If included (along with idx input),
-%               Ecopath balances will be calculated for each ensemble
-%               member, with results returned to the CE output.  Empty by
-%               default
-%
-%   idx:        1 x 6 cell array, indices corresponding to the values in x
-%               (see createensemble.m).  Empty by default. 
+%   ensemble:   nped x nset array of values.  Each column represents one
+%               set of values to be substituted into EM using the
+%               subpedigreevalsues method.  If this input is included, the
+%               Ecopath mass-balance calculation will be repeated for the
+%               "central model" defined by EM as well as for variations of
+%               that model where certain input parameters have been changed
+%               as defined in the pedigree table.
 %
 %   debug:      logical scalar, true to track and return extra information
 %               for debugging purposes.  Not applicable to multi-ensemble
@@ -173,12 +56,16 @@ function varargout = ecopath(EM, varargin)
 %
 %   skipextra:  logical scalar. If true, the script will fill in missing
 %               values but not perform any additional calculations, and
-%               will return only the b, pb, qb, ee, and ge fields of C. 
+%               will return only the b, pb, qb, ee, and ge fields of C.
+%               Default is false.
 %
 %   silent:     logical scalar.  If true, all warning messages are
-%               suppressed.
+%               suppressed.  Default is false.
 %
 % Output variables:
+%
+%   If no output arguments are provided, results are displayed in the
+%   command window using the displaybasic method.
 %
 %   C:          structure with the following fields:
 %
@@ -292,7 +179,7 @@ function varargout = ecopath(EM, varargin)
 %
 %   CE:         1 x nens structure with same format as C. Multi-ensemble
 %               runs only, where nens is the number of ensemble members
-%               described by the parameters in input x.
+%               described by the ensemble input variable.
 %
 %   flag:       false if all unknowns are filled, true if not.  This output
 %               was primarily added for testing purposes.  Unfilled
@@ -307,11 +194,13 @@ function varargout = ecopath(EM, varargin)
 %               missing values... unless running in silent mode, these will
 %               be noted by a warning message printed to the screen).
 %
-%   fillinfo:   dataset array indicating which algorithm (see Appendix 4 
+%   fillinfo:   table array indicating which algorithm (see Appendix 4 
 %               of the EwE User's Manual) is used to fill in each value,
 %               and on which iteration it was filled.  Also primarily for
 %               testing purposes. Output not available with multi-ensemble
-%               calculation. 
+%               calculation. Note that values filled in during setup
+%               calculations (i.e trophic level, B-to-BH, and P/B-Q/B-P/Q
+%               algebra) are not listed here.
 %
 %   sc:         Sanity check calculation that lists the main terms of the
 %               Ecopath equation for each group.  Columns correspond to
@@ -320,7 +209,7 @@ function varargout = ecopath(EM, varargin)
 %               very close, near machine precision).  Output not available
 %               with multi-ensemble calculation. 
 
-% Copyright 2012-2015 Kelly Kearney
+% Copyright 2012-2016 Kelly Kearney
 % kakearney@gmail.com
 
 
@@ -782,7 +671,7 @@ if multiflag
 else
 
     if nargout == 0
-%         displayecopath(Sorig,C);
+        EM.displaybasic(C);
     elseif nargout == 1
         varargout{1} = C;
     elseif nargout > 1
