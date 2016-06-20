@@ -3,6 +3,7 @@ function level = trophiclevel(dc, pp, nlive, ngroup)
 %
 % level = trophiclevel(dc, pp, nlive, ngroup)
 % level = trophiclevel(A)
+% level = trophiclevel(EM)
 %
 % This function calculates the trophic levels of each member of a food web,
 % based on their diets and whether they are primary producers/detrital.
@@ -23,18 +24,31 @@ function level = trophiclevel(dc, pp, nlive, ngroup)
 %
 %   ngroup: scalar, number of functional groups in model
 %
+%   A:      structure with fields corresponding to the above 4 variables
+%           (e.g., an ecopathlite input structure)
+%
+%   EM:     ecopathmodel object
+%
 % Output variables:
 %
 %   level:  ngroup x 1 array, trophic levels of each functional group
 
-% Copyright 2007 Kelly Kearney
+% Copyright 2007-2016 Kelly Kearney
 
 if nargin == 1
-    A = dc;
-    dc = A.dc;
-    pp = A.pp;
-    nlive = A.nlive;
-    ngroup = A.ngroup;
+    if isa(dc, 'ecopathmodel')
+        A = dc;
+        dc = table2array(A.dc);
+        pp = A.groupdata.pp;
+        nlive = A.nlive;
+        ngroup = A.ngroup;
+    elseif isa(dc, 'struct')
+        A = dc;
+        dc = A.dc;
+        pp = A.pp;
+        nlive = A.nlive;
+        ngroup = A.ngroup;
+    end
 end
 
 %--------------------------
