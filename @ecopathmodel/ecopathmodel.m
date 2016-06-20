@@ -98,9 +98,9 @@ classdef ecopathmodel
 %               emig:       emigration out of area (M A^-1 T^-1) 
 %
 %               emigRate:   emigration per unit biomass (T^-1).  For each
-%                           group, a value may be entered for either ba or
-%                           baRate; leave as NaN to calculate based on the
-%                           other.  
+%                           group, a value may be entered for either emig
+%                           or emigRate; leave as NaN to calculate based on
+%                           the other.    
 %
 %               stanza:     index of stanza set to which each group
 %                           belongs.  A value of 0 indicates that the group
@@ -186,11 +186,10 @@ classdef ecopathmodel
 %
 %               pedigree:   pedigree value for the parameter stored in
 %                           EM.property(row,column)
-%               
-%
-% ecopathmodel Methods:
-%
-%   
+% 
+
+% Copyright 2016 Kelly Kearney
+% kakearney@gmail.com
 
     
     properties (SetAccess = immutable)
