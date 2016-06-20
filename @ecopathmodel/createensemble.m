@@ -5,7 +5,7 @@ function [x, Out] = createensemble(A, nsample, varargin)
 % [x, Out] = createensemble(EM, nset, p1, v1, ...)
 %
 % This method generates an ensemble of Ecopath model parameters.  It was
-% designed as a method to explore the parameter space of an Ecopath model,
+% designed as a way to explore the parameter space of an Ecopath model,
 % given the often-large uncertainty associated with its input parameters.
 %
 % This concept is similar to the first step of the Ecoranger routine
