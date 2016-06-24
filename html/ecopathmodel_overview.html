@@ -1,0 +1,1062 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-23"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org/">http://ecopath.org/</a>, as well as to the following journal articles:</p><p>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</p><p>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</p><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> object</a></li><li><a href="#2">Importing Ecopath data</a></li><li><a href="#4">Building an <tt>ecopathmodel</tt> object manually</a></li></ul></div><h2>The <tt>ecopathmodel</tt> object<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel object, which holds all the input data related to a particular modeled ecosystem.  This includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at  required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are incorrect.  Once the model data is acceptable, and the Ecopath Parameterization calculations in EwE6 return a balanced (or at least nearly-balanced) result, move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented.</p><h2>Importing Ecopath data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database file, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: https://github.com/brianb/mdbtools. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine, please contact me!</li><li>I expect all files to use the EwE6 format.  If you have older files, you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
+Gen37 = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Generic_37.EwEmdb'</span>));
+</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
+  Baleen whales -&gt; BaleenWhales
+  Toothed whales -&gt; ToothedWhales
+  Sharks, large -&gt; Sharks_Large
+  Sharks, small medium -&gt; Sharks_SmallMedium
+  Rays, large -&gt; Rays_Large
+  Rays, small medium -&gt; Rays_SmallMedium
+  Pelagics, large -&gt; Pelagics_Large
+  Pelagics, medium -&gt; Pelagics_Medium
+  Pelagics, small, carniv. -&gt; Pelagics_Small_Carniv_
+  Pelagics, small, herbiv. -&gt; Pelagics_Small_Herbiv_
+  Benthopelagics, large -&gt; Benthopelagics_Large
+  Benthopelagics, small medium -&gt; Benthopelagics_SmallMedium
+  Demersals, large -&gt; Demersals_Large
+  Demersals, medium -&gt; Demersals_Medium
+  Demersals, small -&gt; Demersals_Small
+  Reeffish, large -&gt; Reeffish_Large
+  Reeffish, medium -&gt; Reeffish_Medium
+  Flatfish, large -&gt; Flatfish_Large
+  Flatfish, small medium -&gt; Flatfish_SmallMedium
+  Reeffish, small -&gt; Reeffish_Small
+  Lobsters, crabs -&gt; Lobsters_Crabs
+  Softcorals, sponges, etc -&gt; Softcorals_Sponges_Etc
+  Zooplankton, other -&gt; Zooplankton_Other
+  Benthic plants -&gt; BenthicPlants
+ 
+Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
+detpb column where empty):
+  Detritus (NaN)
+ 
+Warning: Non-zero value found for a producer or detrital Q/B, replacing with
+zero:
+  Phytoplankton (NaN)
+  BenthicPlants (NaN)
+  Detritus (NaN)
+ 
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
+  Phytoplankton (NaN)
+  BenthicPlants (NaN)
+  Detritus (NaN)
+ 
+</pre><p>When importing, you'll usually encounter a few warnings like those seen above.  EwE6 uses a few NaN-placeholders in its data files, which are then converted to 0s when it performs the Ecopath calculation.  My code replaces those placeholders on reading, and lets you know.  It also alters names, if necessary.  If you're not happy with the "translation", you simply alter the <tt>names</tt>, <tt>fleets</tt>, or <tt>stanzas</tt> variables, and these changes will propagate to the rest of the tables.  For example, I don't like those trailing underscores on a couple groups:</p><pre class="codeinput">Gen37.name{11} = <span class="string">'Pelagics_Small_Carniv'</span>;
+Gen37.name{12} = <span class="string">'Pelagics_Small_Herbiv'</span>;
+
+Gen37.groupdata
+</pre><pre class="codeoutput">
+ans = 
+
+                                    b       pb     qb     ee      ge     gs     dtImp    bh      pp     areafrac    ba    baRate    immig    emig    emigRate    stanza    ageStart    vbK    detpb    import
+                                  _____    ____    ___    ___    ____    ___    _____    ___    ____    ________    __    ______    _____    ____    ________    ______    ________    ___    _____    ______
+
+    BaleenWhales                  0.001    0.03     30    NaN     NaN    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    ToothedWhales                 0.002    0.05     40    NaN     NaN    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Seals                         0.003    0.07     50    NaN     NaN    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Birds                         0.001     0.1    100    NaN     NaN    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Sharks_Large                    0.1     0.3    NaN    NaN    0.15    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Sharks_SmallMedium              0.3     0.6    NaN    NaN     0.2    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Rays_Large                      0.1     0.3    NaN    NaN    0.15    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Rays_SmallMedium                0.3     0.6    NaN    NaN     0.2    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Pelagics_Large                  0.4     0.3    NaN    NaN     0.2    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Pelagics_Medium                 1.2     0.6    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Pelagics_Small_Carniv             5     0.6    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Pelagics_Small_Herbiv           2.5     0.6    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Benthopelagics_Large            0.2     0.3    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Benthopelagics_SmallMedium      0.4     0.6    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Demersals_Large                 0.5     0.3    NaN    NaN    0.15    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Demersals_Medium                  2     0.6    NaN    NaN     0.2    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Demersals_Small                   5       1    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Reeffish_Large                  0.1     0.3    NaN    NaN    0.15    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Reeffish_Medium                 0.5     0.6    NaN    NaN     0.2    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Flatfish_Large                  0.1     0.3    NaN    NaN    0.15    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Flatfish_SmallMedium              1     0.8    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Reeffish_Small                    1       1    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Bathypelagics                   0.5     0.5    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Bathydemersals                  0.2     0.2    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Jellyfish                         1      10    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Cephalopods                     0.5       1    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Shrimps                           2     2.5    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Lobsters_Crabs                  0.5       2    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Macrobenthos                     10       2    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Meiobenthos                      15      10    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Corals                          0.1       1    1.5    NaN     NaN    0.2    0        NaN    0.63    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Softcorals_Sponges_Etc            2     0.2    NaN    NaN     0.3    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Krill                             1       5    NaN    NaN    0.25    0.2    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Zooplankton_Other                10      30    NaN    NaN    0.25    0.4    0        NaN       0    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Phytoplankton                    15     150      0    NaN       0      0    0        NaN       1    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    BenthicPlants                     2      10      0    NaN       0      0    0        NaN       1    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+    Detritus                        100       0      0      0       0      0    0        NaN       2    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
+
+</pre><h2>Building an <tt>ecopathmodel</tt> object manually<a name="4"></a></h2><p>As I mentioned above, I don't really recommend that you start a model from scratch using just this tool.  My focus when developing this code was to increase the flexibility of the Ecopath algorithm, not to replicate the EwE6 GUI capabilities (including its many data validation checks).</p><p>However, Ecopath models are very often published in peer-reviewed journals or technical reports without accompanying data files.  In these cases, you many need to manually transcribe the data from various printed tables in order to carry out additional calculations.</p><p>For this example, I'm going to using the Eastern Pacific Subarctic Gyre ecosystem model, which is the one I happened to be working with during the development of this class, and which required manual transcription. The details of that model were published in</p><p>Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci Rep 25</p><p>To build an empty <tt>ecopathmodel</tt> object, you need 3 parameters:</p><div><ul><li>number of total groups</li><li>number of live groups</li><li>number of fishing gears/fleets.</li></ul></div><p>While not required, it's highly recommended that you also add the names of all groups, fleets, and stanzas, since that data is used to set up and label all the table columns and rows, and the type of each group (i.e. whether consumer, producer, or mixotroph), since that is used to validate other parameters' values as they're added.</p><pre class="codeinput">names = {<span class="keyword">...</span>
+<span class="string">'Sperm whales'</span>
+<span class="string">'Toothed whales'</span>
+<span class="string">'Fin whales'</span>
+<span class="string">'Sei whales'</span>
+<span class="string">'Northern fur seals'</span>
+<span class="string">'Elephant seals'</span>
+<span class="string">'Dall''s porpoises'</span>
+<span class="string">'Pacific white-sided dolphins'</span>
+<span class="string">'Northern right whale dolphins'</span>
+<span class="string">'Albatross'</span>
+<span class="string">'Shearwaters'</span>
+<span class="string">'Storm Petrels'</span>
+<span class="string">'Kittiwakes'</span>
+<span class="string">'Fulmars'</span>
+<span class="string">'Puffins'</span>
+<span class="string">'Skuas'</span>
+<span class="string">'Jaegers'</span>
+<span class="string">'Sharks'</span>
+<span class="string">'Large gonatid squid'</span>
+<span class="string">'Boreal clubhook squid'</span>
+<span class="string">'Neon flying squid'</span>
+<span class="string">'Sockeye salmon'</span>
+<span class="string">'Chum salmon'</span>
+<span class="string">'Pink salmon'</span>
+<span class="string">'Coho salmon'</span>
+<span class="string">'Chinook salmon'</span>
+<span class="string">'Steelhead'</span>
+<span class="string">'Pomfret'</span>
+<span class="string">'Saury'</span>
+<span class="string">'Pelagic forage fish'</span>
+<span class="string">'Micronektonic squid'</span>
+<span class="string">'Mesopelagic fish'</span>
+<span class="string">'Large jellyfish'</span>
+<span class="string">'Ctenophores'</span>
+<span class="string">'Salps'</span>
+<span class="string">'Chaetognaths'</span>
+<span class="string">'Sergestid shrimp'</span>
+<span class="string">'Misc predatory zooplankton'</span>
+<span class="string">'Amphipods'</span>
+<span class="string">'Pteropods'</span>
+<span class="string">'Euphausiids'</span>
+<span class="string">'Copepods'</span>
+<span class="string">'Microzooplankton'</span>
+<span class="string">'Bacteria'</span>
+<span class="string">'Large phytoplankton'</span>
+<span class="string">'Small phytoplankton'</span>
+<span class="string">'DNH3'</span>
+<span class="string">'POM'</span>};
+
+ngroup = length(names);
+ngear = 1;          <span class="comment">% Ecopath requires at least 1, even if it catches nothing</span>
+nlive = ngroup - 2; <span class="comment">% DNH3 and POM are detrital</span>
+isprod = ismember(names, {<span class="string">'Large phytoplankton'</span>, <span class="string">'Small phytoplankton'</span>});
+isdet = ismember(names, {<span class="string">'DNH3'</span>, <span class="string">'POM'</span>});
+
+pp = zeros(ngroup,1); <span class="comment">% 0 = consumer</span>
+pp(isprod) = 1;       <span class="comment">% 1 = producer</span>
+pp(isdet) = 2;        <span class="comment">% 2 = detritus</span>
+
+<span class="comment">% Names of groups, fleets, and stanzas must meet Matlab's variable name</span>
+<span class="comment">% restrictions, since they will be used as table row/column labels.  To</span>
+<span class="comment">% meet this requirement, here I capitalize all words and then strip out</span>
+<span class="comment">% spaces and special characters.</span>
+
+names = regexprep(names,<span class="string">'(\&lt;[a-z])'</span>,<span class="string">'${upper($1)}'</span>);
+names = regexprep(names, <span class="string">'[\s-\.'']'</span>, <span class="string">''</span>);
+
+<span class="comment">% Now create empty ecopathmodel</span>
+
+Esa = ecopathmodel(ngroup, nlive, ngear, <span class="string">'groups'</span>, names, <span class="string">'pp'</span>, pp)
+</pre><pre class="codeoutput">
+Esa = 
+
+  ecopathmodel with properties:
+
+         ngroup: 48
+          nlive: 46
+          ngear: 1
+           name: {48x1 cell}
+          fleet: {'fleet1'}
+      groupdata: [48x20 table]
+             dc: [48x48 table]
+        landing: [48x1 table]
+        discard: [48x1 table]
+             df: [48x2 table]
+    discardFate: [1x2 table]
+         stanza: {}
+     stanzadata: [0x3 table]
+       pedigree: [0x4 table]
+
+</pre><p>The ecoathmodel object properties include several table arrays.  You can refer to the ecopathmodel property descriptions (<tt>help ecopathmodel</tt>) to see what parameters are stored in each table.  The variable names are all based on those used in EwE6, so they should be familiar to most Ecopath users.</p><p>Now it's time to start adding the data.  We'll start with the groupdata table, which holds all the group-related parameters.</p><pre class="codeinput">Esa.groupdata
+</pre><pre class="codeoutput">
+ans = 
+
+                                   b     pb     qb     ee     ge     gs     dtImp    bh     pp    areafrac    ba     baRate    immig    emig    emigRate    stanza    ageStart    vbK    detpb    import
+                                  ___    ___    ___    ___    ___    ___    _____    ___    __    ________    ___    ______    _____    ____    ________    ______    ________    ___    _____    ______
+
+    SpermWhales                   NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    ToothedWhales                 NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    FinWhales                     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    SeiWhales                     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    NorthernFurSeals              NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    ElephantSeals                 NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    DallSPorpoises                NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    PacificWhiteSidedDolphins     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    NorthernRightWhaleDolphins    NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Albatross                     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Shearwaters                   NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    StormPetrels                  NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Kittiwakes                    NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Fulmars                       NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Puffins                       NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Skuas                         NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Jaegers                       NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Sharks                        NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    LargeGonatidSquid             NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    BorealClubhookSquid           NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    NeonFlyingSquid               NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    SockeyeSalmon                 NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    ChumSalmon                    NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    PinkSalmon                    NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    CohoSalmon                    NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    ChinookSalmon                 NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Steelhead                     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Pomfret                       NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Saury                         NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    PelagicForageFish             NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    MicronektonicSquid            NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    MesopelagicFish               NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    LargeJellyfish                NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Ctenophores                   NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Salps                         NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Chaetognaths                  NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    SergestidShrimp               NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    MiscPredatoryZooplankton      NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Amphipods                     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Pteropods                     NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Euphausiids                   NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Copepods                      NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Microzooplankton              NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    Bacteria                      NaN    NaN    NaN    NaN    NaN    NaN      0      NaN    0     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    LargePhytoplankton            NaN    NaN      0    NaN      0      0      0      NaN    1     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    SmallPhytoplankton            NaN    NaN      0    NaN      0      0      0      NaN    1     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    DNH3                            0      0      0    NaN      0      0    NaN      NaN    2     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+    POM                             0      0      0    NaN      0      0    NaN      NaN    2     1           NaN    NaN       NaN      NaN     NaN         NaN       NaN         NaN    NaN      0     
+
+</pre><p>The first several columns of the groupdata table correspond to the "Basic input" panel in EwE6.  These, along with diet fractions, are the parameters most likely to be published in any Ecopath-related study. In this case, the values come straight from Table B6 in the Aydin et al., 2003 report.</p><p>You'll notice a few warning messages printed to the screen as I add the data into the appropriate tables; those are letting me know that I tried to add invalid values to certain locations.  In this case, the discrepancy is that the printed table left some values blank where internally they're actually supposed to be 0; those incorrect NaNs are replaced with the appropriate 0s by the data validator.</p><pre class="codeinput"><span class="comment">% Columns are trophic level (TL), biomass (B, t/km2), production/biomass</span>
+<span class="comment">% (P/B, 1/year), consumption/biomass (Q/B, 1/year), ecotrophic efficiency</span>
+<span class="comment">% (EE, proportion), growth efficiency (PC, proportion) biomass accumulation</span>
+<span class="comment">% (BA t/km2/year), unassimilated respiration (UnAss, proportion) and the</span>
+<span class="comment">% proportion of detritus flowing to NH3 and POM, respectively</span>
+
+tableB6 = [<span class="keyword">...</span>
+5.4 0.000929    0.0596  6.61    0       0.00902 0 0.2 0.5 0.5
+5.2 0.000028    0.0252  11.16   0       0.00226 0 0.2 0.5 0.5
+4.1 0.027883    0.02    4.56    0.12912 0.00439 0 0.2 0.5 0.5
+4.1 0.005902    0.02    6.15    0.1358  0.00325 0 0.2 0.5 0.5
+5.2 0.000246    0.235   39.03   0.01083 0.00602 0 0.2 0.5 0.5
+5.2 0.00043     0.368   11.08   0.00692 0.03321 0 0.2 0.5 0.5
+5.2 0.00598636  0.1     27.47   0.02546 0.00364 0 0.2 0.5 0.5
+5.2 0.00396248  0.14    25.83   0.01819 0.00542 0 0.2 0.5 0.5
+5.3 0.00389728  0.16    24.14   0.01592 0.00663 0 0.2 0.5 0.5
+5.9 0.00004     0.05    81.59   0.05043 0.00061 0 0.2 0.5 0.5
+4.7 0.0004      0.1     100.13  0.02547 0.001   0 0.2 0.5 0.5
+4.6 0.000056    0.1     152.08  0.02546 0.00066 0 0.2 0.5 0.5
+4.6 0.000052    0.1     123     0.02549 0.00081 0 0.2 0.5 0.5
+4.9 0.000074    0.1     100.26  0.02557 0.001   0 0.2 0.5 0.5
+4.7 0.000058    0.1     104.33  0.02535 0.00096 0 0.2 0.5 0.5
+4.8 0.000054    0.075   96.6    0.0338  0.00078 0 0.2 0.5 0.5
+4.8 0.000038    0.075   96.6    0.03388 0.00078 0 0.2 0.5 0.5
+5.4 0.05        0.2     10.95   0       0.01826 0 0.2 0.5 0.5
+4.2 0.03        2.555   7.3     0.19453 0.35    0 0.2 0.5 0.5
+4.9 0.012       2.555   7.3     0.19453 0.35    0 0.2 0.5 0.5
+5.3 0.45        2.555   6.205   0.91095 0.41176 0 0.2 0.5 0.5
+4.3 0.08965573  1.27    10.13   0.32249 0.12537 0 0.2 0.5 0.5
+3.7 0.05413587  1.93    14.51   0.21221 0.13301 0 0.2 0.5 0.5
+4.2 0.02326662  3.37    18.49   0.12153 0.18226 0 0.2 0.5 0.5
+4.9 0.00445349  2.47    16.55   0.16581 0.14924 0 0.2 0.5 0.5
+4.9 0.00930315  0.8     5.33333 0.51195 0.15    0 0.2 0.5 0.5
+4.9 0.0093      0.8     5.33333 0.51212 0.15    0 0.2 0.5 0.5
+4.8 0.21        0.75    3.75    0.54697 0.2     0 0.2 0.5 0.5
+3.8 0.45        1.6     7.9     0.5545  0.20253 0 0.2 0.5 0.5
+3.9 0.92156     1.5     5       0.9     0.3     0 0.2 0.5 0.5
+3.9 0.87135     3       15      0.9     0.2     0 0.2 0.5 0.5
+3.9 4.5         0.9     3       0.16002 0.3     0 0.2 0.5 0.5
+3.6 4           3       10      0       0.3     0 0.2 0.5 0.5
+2.7 9.1         4       110     0.05269 0.03636 0 0.2 0.5 0.5
+2.7 8           9       30      0.02371 0.3     0 0.2 0.5 0.5
+3.5 6.6         2.555   12.045  0.27638 0.21212 0 0.2 0.5 0.5
+3.5 5           2.555   12.045  0.18813 0.21212 0 0.2 0.5 0.5
+3.5 5.0688      2.555   12.045  0.18871 0.21212 0 0.2 0.5 0.5
+3.1 10.1376     2.555   12.045  0.64429 0.21212 0 0.2 0.5 0.5
+3.1 10.1376     2.555   12.045  0.53491 0.21212 0 0.2 0.5 0.5
+3.1 25.344      2.555   12.045  0.53934 0.21212 0 0.2 0.5 0.5
+2.4 34.848      23.725  112.42  0.88106 0.21104 0 0.2 0.5 0.5
+2.3 35          48.91   233.235 0.99619 0.2097  0 0.2 0.5 0.5
+2   122.9031    18.45   25      0.9     0.738   0 0.2 0.5 0.5
+1   69.7        42.34   NaN     0.67337 NaN     0 NaN 0.5 0.5
+1   76          129.575 NaN     0.77256 NaN     0 NaN 0.5 0.5
+1   NaN         NaN     NaN     0.42757 NaN     0 NaN 0   0
+1   NaN         NaN     NaN     0.42757 NaN     0 NaN 0   0];
+
+<span class="comment">% Plug these values into the appropriate groupdata columns:</span>
+
+Esa.groupdata.b  = tableB6(:,2);
+Esa.groupdata.pb = tableB6(:,3);
+Esa.groupdata.qb = tableB6(:,4);
+Esa.groupdata.ee = tableB6(:,5);
+Esa.groupdata.ge = tableB6(:,6);
+Esa.groupdata.ba = tableB6(:,7);
+Esa.groupdata.gs = tableB6(:,8);
+
+<span class="comment">% The detrital flows (last two columns of the published table) go into the</span>
+<span class="comment">% df table:</span>
+
+Esa.df.DNH3 = tableB6(:,9);
+Esa.df.POM  = tableB6(:,10);
+
+<span class="comment">% Certain values in that table were marked in gray, indicating that they</span>
+<span class="comment">% were calculated by the Ecopath mass-balance calculation, not provided as</span>
+<span class="comment">% input.  We'll get rid of those values for now:</span>
+
+nob  = [30 31 44];
+noqb = 26:28;
+noee = [1:29 32:43 45:48];
+noge = [1:25 29:48];
+
+Esa.groupdata.b(nob)   = NaN;
+Esa.groupdata.bh(nob)  = NaN;
+Esa.groupdata.qb(noqb) = NaN;
+Esa.groupdata.ee(noee) = NaN;
+Esa.groupdata.ge(noge) = NaN;
+</pre><pre class="codeoutput">Warning: Detritus groups found with missing biomass; replacing with 0:
+  DNH3 (NaN)
+  POM (NaN)
+ 
+Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
+detpb column where empty):
+  DNH3 (NaN)
+  POM (NaN)
+ 
+Warning: Non-zero value found for a producer or detrital Q/B, replacing with
+zero:
+  LargePhytoplankton (NaN)
+  SmallPhytoplankton (NaN)
+  DNH3 (NaN)
+  POM (NaN)
+ 
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
+  LargePhytoplankton (NaN)
+  SmallPhytoplankton (NaN)
+  DNH3 (NaN)
+  POM (NaN)
+ 
+Warning: Non-zero value found for a producer or detrital GS, replacing with
+zero:
+  LargePhytoplankton (NaN)
+  SmallPhytoplankton (NaN)
+  DNH3 (NaN)
+  POM (NaN)
+ 
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
+  LargePhytoplankton (NaN)
+  SmallPhytoplankton (NaN)
+  DNH3 (NaN)
+  POM (NaN)
+ 
+</pre><p>Next up, diet fractions.  Here's one of my personal pet peeves: publishing sparse matrices (like Ecopath diet fraction matrices) as tables of mostly empty space spread across multiple printed pages.  Can we all agree to stop doing this?  Pretty please?</p><p>Anyway, diet data was copied and pasted from Table B8 (all 5 pages of it) of the report into a csv file, which I've pasted here to minimize the number of supporting files needed for this example.</p><pre class="codeinput">dietcsv = {<span class="keyword">...</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.22725,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.04811,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.002,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00351,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.04879,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.03229,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.03176,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00032,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00326,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00046,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00042,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00061,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00047,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00044,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',0.00031,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.02287,0.00305,0.001524,0.001524,0.00915,0.0122,0.01372,0.00762,0.01524,0.04573,,,,,,,,0.01782,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00915,0.00122,0.000609,0.000609,0.00366,0.00488,0.00549,0.00305,0.0061,0.01829,,,,,,,,0.00713,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.34299,0.04573,0.022866,0.022866,0.1372,0.18293,0.20579,0.11433,0.22866,0.68598,,,,,,,,0.26724,,,0.295,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00208,0.0249,0.001245,0.001245,0.02988,0.01132,0.01494,0.03984,0.00498,,,,,,,,,0.05324,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00125,0.01504,0.000752,0.000752,0.01804,0.00683,0.00902,0.02406,0.00301,,,,,,,,,0.03215,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00054,0.00646,0.000323,0.000323,0.00775,0.00294,0.00388,0.01034,0.00129,,,,,,,,,0.01382,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.0001,0.00124,6.19E-05,6.19E-05,0.00148,0.00056,0.00074,0.00198,0.00025,,,,,,,,,0.00264,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00022,0.00258,0.000129,0.000129,0.0031,0.00117,0.00155,0.00413,0.00052,,,,,,,,,0.00552,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00022,0.00258,0.000129,0.000129,0.0031,0.00117,0.00155,0.00413,0.00052,,,,,,,,,0.00552,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.00486,0.05833,0.002917,0.002917,0.06999,0.056,0.035,0.09332,0.01167,,,,,,,,,0.12471,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.01042,0.12498,0.00625,0.00625,0.14998,0.12,0.07499,0.19997,0.025,0.1,0.275,0.05,0.4,,0.4,0.5,0.5,0.26724,,,0.058,,,,,,,0.04,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.126,0.264,0.076,0.076,0.267,0.2,0.208,0.172,0.053,0.1,0.275,0.05,0.4,0.04,0.4,0.5,0.5,0.103,0.01,0.01,0.319,0.10982,0.00802,0.068096,0.367206,0.367206,0.367206,,,,,,,,,,,,,,,,,'</span>
+<span class="string">'0.375,0.05,0.025,0.025,0.15,0.4,0.225,0.225,0.25,0.05,0.3,0.6,,0.96,0.1,,,0.1,0.33,0.99,0.223,0.07968,0.03929,0.034823,0.205691,0.205691,0.205691,0.75,,,0.05,,,,,,,,,,,,,'</span>
+<span class="string">'0.10416,,0.062499,0.062499,0.15,,0.2,0.1,0.4,,,,,,,,,,,,0.105,0.10982,0.00802,0.068096,0.367206,0.367206,0.367206,0.08,,,,,,,,,,,,,,,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,0.01609,0.20285,0.003826,7.31E-05,7.31E-05,7.31E-05,,,,,,0.04356,,,,,,,,,,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,0.01609,0.20285,0.003826,7.31E-05,7.31E-05,7.31E-05,,,,,,0.03829,,,,,,,,,,,'</span>
+<span class="string">',,0.054357,0.05435,,,,,,,,,,,,,,,0.04484,,,,0.00043,,,,,0.01,0.05298,0.06795,0.06455,0.15,0.03159,,,,,,,,,,,'</span>
+<span class="string">',,0.041179,0.041179,,,,,,,,,,,,,,,0.03397,,,,,,,,,0.01,0.04014,0.05147,0.0489,0.03,0.02393,,,,,,,,,,,'</span>
+<span class="string">',,0.041746,0.041746,,,,,,,,,,,,,,,0.03444,,,0.00171,0.01474,8.64E-06,,,,0.01,0.04069,0.05218,0.04957,0.03,0.02426,,,,,,,,,,,'</span>
+<span class="string">',,0.083492,0.083492,,,,,,,0.0189,0.0378,0.0252,,0.0126,,,,0.06888,,,0.29328,0.07363,0.32162,0.008047,0.008047,0.008047,0.03,0.08138,0.10437,0.09915,0.24,0.04852,,,0.04444,0.04444,0.04444,,,,,,'</span>
+<span class="string">',,0.083492,0.083492,,,,,,,0.0189,0.0378,0.0252,,0.0126,,,,0.06888,,,0.23976,0.06719,0.440933,0.04623,0.04623,0.04623,0.01,0.08138,0.10437,0.09915,0.031,0.04852,,,0.04444,0.04444,0.04444,,,,,,'</span>
+<span class="string">',,0.20873,0.20873,,,,,,,0.04724,0.09449,0.06299,,0.0315,,,,0.1722,,,0.10058,0.08491,0.038951,0.002736,0.002736,0.002736,0.05,0.20344,0.26091,0.24787,0.171,0.12131,,,0.11111,0.11111,0.11111,,,,,,'</span>
+<span class="string">',,0.287004,0.287004,,,,,,,0.06496,0.12992,0.08661,,0.04331,,,,0.23678,,,0.03318,0.29806,0.019816,0.002736,0.002736,0.002736,0.01,0.5,0.35875,0.34082,0.348,0.62,0.25,0.25,0.8,0.8,0.8,0.4,0.4,0.4,,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.25,0.25,,,,0.4,0.4,0.4,0.3,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.25,0.25,,,,,,,,0.25,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.25,0.25,,,,0.2,0.2,0.2,0.4,,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.3,0.75,'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.5'</span>
+<span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.5'</span>
+};
+
+dcfile = [tempname <span class="string">'.csv'</span>];
+fid = fopen(dcfile, <span class="string">'w+'</span>);
+fprintf(fid, <span class="string">'%s\n'</span>, dietcsv{:});
+fclose(fid);
+
+dc = csvread(dcfile);
+
+delete(dcfile);
+</pre><p>One of the reasons pdf tables are a terrible way to share data: rounding error.  In this case, some values must have been rounded for display; diet data (plus import) should always sum to 1 for each predator, and in this case it doesn't.</p><pre class="codeinput">sum(dc,1)
+</pre><pre class="codeoutput">
+ans =
+
+  Columns 1 through 6
+
+      0.99986       1.0001       1.0003       1.0003       1.0003            1
+
+  Columns 7 through 12
+
+      0.99967      0.99977       1.0002            1            1            1
+
+  Columns 13 through 18
+
+            1            1            1            1            1            1
+
+  Columns 19 through 24
+
+      0.99999            1            1            1      0.99999            1
+
+  Columns 25 through 30
+
+            1            1            1            1            1            1
+
+  Columns 31 through 36
+
+            1            1      0.99998            1            1      0.99999
+
+  Columns 37 through 42
+
+      0.99999      0.99999            1            1            1            1
+
+  Columns 43 through 48
+
+            1            1            0            0            0            0
+
+</pre><p>We'll normalize to get a proper diet fraction table.</p><pre class="codeinput">dc = bsxfun(@rdivide, dc, sum(dc,1));
+
+Esa.dc(:,:) = num2cell(dc);
+</pre><p>There are a few remaining variables that weren't really discussed in the Aydin et al. report, but are necessary to replicate their Ecopath calculations.</p><pre class="codeinput"><span class="comment">% Detritus import: assume to be 0 for both detritus groups</span>
+
+Esa.groupdata.dtImp(isdet) = zeros(ngroup-nlive,1);
+
+<span class="comment">% Immigration/emigration: Assume 0</span>
+
+Esa.groupdata.immig = zeros(ngroup,1);
+Esa.groupdata.emig  = zeros(ngroup,1);
+
+<span class="comment">% Fisheries landings and discards: Assume no fisheries loss in this model.</span>
+
+Esa.landing(:,:) = num2cell(zeros(ngroup,ngear));
+Esa.discard(:,:) = num2cell(zeros(ngroup,ngear));
+
+<span class="comment">% Discard fate: Values don't really matter, since there are no discards to</span>
+<span class="comment">% redirect, but as a placeholder, split this between the two detrital</span>
+<span class="comment">% groups.</span>
+
+Esa.discardFate(:,:) = {0.5, 0.5};
+
+<span class="comment">% Finally, the detritus groups are currently listed with no biomass or</span>
+<span class="comment">% import.  The Aydin et al., 2003 work used a precursor to the Rpath model</span>
+<span class="comment">% for its calculations, rather than the more familiar EwE platform. One</span>
+<span class="comment">% difference between Rpath and EwE is that Rpath calculates detrital pool</span>
+<span class="comment">% biomass based on an assumed overturning rate.  This Matlab package also</span>
+<span class="comment">% allows that possibility, via the |detpb| column.  However, the rate used</span>
+<span class="comment">% in this particular study wasn't published, so I took the easy way out and</span>
+<span class="comment">% simply substituted some approximate values (for Ecopath balance purposes,</span>
+<span class="comment">% this number doesn't affect the calculations at all).</span>
+
+Esa.groupdata.b(isdet) = ones(ngroup-nlive,1)*50;
+</pre><p>At this point, we have a fully-populated ecopathmodel object, and can run the ecopath method to calculate the mass balance.</p><pre class="codeinput">Esa.ecopath
+</pre><pre class="codeoutput">Warning: Matrix is singular, close to singular or badly scaled. Results may be
+inaccurate. RCOND = NaN. 
+&lt;a href=""&gt;    Name                       TL  HA BH         B          PB      QB      EE         GE          GS  DI &lt;/a&gt;
+ 1: SpermWhales                     1   0.000929   0.000929  0.0596    6.61          0  0.00901664 0.2 0
+ 2: ToothedWhales                   1    2.8e-05    2.8e-05  0.0252   11.16          0  0.00225806 0.2 0
+ 3: FinWhales                       1   0.027883   0.027883    0.02    4.56   0.127324  0.00438596 0.2 0
+ 4: SeiWhales                       1   0.005902   0.005902    0.02    6.15   0.127345  0.00325203 0.2 0
+ 5: NorthernFurSeals                1   0.000246   0.000246   0.235   39.03  0.0108094  0.00602101 0.2 0
+ 6: ElephantSeals                   1    0.00043    0.00043   0.368   11.08 0.00693051    0.033213 0.2 0
+ 7: DallSPorpoises                  1 0.00598636 0.00598636     0.1   27.47  0.0254649  0.00364033 0.2 0
+ 8: PacificWhiteSidedDolphins       1 0.00396248 0.00396248    0.14   25.83  0.0181864  0.00542005 0.2 0
+ 9: NorthernRightWhaleDolphins      1 0.00389728 0.00389728    0.16   24.14  0.0159138    0.006628 0.2 0
+10: Albatross                       1      4e-05      4e-05    0.05   81.59  0.0499913  0.00061282 0.2 0
+11: Shearwaters                     1     0.0004     0.0004     0.1  100.13  0.0254643 0.000998702 0.2 0
+12: StormPetrels                    1    5.6e-05    5.6e-05     0.1  152.08  0.0256652 0.000657549 0.2 0
+13: Kittiwakes                      1    5.2e-05    5.2e-05     0.1     123   0.025236 0.000813008 0.2 0
+14: Fulmars                         1    7.4e-05    7.4e-05     0.1  100.26  0.0257557 0.000997407 0.2 0
+15: Puffins                         1    5.8e-05    5.8e-05     0.1  104.33  0.0253189 0.000958497 0.2 0
+16: Skuas                           1    5.4e-05    5.4e-05   0.075    96.6  0.0339447 0.000776398 0.2 0
+17: Jaegers                         1    3.8e-05    3.8e-05   0.075    96.6  0.0339853 0.000776398 0.2 0
+18: Sharks                          1       0.05       0.05     0.2   10.95          0   0.0182648 0.2 0
+19: LargeGonatidSquid               1       0.03       0.03   2.555     7.3    0.19455        0.35 0.2 0
+20: BorealClubhookSquid             1      0.012      0.012   2.555     7.3   0.194612        0.35 0.2 0
+21: NeonFlyingSquid                 1       0.45       0.45   2.555   6.205   0.910956    0.411765 0.2 0
+22: SockeyeSalmon                   1  0.0896557  0.0896557    1.27   10.13    0.32247     0.12537 0.2 0
+23: ChumSalmon                      1  0.0541359  0.0541359    1.93   14.51   0.212214    0.133012 0.2 0
+24: PinkSalmon                      1  0.0232666  0.0232666    3.37   18.49   0.121554    0.182261 0.2 0
+25: CohoSalmon                      1 0.00445349 0.00445349    2.47   16.55    0.16557    0.149245 0.2 0
+26: ChinookSalmon                   1 0.00930315 0.00930315     0.8 5.33333   0.511569        0.15 0.2 0
+27: Steelhead                       1     0.0093     0.0093     0.8 5.33333   0.511742        0.15 0.2 0
+28: Pomfret                         1       0.21       0.21    0.75    3.75   0.546976         0.2 0.2 0
+29: Saury                           1       0.45       0.45     1.6     7.9   0.554505    0.202532 0.2 0
+30: PelagicForageFish               1   0.921557   0.921557     1.5       5        0.9         0.3 0.2 0
+31: MicronektonicSquid              1   0.871353   0.871353       3      15        0.9         0.2 0.2 0
+32: MesopelagicFish                 1        4.5        4.5     0.9       3   0.160017         0.3 0.2 0
+33: LargeJellyfish                  1          4          4       3      10          0         0.3 0.2 0
+34: Ctenophores                     1        9.1        9.1       4     110  0.0526937   0.0363636 0.2 0
+35: Salps                           1          8          8       9      30  0.0237117         0.3 0.2 0
+36: Chaetognaths                    1        6.6        6.6   2.555  12.045   0.276384    0.212121 0.2 0
+37: SergestidShrimp                 1          5          5   2.555  12.045   0.188121    0.212121 0.2 0
+38: MiscPredatoryZooplankton        1     5.0688     5.0688   2.555  12.045   0.188696    0.212121 0.2 0
+39: Amphipods                       1    10.1376    10.1376   2.555  12.045   0.644252    0.212121 0.2 0
+40: Pteropods                       1    10.1376    10.1376   2.555  12.045   0.534877    0.212121 0.2 0
+41: Euphausiids                     1     25.344     25.344   2.555  12.045   0.539339    0.212121 0.2 0
+42: Copepods                        1     34.848     34.848  23.725  112.42   0.881061    0.211039 0.2 0
+43: Microzooplankton                1         35         35   48.91 233.235   0.996189    0.209703 0.2 0
+44: Bacteria                        1    141.587    141.587   18.45      25        0.9       0.738 0.2 0
+45: LargePhytoplankton              1       69.7       69.7   42.34       0   0.673374           0   0 0
+46: SmallPhytoplankton              1         76         76 129.575       0   0.741057           0   0 0
+47: DNH3                            1         50         50       0       0                      0   0 0
+48: POM                             1         50         50       0       0                      0   0 0
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% An overview of the ecopathmodel class
+%
+% The ecopathmodel class offers a Matlab-based implementation of the
+% popular Ecopath mass-balance algorithm.  For information on the Ecopath
+% concept, I refer you to the official Ecopath with Ecosim website:
+% http://ecopath.org/, as well as to the following journal articles:
+%
+% Christensen, V. & Pauly, D. ECOPATH IIREPLACE_WITH_DASH_DASHa software for balancing
+% steady-state ecosystem models and calculating network characteristics.
+% Ecological Modelling 61, 169-185 (1992).  
+% 
+% Christensen, V. & Walters, C. J. Ecopath with Ecosim: methods,
+% capabilities and limitations. Ecological Modelling 172, 109-139 (2004).
+%
+% This overview assumes that you are already familiar with the Ecopath
+% concept, and simply focuses on the use of this particular
+% implementation.  Please note that this code is intended to replicate only
+% the Ecopath algorithm, not Ecosim, Ecospace, or any of the other
+% Ecopath-derived functionalities within the full EwE software.  
+%
+%% The |ecopathmodel| object
+%
+% The foundation of this package is the ecopathmodel object, which holds
+% all the input data related to a particular modeled ecosystem.  This
+% includes the  definition of functional groups and fishing fleets and the
+% connections between them, as well as the many parameters associated with
+% each state variable and group-to-group flow process.  
+%
+% Currently, there are three ways to create one of these objects:
+%
+% # Load data from an EwE6 database file
+% # Load data from a set of Rpath-formatted .csv files
+% # Build the model manually
+%
+% If you have a prexisting model, the first two methods are preferable to
+% manual transcription, since in my experience it is very easy to
+% accidentally mis-transcribe a value, or transcribe it using less
+% precision than in the original model.  Building a model manually has the
+% advantage of providing a clear "paper trail" for all your model
+% parameters, but you have to be careful that you fill in all the necessary
+% values.  While I provide a few basic checks of input, I'm not quite as
+% good as EwE6 is at  required vs. optional given the architecture of your
+% specific ecosystem.
+%
+% Personally, I prefer a combination of the two techniques, where possible.
+% Use the EwE6 software during the initial data-gathering step of building
+% an Ecopath model.  That will allow you to take advantage of all the
+% graphical utilities that warn you when parameters are incorrect.  Once
+% the model data is acceptable, and the Ecopath Parameterization
+% calculations in EwE6 return a balanced (or at least nearly-balanced)
+% result, move over to this tool for project-specific parameter
+% adjustments.  This process allows you to preserve one copy of the base
+% model while also keeping project-specific details clearly documented.
+
+%% Importing Ecopath data
+%
+% The current version of Ecopath with Ecosim stores data in
+% specially-formatted Microsoft Access database file, with the .EwEmdb
+% extension.  The |mdb2ecopathmodel| function will read data from one of
+% these files into an |ecopathmodel| object, with two caveats:
+%
+% # You need to first install the |mdbtools| set of command-line utilities.
+% They're available for download here: https://github.com/brianb/mdbtools.
+% Install instruction for *nix systems are included on GitHub; for Mac, I
+% recommend installing via either MacPorts or Homebrew.  Windows users (and
+% I know that's most of the Ecopath-using community): I've never compiled
+% this tool on a Windows machine, though I know it can be done.  I don't
+% work with any Windows machines myself, so this is a big shortcoming in
+% this code base at the moment. If any of compiled mdbtools on a Windows
+% system, or have a better way of reading .mdb files into Matlab on a
+% Windows machine, please contact me!  
+% # I expect all files to use the EwE6 format.  If you have older files,
+% you'll first need to import them into EwE6 and let its conversion tool
+% convert to the newer format.
+%
+% This example reads in one of the example ecosystems that ships with the
+% EwE6 software:
+%
+
+epfolder = '~/Documents/Research/Working/EcopathModels/';
+Gen37 = mdb2ecopathmodel(fullfile(epfolder, 'Generic_37.EwEmdb'));
+
+%%
+% When importing, you'll usually encounter a few warnings like those seen
+% above.  EwE6 uses a few NaN-placeholders in its data files, which are
+% then converted to 0s when it performs the Ecopath calculation.  My code
+% replaces those placeholders on reading, and lets you know.  It also
+% alters names, if necessary.  If you're not happy with the "translation", 
+% you simply alter the |names|, |fleets|, or |stanzas| variables, and these
+% changes will propagate to the rest of the tables.  For example, I don't
+% like those trailing underscores on a couple groups:
+
+Gen37.name{11} = 'Pelagics_Small_Carniv';
+Gen37.name{12} = 'Pelagics_Small_Herbiv';
+
+Gen37.groupdata
+
+%% Building an |ecopathmodel| object manually
+%
+% As I mentioned above, I don't really recommend that you start a model
+% from scratch using just this tool.  My focus when developing this code
+% was to increase the flexibility of the Ecopath algorithm, not to
+% replicate the EwE6 GUI capabilities (including its many data validation
+% checks).  
+%
+% However, Ecopath models are very often published in peer-reviewed
+% journals or technical reports without accompanying data files.  In these
+% cases, you many need to manually transcribe the data from various printed
+% tables in order to carry out additional calculations.
+%
+% For this example, I'm going to using the Eastern Pacific Subarctic Gyre
+% ecosystem model, which is the one I happened to be working with during
+% the development of this class, and which required manual transcription.
+% The details of that model were published in
+%
+% Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report
+% on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci
+% Rep 25  
+
+%%
+% To build an empty |ecopathmodel| object, you need 3 parameters:
+%
+% * number of total groups
+% * number of live groups
+% * number of fishing gears/fleets.
+%
+% While not required, it's highly recommended that you also add the names
+% of all groups, fleets, and stanzas, since that data is used to set up and
+% label all the table columns and rows, and the type of each group (i.e.
+% whether consumer, producer, or mixotroph), since that is used to validate
+% other parameters' values as they're added.  
+
+names = {...
+'Sperm whales'
+'Toothed whales'
+'Fin whales'
+'Sei whales'
+'Northern fur seals'
+'Elephant seals'
+'Dall''s porpoises'
+'Pacific white-sided dolphins'
+'Northern right whale dolphins'
+'Albatross'
+'Shearwaters'
+'Storm Petrels'
+'Kittiwakes'
+'Fulmars'
+'Puffins'
+'Skuas'
+'Jaegers'
+'Sharks'
+'Large gonatid squid'
+'Boreal clubhook squid'
+'Neon flying squid'
+'Sockeye salmon'
+'Chum salmon'
+'Pink salmon'
+'Coho salmon'
+'Chinook salmon'
+'Steelhead'
+'Pomfret'
+'Saury'
+'Pelagic forage fish'
+'Micronektonic squid'
+'Mesopelagic fish'
+'Large jellyfish'
+'Ctenophores'
+'Salps'
+'Chaetognaths'
+'Sergestid shrimp'
+'Misc predatory zooplankton'
+'Amphipods'
+'Pteropods'
+'Euphausiids'
+'Copepods'
+'Microzooplankton'
+'Bacteria'
+'Large phytoplankton'
+'Small phytoplankton'
+'DNH3'
+'POM'};
+
+ngroup = length(names);
+ngear = 1;          % Ecopath requires at least 1, even if it catches nothing
+nlive = ngroup - 2; % DNH3 and POM are detrital
+isprod = ismember(names, {'Large phytoplankton', 'Small phytoplankton'});
+isdet = ismember(names, {'DNH3', 'POM'});
+
+pp = zeros(ngroup,1); % 0 = consumer
+pp(isprod) = 1;       % 1 = producer
+pp(isdet) = 2;        % 2 = detritus
+
+% Names of groups, fleets, and stanzas must meet Matlab's variable name
+% restrictions, since they will be used as table row/column labels.  To
+% meet this requirement, here I capitalize all words and then strip out
+% spaces and special characters. 
+
+names = regexprep(names,'(\<[a-z])','${upper($1)}');
+names = regexprep(names, '[\s-\.'']', '');
+
+% Now create empty ecopathmodel
+
+Esa = ecopathmodel(ngroup, nlive, ngear, 'groups', names, 'pp', pp)
+
+%%
+% The ecoathmodel object properties include several table arrays.  You can
+% refer to the ecopathmodel property descriptions (|help ecopathmodel|) to
+% see what parameters are stored in each table.  The variable names are all
+% based on those used in EwE6, so they should be familiar to most Ecopath
+% users.    
+
+%%
+% Now it's time to start adding the data.  We'll start with the groupdata
+% table, which holds all the group-related parameters.
+
+Esa.groupdata
+
+%%
+% The first several columns of the groupdata table correspond to the "Basic
+% input" panel in EwE6.  These, along with diet fractions, are the
+% parameters most likely to be published in any Ecopath-related study.
+% In this case, the values come straight from Table B6 in the Aydin et al.,
+% 2003 report.
+%
+% You'll notice a few warning messages printed to the screen as I add the
+% data into the appropriate tables; those are letting me know that I tried
+% to add invalid values to certain locations.  In this case, the
+% discrepancy is that the printed table left some values blank where
+% internally they're actually supposed to be 0; those incorrect NaNs are
+% replaced with the appropriate 0s by the data validator.
+
+% Columns are trophic level (TL), biomass (B, t/km2), production/biomass
+% (P/B, 1/year), consumption/biomass (Q/B, 1/year), ecotrophic efficiency
+% (EE, proportion), growth efficiency (PC, proportion) biomass accumulation
+% (BA t/km2/year), unassimilated respiration (UnAss, proportion) and the
+% proportion of detritus flowing to NH3 and POM, respectively
+
+tableB6 = [...
+5.4 0.000929    0.0596  6.61    0       0.00902 0 0.2 0.5 0.5
+5.2 0.000028    0.0252  11.16   0       0.00226 0 0.2 0.5 0.5
+4.1 0.027883    0.02    4.56    0.12912 0.00439 0 0.2 0.5 0.5
+4.1 0.005902    0.02    6.15    0.1358  0.00325 0 0.2 0.5 0.5
+5.2 0.000246    0.235   39.03   0.01083 0.00602 0 0.2 0.5 0.5
+5.2 0.00043     0.368   11.08   0.00692 0.03321 0 0.2 0.5 0.5
+5.2 0.00598636  0.1     27.47   0.02546 0.00364 0 0.2 0.5 0.5
+5.2 0.00396248  0.14    25.83   0.01819 0.00542 0 0.2 0.5 0.5
+5.3 0.00389728  0.16    24.14   0.01592 0.00663 0 0.2 0.5 0.5
+5.9 0.00004     0.05    81.59   0.05043 0.00061 0 0.2 0.5 0.5
+4.7 0.0004      0.1     100.13  0.02547 0.001   0 0.2 0.5 0.5
+4.6 0.000056    0.1     152.08  0.02546 0.00066 0 0.2 0.5 0.5
+4.6 0.000052    0.1     123     0.02549 0.00081 0 0.2 0.5 0.5
+4.9 0.000074    0.1     100.26  0.02557 0.001   0 0.2 0.5 0.5
+4.7 0.000058    0.1     104.33  0.02535 0.00096 0 0.2 0.5 0.5
+4.8 0.000054    0.075   96.6    0.0338  0.00078 0 0.2 0.5 0.5
+4.8 0.000038    0.075   96.6    0.03388 0.00078 0 0.2 0.5 0.5
+5.4 0.05        0.2     10.95   0       0.01826 0 0.2 0.5 0.5
+4.2 0.03        2.555   7.3     0.19453 0.35    0 0.2 0.5 0.5
+4.9 0.012       2.555   7.3     0.19453 0.35    0 0.2 0.5 0.5
+5.3 0.45        2.555   6.205   0.91095 0.41176 0 0.2 0.5 0.5
+4.3 0.08965573  1.27    10.13   0.32249 0.12537 0 0.2 0.5 0.5
+3.7 0.05413587  1.93    14.51   0.21221 0.13301 0 0.2 0.5 0.5
+4.2 0.02326662  3.37    18.49   0.12153 0.18226 0 0.2 0.5 0.5
+4.9 0.00445349  2.47    16.55   0.16581 0.14924 0 0.2 0.5 0.5
+4.9 0.00930315  0.8     5.33333 0.51195 0.15    0 0.2 0.5 0.5
+4.9 0.0093      0.8     5.33333 0.51212 0.15    0 0.2 0.5 0.5
+4.8 0.21        0.75    3.75    0.54697 0.2     0 0.2 0.5 0.5
+3.8 0.45        1.6     7.9     0.5545  0.20253 0 0.2 0.5 0.5
+3.9 0.92156     1.5     5       0.9     0.3     0 0.2 0.5 0.5
+3.9 0.87135     3       15      0.9     0.2     0 0.2 0.5 0.5
+3.9 4.5         0.9     3       0.16002 0.3     0 0.2 0.5 0.5
+3.6 4           3       10      0       0.3     0 0.2 0.5 0.5
+2.7 9.1         4       110     0.05269 0.03636 0 0.2 0.5 0.5
+2.7 8           9       30      0.02371 0.3     0 0.2 0.5 0.5
+3.5 6.6         2.555   12.045  0.27638 0.21212 0 0.2 0.5 0.5
+3.5 5           2.555   12.045  0.18813 0.21212 0 0.2 0.5 0.5
+3.5 5.0688      2.555   12.045  0.18871 0.21212 0 0.2 0.5 0.5
+3.1 10.1376     2.555   12.045  0.64429 0.21212 0 0.2 0.5 0.5
+3.1 10.1376     2.555   12.045  0.53491 0.21212 0 0.2 0.5 0.5
+3.1 25.344      2.555   12.045  0.53934 0.21212 0 0.2 0.5 0.5
+2.4 34.848      23.725  112.42  0.88106 0.21104 0 0.2 0.5 0.5
+2.3 35          48.91   233.235 0.99619 0.2097  0 0.2 0.5 0.5
+2   122.9031    18.45   25      0.9     0.738   0 0.2 0.5 0.5
+1   69.7        42.34   NaN     0.67337 NaN     0 NaN 0.5 0.5
+1   76          129.575 NaN     0.77256 NaN     0 NaN 0.5 0.5
+1   NaN         NaN     NaN     0.42757 NaN     0 NaN 0   0
+1   NaN         NaN     NaN     0.42757 NaN     0 NaN 0   0];  
+
+% Plug these values into the appropriate groupdata columns:
+
+Esa.groupdata.b  = tableB6(:,2);
+Esa.groupdata.pb = tableB6(:,3);
+Esa.groupdata.qb = tableB6(:,4);
+Esa.groupdata.ee = tableB6(:,5);
+Esa.groupdata.ge = tableB6(:,6);
+Esa.groupdata.ba = tableB6(:,7);
+Esa.groupdata.gs = tableB6(:,8);
+
+% The detrital flows (last two columns of the published table) go into the
+% df table: 
+
+Esa.df.DNH3 = tableB6(:,9);
+Esa.df.POM  = tableB6(:,10);
+
+% Certain values in that table were marked in gray, indicating that they
+% were calculated by the Ecopath mass-balance calculation, not provided as
+% input.  We'll get rid of those values for now:
+
+nob  = [30 31 44];
+noqb = 26:28;
+noee = [1:29 32:43 45:48];
+noge = [1:25 29:48];
+
+Esa.groupdata.b(nob)   = NaN;
+Esa.groupdata.bh(nob)  = NaN;
+Esa.groupdata.qb(noqb) = NaN;
+Esa.groupdata.ee(noee) = NaN;
+Esa.groupdata.ge(noge) = NaN;
+
+%%
+% Next up, diet fractions.  Here's one of my personal pet peeves:
+% publishing sparse matrices (like Ecopath diet fraction matrices) as  
+% tables of mostly empty space spread across multiple printed pages.  Can
+% we all agree to stop doing this?  Pretty please?     
+%
+% Anyway, diet data was copied and pasted from Table B8 (all 5 pages of it)
+% of the report into a csv file, which I've pasted here to minimize the
+% number of supporting files needed for this example.      
+
+dietcsv = {...
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.22725,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.04811,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.002,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00351,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.04879,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.03229,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.03176,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00032,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00326,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00046,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00042,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00061,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00047,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00044,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',0.00031,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.02287,0.00305,0.001524,0.001524,0.00915,0.0122,0.01372,0.00762,0.01524,0.04573,,,,,,,,0.01782,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00915,0.00122,0.000609,0.000609,0.00366,0.00488,0.00549,0.00305,0.0061,0.01829,,,,,,,,0.00713,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.34299,0.04573,0.022866,0.022866,0.1372,0.18293,0.20579,0.11433,0.22866,0.68598,,,,,,,,0.26724,,,0.295,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00208,0.0249,0.001245,0.001245,0.02988,0.01132,0.01494,0.03984,0.00498,,,,,,,,,0.05324,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00125,0.01504,0.000752,0.000752,0.01804,0.00683,0.00902,0.02406,0.00301,,,,,,,,,0.03215,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00054,0.00646,0.000323,0.000323,0.00775,0.00294,0.00388,0.01034,0.00129,,,,,,,,,0.01382,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.0001,0.00124,6.19E-05,6.19E-05,0.00148,0.00056,0.00074,0.00198,0.00025,,,,,,,,,0.00264,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00022,0.00258,0.000129,0.000129,0.0031,0.00117,0.00155,0.00413,0.00052,,,,,,,,,0.00552,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00022,0.00258,0.000129,0.000129,0.0031,0.00117,0.00155,0.00413,0.00052,,,,,,,,,0.00552,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.00486,0.05833,0.002917,0.002917,0.06999,0.056,0.035,0.09332,0.01167,,,,,,,,,0.12471,,,,,,,,,,,,,,,,,,,,,,,,,,'
+'0.01042,0.12498,0.00625,0.00625,0.14998,0.12,0.07499,0.19997,0.025,0.1,0.275,0.05,0.4,,0.4,0.5,0.5,0.26724,,,0.058,,,,,,,0.04,,,,,,,,,,,,,,,,'
+'0.126,0.264,0.076,0.076,0.267,0.2,0.208,0.172,0.053,0.1,0.275,0.05,0.4,0.04,0.4,0.5,0.5,0.103,0.01,0.01,0.319,0.10982,0.00802,0.068096,0.367206,0.367206,0.367206,,,,,,,,,,,,,,,,,'
+'0.375,0.05,0.025,0.025,0.15,0.4,0.225,0.225,0.25,0.05,0.3,0.6,,0.96,0.1,,,0.1,0.33,0.99,0.223,0.07968,0.03929,0.034823,0.205691,0.205691,0.205691,0.75,,,0.05,,,,,,,,,,,,,'
+'0.10416,,0.062499,0.062499,0.15,,0.2,0.1,0.4,,,,,,,,,,,,0.105,0.10982,0.00802,0.068096,0.367206,0.367206,0.367206,0.08,,,,,,,,,,,,,,,,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
+',,,,,,,,,,,,,,,,,,,,,0.01609,0.20285,0.003826,7.31E-05,7.31E-05,7.31E-05,,,,,,0.04356,,,,,,,,,,,'
+',,,,,,,,,,,,,,,,,,,,,0.01609,0.20285,0.003826,7.31E-05,7.31E-05,7.31E-05,,,,,,0.03829,,,,,,,,,,,'
+',,0.054357,0.05435,,,,,,,,,,,,,,,0.04484,,,,0.00043,,,,,0.01,0.05298,0.06795,0.06455,0.15,0.03159,,,,,,,,,,,'
+',,0.041179,0.041179,,,,,,,,,,,,,,,0.03397,,,,,,,,,0.01,0.04014,0.05147,0.0489,0.03,0.02393,,,,,,,,,,,'
+',,0.041746,0.041746,,,,,,,,,,,,,,,0.03444,,,0.00171,0.01474,8.64E-06,,,,0.01,0.04069,0.05218,0.04957,0.03,0.02426,,,,,,,,,,,'
+',,0.083492,0.083492,,,,,,,0.0189,0.0378,0.0252,,0.0126,,,,0.06888,,,0.29328,0.07363,0.32162,0.008047,0.008047,0.008047,0.03,0.08138,0.10437,0.09915,0.24,0.04852,,,0.04444,0.04444,0.04444,,,,,,'
+',,0.083492,0.083492,,,,,,,0.0189,0.0378,0.0252,,0.0126,,,,0.06888,,,0.23976,0.06719,0.440933,0.04623,0.04623,0.04623,0.01,0.08138,0.10437,0.09915,0.031,0.04852,,,0.04444,0.04444,0.04444,,,,,,'
+',,0.20873,0.20873,,,,,,,0.04724,0.09449,0.06299,,0.0315,,,,0.1722,,,0.10058,0.08491,0.038951,0.002736,0.002736,0.002736,0.05,0.20344,0.26091,0.24787,0.171,0.12131,,,0.11111,0.11111,0.11111,,,,,,'
+',,0.287004,0.287004,,,,,,,0.06496,0.12992,0.08661,,0.04331,,,,0.23678,,,0.03318,0.29806,0.019816,0.002736,0.002736,0.002736,0.01,0.5,0.35875,0.34082,0.348,0.62,0.25,0.25,0.8,0.8,0.8,0.4,0.4,0.4,,,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.25,0.25,,,,0.4,0.4,0.4,0.3,,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.25,0.25,,,,,,,,0.25,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.25,0.25,,,,0.2,0.2,0.2,0.4,,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.3,0.75,'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.5'
+',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.5'
+};
+
+dcfile = [tempname '.csv'];
+fid = fopen(dcfile, 'w+');
+fprintf(fid, '%s\n', dietcsv{:});
+fclose(fid);
+
+dc = csvread(dcfile);
+
+delete(dcfile);
+
+%%
+% One of the reasons pdf tables are a terrible way to share data: rounding
+% error.  In this case, some values must have been rounded for display;
+% diet data (plus import) should always sum to 1 for each predator, and in
+% this case it doesn't.  
+
+sum(dc,1)
+
+%%
+% We'll normalize to get a proper diet fraction table.
+
+dc = bsxfun(@rdivide, dc, sum(dc,1));
+
+Esa.dc(:,:) = num2cell(dc);
+
+
+%%
+% There are a few remaining variables that weren't really discussed in the
+% Aydin et al. report, but are necessary to replicate their Ecopath
+% calculations.
+
+% Detritus import: assume to be 0 for both detritus groups
+
+Esa.groupdata.dtImp(isdet) = zeros(ngroup-nlive,1);
+
+% Immigration/emigration: Assume 0
+
+Esa.groupdata.immig = zeros(ngroup,1);
+Esa.groupdata.emig  = zeros(ngroup,1);
+
+% Fisheries landings and discards: Assume no fisheries loss in this model.
+
+Esa.landing(:,:) = num2cell(zeros(ngroup,ngear));
+Esa.discard(:,:) = num2cell(zeros(ngroup,ngear));
+
+% Discard fate: Values don't really matter, since there are no discards to
+% redirect, but as a placeholder, split this between the two detrital
+% groups.
+
+Esa.discardFate(:,:) = {0.5, 0.5};
+
+% Finally, the detritus groups are currently listed with no biomass or
+% import.  The Aydin et al., 2003 work used a precursor to the Rpath model
+% for its calculations, rather than the more familiar EwE platform. One
+% difference between Rpath and EwE is that Rpath calculates detrital pool
+% biomass based on an assumed overturning rate.  This Matlab package also
+% allows that possibility, via the |detpb| column.  However, the rate used
+% in this particular study wasn't published, so I took the easy way out and
+% simply substituted some approximate values (for Ecopath balance purposes,
+% this number doesn't affect the calculations at all).
+
+Esa.groupdata.b(isdet) = ones(ngroup-nlive,1)*50;
+
+%% 
+% At this point, we have a fully-populated ecopathmodel object, and can
+% run the ecopath method to calculate the mass balance.
+
+Esa.ecopath
+
+##### SOURCE END #####
+--></body></html>
