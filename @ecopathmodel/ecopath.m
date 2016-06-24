@@ -731,7 +731,7 @@ function S = convertrates(S, islive)
 % EwE6 code, but either way it was really confusing me, so I've switched
 % back.
 
-if any(isnan(S.b) & (S.emigRate > 0 | S.baRate > 0))
+if any(isnan(S.b) & (~isnan(S.emigRate)| ~isnan(S.baRate)))
     warning('Missing b combined with assigned Emigration and/or BA rate: This scenario may not work... check');
 end
 
