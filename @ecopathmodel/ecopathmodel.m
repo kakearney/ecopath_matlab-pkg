@@ -348,6 +348,7 @@ classdef ecopathmodel
             gdtmp = nan(ngroup,nv);
             ispp = strcmp(gvars, 'pp');
             gdtmp(:,ispp) = p.Results.pp;
+            gdtmp(:,end) = 0; % import
             
             W = warning('off', 'Ecopathmodel:groupdataValidation');
             
@@ -588,6 +589,53 @@ classdef ecopathmodel
         end
         
         %------------------------------------------------------------------
+        function obj = set.name(obj, val)
+            validateattributes(val, {'cell'}, {'vector', 'numel', obj.ngroup});
+            if ~all(cellfun(@ischar, val))
+                error('Names must be cell array of string');
+            end
+            if ~all(cellfun(@isvarname, val))
+                warning('Names must meet variable name restirctions; modfying');
+                val = matlab.lang.makeValidName(val, 'delete');
+            end
+            
+            obj.name = val;
+            if ~isempty(obj.groupdata) % First set
+                obj.groupdata.Properties.RowNames = val;
+                obj.dc.Properties.RowNames = val;
+                obj.dc.Properties.VariableNames = val;
+                obj.landing.Properties.RowNames = val;
+                obj.discard.Properties.RowNames = val;
+
+                isdet = obj.groupdata.pp == 2;
+
+                obj.df.Properties.RowNames = val;
+                obj.df.Properties.VariableNames = val(isdet);
+                obj.discardFate.Properties.VariableNames = val(isdet);
+            end
+            
+        end
+        
+        %------------------------------------------------------------------
+        function obj = set.fleet(obj, val)
+            validateattributes(val, {'cell'}, {'vector', 'numel', obj.ngear});
+            if ~all(cellfun(@ischar, val))
+                error('Names must be cell array of string');
+            end
+            if ~all(cellfun(@isvarname, val))
+                warning('Names must meet variable name restirctions; modfying');
+                val = matlab.lang.makeValidName(val, 'delete');
+            end
+            
+            obj.fleet = val;
+            obj.landing.Properties.VariableNames = val;
+            obj.discard.Properties.VariableNames = val;
+            obj.discardFate.Properties.RowNames = val;
+            
+        end
+            
+        
+        %------------------------------------------------------------------
         function A = setstanzas(A)
         %SETSTANZAS Fill in (or validate) B, QB, and BA values for stanzas
         %
@@ -737,5 +785,7 @@ end
 function warnmessage(msg, mask, fld, tbl)
     tmp = [tbl.Properties.RowNames(mask) num2cell(tbl.(fld)(mask))]';
     str = sprintf('  %s (%.2f)\n', tmp{:});
+    wrn = warning('off', 'backtrace');
     warning('Ecopathmodel:groupdataValidation', '%s:\n%s', msg, str);
+    warning(wrn);
 end
