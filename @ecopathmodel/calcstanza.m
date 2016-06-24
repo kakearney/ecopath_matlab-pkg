@@ -63,7 +63,7 @@ if Opt.plot
     hght1 = vfrac./ns;
     hght2 = hght1*0.8;
     
-    yax = 0.05:hght1:0.9;
+    yax = 0.08:hght1:0.9;
     yax = yax(end:-1:1);
     
     if verLessThan('matlab', 'R2014b')
