@@ -76,8 +76,7 @@ if Opt.plot
     end
 end
 
-% Make sure all multi-stanza groups have B and BA (not BH or BARATE) set. 
-% TODO: Right now BAsplit override BA... still need to figure this out.
+% Make sure all multi-stanza groups have B (not BH) set
 
 calcb = A.groupdata.stanza > 0 & isnan(A.groupdata.b) & ~isnan(A.groupdata.bh);
 btmp = A.groupdata.areafrac(calcb) .*  A.groupdata.bh(calcb);
@@ -86,23 +85,34 @@ A.groupdata.b(calcb) = btmp;
 
 % Loop over multi-stanza groups
 
+idxtmp = A.stanzaindices;
+
 for is = 1:ns
     
-    idx = find(A.groupdata.stanza == is);
-    
-    [a, isrt] = sort(A.groupdata.ageStart(idx));
-    idx = idx(isrt);
+    idx = idxtmp{is};
+    a = A.groupdata.ageStart(idx);
    
     % Parameters
     
     k = A.groupdata.vbK(idx(1));               % Curvature parameter
-    if any(isnan(A.stanzadata.BABsplit))
+    
+    if isnan(A.stanzadata.BABsplit(is))
+        % If no stanza BA provided, check to see if BA rates are provided
+        % for all groups (old-style Rpath allows varing BA rates).  If not
+        % found, use just the leading stanza's BA rate value.
         bab = A.groupdata.baRate(idx);
         isn = isnan(bab);
         bab(isn) = A.groupdata.ba(idx(isn))./A.groupdata.b(idx(isn));
+        if all(isnan(bab))
+            error('No BA rate can be calculated for stanza set %d', is);
+        elseif any(isnan(bab(1:end-1))) && ~isnan(bab(end))
+            bab = bab(end);
+        end
     else
+        % Use stanza BA/B if provided
         bab = A.stanzadata.BABsplit(is);
     end
+    
     z = A.groupdata.pb(idx);
     if isnan(A.groupdata.b(idx(end)))
         blead = A.stanzadata.Btot(is);
