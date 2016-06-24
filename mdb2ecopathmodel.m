@@ -74,12 +74,15 @@ pattern = ',(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))';
 
 err = cell(0,2);
 for it = 1:length(tables)
+    
+    mdbtmp = [tempname '.txt'];
+    
     if regexpfound(tables{it}, '\s')
         tbl = regexprep(tables{it}, '([\s,<>|:\(\)&;\?\*])', '\\$1');
-        cmd = sprintf('mdb-export %s %s > mdbtmp.txt', file, tbl);
+        cmd = sprintf('mdb-export %s %s > %s', file, tbl, mdbtmp);
         tables{it} = regexprep(tables{it}, '\s', '_');
     else
-        cmd = sprintf('mdb-export %s %s > mdbtmp.txt', file, tables{it});
+        cmd = sprintf('mdb-export %s %s > %s', file, tables{it}, mdbtmp);
     end
     [s,r] = system(cmd);
     if s
@@ -89,7 +92,7 @@ for it = 1:length(tables)
     
     try
         % TODO switch from datasets to tables
-        A.(tables{it}) = dataset('File', 'mdbtmp.txt', 'Delimiter', ',');  
+        A.(tables{it}) = dataset('File', mdbtmp, 'Delimiter', ',');  
         
         vname = get(A.(tables{it}), 'VarNames');
         for iv = 1:length(vname)
@@ -106,7 +109,7 @@ for it = 1:length(tables)
             % Dataset doesn't like Access-style commas-in-quotes fields, so
             % parse those manually
 
-            [data, s] = readtext('mdbtmp.txt', ',', '', '"');
+            [data, s] = readtext(mdbtmp, ',', '', '"');
             data(s.stringMask) = regexprep(data(s.stringMask), {'(^")|("$)', '""'}, {'', '"'});
             
             tmp = cell2mat(data(s.numberMask));
