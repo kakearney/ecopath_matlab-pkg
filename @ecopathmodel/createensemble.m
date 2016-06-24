@@ -117,6 +117,7 @@ Opt.sample = validatestring(Opt.sample, {'mcs', 'lhs'}, 'createensemble', 'sampl
 % Get values corresponding to each pedigree entry
 
 vmid = getpedigreevals(A);
+nvar = length(vmid);
 
 vped = A.pedigree.pedigree;
 vciv = vmid.*vped;
@@ -132,6 +133,8 @@ sigma = sqrt(log(vvar./(vmid.^2)+1));
 
 lo = vmid - vciv;
 hi = vmid + vciv;
+
+
 
 %----------------
 % Generate sets
