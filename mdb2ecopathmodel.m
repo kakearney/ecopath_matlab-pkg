@@ -263,6 +263,8 @@ EM.groupdata.ageStart(seqs) = A.StanzaLifeStage.AgeStart;
 
 EM.stanzadata.stanzaID = A.Stanza.StanzaID;
 EM.stanzadata.BABsplit = A.Stanza.BABsplit;
+EM.stanzadata.WmatWinf = A.Stanza.WmatWinf;
+EM.stanzadata.RecPower = A.Stanza.RecPower;
 
 EM.groupdata.vbK = A.EcopathGroup.vbK;
 if iscell(EM.groupdata.vbK)
