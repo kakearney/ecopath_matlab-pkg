@@ -129,6 +129,10 @@ for it = 1:length(tables)
     end
 end
 
+if ~isfield(A, 'EcopathGroup')
+    error('Expected tables not found in file; please check that this is an EwE6-formatted file');
+end
+
 %----------------------------
 % Build ecopathmodel object
 %----------------------------
