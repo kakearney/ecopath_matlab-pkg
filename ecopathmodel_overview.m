@@ -52,10 +52,10 @@
 % adjustments.  This process allows you to preserve one copy of the base
 % model while also keeping project-specific details clearly documented.
 
-%% Importing Ecopath data
+%% Importing Ecopath with Ecosim data
 %
 % The current version of Ecopath with Ecosim stores data in
-% specially-formatted Microsoft Access database file, with the .EwEmdb
+% specially-formatted Microsoft Access database files, with the .EwEmdb
 % extension.  The |mdb2ecopathmodel| function will read data from one of
 % these files into an |ecopathmodel| object, with two caveats:
 %
@@ -66,9 +66,10 @@
 % I know that's most of the Ecopath-using community): I've never compiled
 % this tool on a Windows machine, though I know it can be done.  I don't
 % work with any Windows machines myself, so this is a big shortcoming in
-% this code base at the moment. If any of compiled mdbtools on a Windows
-% system, or have a better way of reading .mdb files into Matlab on a
-% Windows machine, please contact me!  
+% this code base at the moment. If any of you have compiled mdbtools on a
+% Windows system, or have a better way of reading .mdb files into Matlab on
+% a Windows machine (using the Database Toolbox, maybe?), please contact
+% me!  I'd love to make this utility easier to use on Windows.
 % # I expect all files to use the EwE6 format.  If you have older files,
 % you'll first need to import them into EwE6 and let its conversion tool
 % convert to the newer format.
@@ -86,14 +87,38 @@ Gen37 = mdb2ecopathmodel(fullfile(epfolder, 'Generic_37.EwEmdb'));
 % then converted to 0s when it performs the Ecopath calculation.  My code
 % replaces those placeholders on reading, and lets you know.  It also
 % alters names, if necessary.  If you're not happy with the "translation", 
-% you simply alter the |names|, |fleets|, or |stanzas| variables, and these
-% changes will propagate to the rest of the tables.  For example, I don't
-% like those trailing underscores on a couple groups:
+% you can  alter the |name|, |fleet|, or |stanza| properties of the
+% |ecopathmodel| object, and these changes will propagate to the rest of
+% the tables.  For example, I don't like those trailing underscores on a
+% couple groups:   
 
 Gen37.name{11} = 'Pelagics_Small_Carniv';
 Gen37.name{12} = 'Pelagics_Small_Herbiv';
 
 Gen37.groupdata
+
+%% Importing Rpath data
+%
+% Rpath is an R-based implementation of Ecopath with Ecosim, written by Sea
+% Lucey and Kerim Aydin.  It is available for download on GitHub:
+% https://github.com/slucey/RpathDev.  The Rpath package includes two
+% functions, read.rpath.params and write.rpath.params, to import and export
+% data from comma-delimited text files.
+%
+% This code includes a function to read data from .csv files that match the
+% format used by those two functions.  The following example reads in the
+% model described in the Rpath vignette (REco.params):
+
+rfolder = '~/Documents/Research/Working/Rpath/tests/';
+REco = rpath2ecopathmodel(fullfile(rfolder, 'REco'));
+
+%%
+% Again this function will typically issue several warinngs related to the
+% differing ways this code and Rpath use NaNs vs 0s as placeholders for
+% certain parameters.  Rpath also assigns pedigree values to all groups,
+% even non-leading stanza groups; my code doesn't allow that so those
+% values are stripped out of the pedigree table.
+
 
 %% Building an |ecopathmodel| object manually
 %
@@ -441,7 +466,90 @@ Esa.discardFate(:,:) = {0.5, 0.5};
 Esa.groupdata.b(isdet) = ones(ngroup-nlive,1)*50;
 
 %% 
-% At this point, we have a fully-populated ecopathmodel object, and can
-% run the ecopath method to calculate the mass balance.
+% At this point, we have a fully-populated ecopathmodel object
 
-Esa.ecopath
+
+%% Filling in multi-stanza group parameters
+% 
+% Multi-stanza groups in an Ecopath model represent different life stages
+% of a single functional group.  In time-dynamic models such as Ecosim,
+% growth leads to a flux of biomass from younger groups to older groups.
+% Although this tool does not explicitly include Ecosim-like calculations,
+% I do strive to maintain consistency with EwE6 and Rpath, which means that
+% multistanza groups must match the stable age distibution requirements.
+%
+% The primary |ecopathmodel| method for calculating stanza-related
+% parameters is the |calcstanza| method, which fills in the biomass (b), 
+% comsumption rates (qb), and biomass accumulation rates (ba) for all
+% groups that are part of a multistanza set.
+%
+% As an example, let's look at the REco model that we read in above.  This
+% model includes 4 multi-stanza sets, with two groups apeice:
+
+REco.stanzadata
+REco.groupdata
+
+%%
+% As you can see, the B and QB values for all the juvenile groups are
+% currently set to NaN.  Running the |calcstanza| function will fill these
+% in:
+
+REco = REco.calcstanza;
+REco.groupdata
+
+%%
+% You can look at the stable growth curve plots by using the |'plot'|
+% option:
+
+REco.calcstanza('plot', true);
+
+%%
+% The |setstanzas| method does almost the same thing as the |calcstanza|
+% method.  However, it provides a few additional checks before filling in
+% the B and QB values.  This is advantageous if you import data from an
+% EwE6 file, which has the non-leading stanza parameters already filled in.
+%  For example, let's look at another stock example from the EwE6 software,
+%  the Tampa Bay model:
+
+Tb = mdb2ecopathmodel(fullfile(epfolder, 'Tampa_Bay.EwEmdb'));
+Tb.groupdata
+Tb.stanzadata
+
+%%
+% As you can see, the non-leading group data is already present, so we
+% don't really need to recalculate it. But what would happen if we did? 
+
+Tb2 = Tb.calcstanza;
+
+bvals  = [Tb.groupdata.b  Tb2.groupdata.b  Tb.groupdata.b  - Tb2.groupdata.b]
+qbvals = [Tb.groupdata.qb Tb2.groupdata.qb Tb.groupdata.qb - Tb2.groupdata.qb]
+
+%%
+% The values aren't exactly the same.  The differences arise because of
+% some discrepancies in the way the growth curve calculations are done in
+% my code vs. in EwE6...specifically, how the tail end (age of last 10% of
+% biomass to infinity) is handled (Rpath handles things the same as I do).
+% The differences will be more noticeable in long-lived stanza sets,
+% especially in the QB variable.
+%
+% The |setstanzas| method keeps an eye out for little differences between
+% parameters that are already filled in and ones it tries to calculate.  If
+% it finds a difference that is less than 0.5% of the value, it won't alter
+% the already-filled in data.  If it finds a larger difference, it will
+% change it, but it will issue a warning (this is likely an indication that
+% the original data source used a different calculation for the stable
+% growth curve).
+
+Tb2 = Tb.calcstanza;
+Tb3 = Tb.setstanzas;
+isequaln(Tb.groupdata.b, Tb2.groupdata.b)
+isequaln(Tb.groupdata.b, Tb3.groupdata.b)
+
+
+
+
+
+
+
+
+
