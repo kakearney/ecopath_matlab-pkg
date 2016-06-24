@@ -567,7 +567,7 @@ classdef ecopathmodel
                           ismember(val.column, loc(4:5)) & ...
                           ismember(val.row, cat(1, idx{:}));
                
-                if any(isnonlead)
+                if any(isstzba)
                     warning('Cannot set pedigree value for stanza group BA or BARATE (use BABSPLIT in stanzadata table instead); removing from table');
                 end
                 
