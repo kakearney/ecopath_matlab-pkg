@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-24"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-28"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,9 +66,10 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org/">http://ecopath.org/</a>, as well as to the following journal articles:</p><p>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</p><p>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</p><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> object</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#6">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#16">Filling in multi-stanza group parameters</a></li></ul></div><h2>The <tt>ecopathmodel</tt> object<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel object, which holds all the input data related to a particular modeled ecosystem.  This includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at  required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are incorrect.  Once the model data is acceptable, and the Ecopath Parameterization calculations in EwE6 return a balanced (or at least nearly-balanced) result, move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented.</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: https://github.com/brianb/mdbtools. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files, you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
+  </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org/">http://ecopath.org/</a>, as well as to the following journal articles:</p><p>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</p><p>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</p><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> object</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#6">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#16">Filling in multi-stanza group parameters</a></li></ul></div><h2>The <tt>ecopathmodel</tt> object<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel object, which holds all the input data related to a particular modeled ecosystem.  This includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but perhaps somewhere in the neighborhood), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and clearly documenting whether parameters were changed from their data-based values for balance purposes or some other reason.</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: https://github.com/brianb/mdbtools. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files, you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
 Gen37 = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Generic_37.EwEmdb'</span>));
-</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
+</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name
+restrictions:
   Baleen whales -&gt; BaleenWhales
   Toothed whales -&gt; ToothedWhales
   Sharks, large -&gt; Sharks_Large
@@ -94,18 +95,18 @@ Gen37 = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Generic_37.EwE
   Zooplankton, other -&gt; Zooplankton_Other
   Benthic plants -&gt; BenthicPlants
  
-Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
-detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with
+zero (shifting to detpb column where empty):
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital Q/B,
+replacing with zero:
   Phytoplankton (NaN)
   BenthicPlants (NaN)
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital GE,
+replacing with zero:
   Phytoplankton (NaN)
   BenthicPlants (NaN)
   Detritus (NaN)
@@ -160,24 +161,26 @@ ans =
 
 </pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sea Lucey and Kerim Aydin.  It is available for download on GitHub: https://github.com/slucey/RpathDev.  The Rpath package includes two functions, read.rpath.params and write.rpath.params, to import and export data from comma-delimited text files.</p><p>This code includes a function to read data from .csv files that match the format used by those two functions.  The following example reads in the model described in the Rpath vignette (REco.params):</p><pre class="codeinput">rfolder = <span class="string">'~/Documents/Research/Working/Rpath/tests/'</span>;
 REco = rpath2ecopathmodel(fullfile(rfolder, <span class="string">'REco'</span>));
-</pre><pre class="codeoutput">Warning: Variable names were modified to make them valid MATLAB identifiers. 
-Warning: Detritus groups found with missing biomass; replacing with 0:
+</pre><pre class="codeoutput">Warning: Variable names were modified to make them valid MATLAB
+identifiers. 
+Warning: Detritus groups found with missing biomass; replacing
+with 0:
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
-detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with
+zero (shifting to detpb column where empty):
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital Q/B,
+replacing with zero:
   Phytoplankton (NaN)
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital GE,
+replacing with zero:
   Phytoplankton (NaN)
   Detritus (NaN)
   Discards (NaN)
@@ -204,8 +207,8 @@ Warning: NaN found in detritus import, replacing with 0:
   Zooplankton (NaN)
   Phytoplankton (NaN)
  
-Warning: Cannot set pedigree value for non-leading stanza group B, PB, or QB;
-removing from table 
+Warning: Cannot set pedigree value for non-leading stanza group
+B, PB, or QB; removing from table 
 </pre><p>Again this function will typically issue several warinngs related to the differing ways this code and Rpath use NaNs vs 0s as placeholders for certain parameters.  Rpath also assigns pedigree values to all groups, even non-leading stanza groups; my code doesn't allow that so those values are stripped out of the pedigree table.</p><h2>Building an <tt>ecopathmodel</tt> object manually<a name="6"></a></h2><p>As I mentioned above, I don't really recommend that you start a model from scratch using just this tool.  My focus when developing this code was to increase the flexibility of the Ecopath algorithm, not to replicate the EwE6 GUI capabilities (including its many data validation checks).</p><p>However, Ecopath models are very often published in peer-reviewed journals or technical reports without accompanying data files.  In these cases, you many need to manually transcribe the data from various printed tables in order to carry out additional calculations.</p><p>For this example, I'm going to use the Eastern Pacific Subarctic Gyre ecosystem model, which is the one I happened to be working with during the development of this class, and which required manual transcription. The details of that model were published in</p><p>Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci Rep 25</p><p>Start by creating an empty <tt>ecopathmodel</tt> object.  For this, you need 3 parameters:</p><div><ul><li>number of total groups</li><li>number of live groups</li><li>number of fishing gears/fleets.</li></ul></div><p>While not required, it's highly recommended that you also add the names of all groups, fleets, and stanzas, since that data is used to set up and label all the table columns and rows, and the type of each group (i.e. whether consumer, producer, or mixotroph), since that is used to validate other parameters' values as they're added.</p><pre class="codeinput">names = {<span class="keyword">...</span>
 <span class="string">'Sperm whales'</span>
 <span class="string">'Toothed whales'</span>
@@ -297,7 +300,7 @@ Esa =
      stanzadata: [0x5 table]
        pedigree: [0x4 table]
 
-</pre><p>The ecoathmodel object properties include several table arrays.  You can refer to the ecopathmodel property descriptions (<tt>help ecopathmodel</tt>) to see what parameters are stored in each table.  The variable names are all based on those used in EwE6, so they should be familiar to most Ecopath users.</p><p>Now it's time to start adding the data.  We'll start with the groupdata table, which holds all the group-related parameters.</p><pre class="codeinput">Esa.groupdata
+</pre><p>The ecopathmodel object properties include several table arrays.  You can refer to the ecopathmodel property descriptions (<tt>help ecopathmodel</tt>) to see what parameters are stored in each table.  The variable names are all based on those used in EwE6, so they should be familiar to most Ecopath users.</p><p>Now it's time to start adding the data.  We'll start with the groupdata table, which holds all the group-related parameters.</p><pre class="codeinput">Esa.groupdata
 </pre><pre class="codeoutput">
 ans = 
 
@@ -439,38 +442,39 @@ Esa.groupdata.bh(nob)  = NaN;
 Esa.groupdata.qb(noqb) = NaN;
 Esa.groupdata.ee(noee) = NaN;
 Esa.groupdata.ge(noge) = NaN;
-</pre><pre class="codeoutput">Warning: Detritus groups found with missing biomass; replacing with 0:
+</pre><pre class="codeoutput">Warning: Detritus groups found with missing biomass; replacing
+with 0:
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
-detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with
+zero (shifting to detpb column where empty):
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital Q/B,
+replacing with zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital GE,
+replacing with zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital GS, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital GS,
+replacing with zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital GE,
+replacing with zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
@@ -679,10 +683,11 @@ ans =
     Discards                  0        0         0    NaN       0      0    0        NaN    2     1           0     NaN       0        0       NaN         NaN       NaN            NaN    NaN      0     
 
 </pre><p>You can look at the stable growth curve plots by using the <tt>'plot'</tt> option:</p><pre class="codeinput">REco.calcstanza(<span class="string">'plot'</span>, true);
-</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_01.png" alt=""> <p>The <tt>setstanzas</tt> method does almost the same thing as the <tt>calcstanza</tt> method.  However, it provides a few additional checks before filling in the B and QB values.  This is advantageous if you import data from an EwE6 file, which has the non-leading stanza parameters already filled in.  For example, let's look at another stock example from the EwE6 software,  the Tampa Bay model:</p><pre class="codeinput">Tb = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Tampa_Bay.EwEmdb'</span>));
+</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_01.png" style="width:560px;height:420px;" alt=""> <p>The <tt>setstanzas</tt> method does almost the same thing as the <tt>calcstanza</tt> method.  However, it provides a few additional checks before filling in the B and QB values.  This is advantageous if you import data from an EwE6 file, which has the non-leading stanza parameters already filled in.  For example, let's look at another stock example from the EwE6 software,  the Tampa Bay model:</p><pre class="codeinput">Tb = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Tampa_Bay.EwEmdb'</span>));
 Tb.groupdata
 Tb.stanzadata
-</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
+</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name
+restrictions:
   0-12 Snook -&gt; Snook0_12
   3-12 Snook -&gt; Snook3_12
   12-48 Snook -&gt; Snook12_48
@@ -731,19 +736,19 @@ Tb.stanzadata
   Sand Trout -&gt; SandTrout
   Sea Trout -&gt; SeaTrout
  
-Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
-detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with
+zero (shifting to detpb column where empty):
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital Q/B,
+replacing with zero:
   AttachedMicroalgae (NaN)
   SeaGrass (NaN)
   Phytoplankton (NaN)
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE, replacing with
-zero:
+Warning: Non-zero value found for a producer or detrital GE,
+replacing with zero:
   AttachedMicroalgae (NaN)
   SeaGrass (NaN)
   Phytoplankton (NaN)
@@ -822,7 +827,7 @@ ans =
     SeaTrout     6           0           NaN     0.25          1     
     Snook        7           0           NaN     0.25          1     
 
-</pre><p>As you can see, the non-leading data doesn't really need to be calculated here.  But what would happen if we did?</p><pre class="codeinput">Tb2 = Tb.calcstanza;
+</pre><p>As you can see, the non-leading group data is already present, so we don't really need to recalculate it. But what would happen if we did?</p><pre class="codeinput">Tb2 = Tb.calcstanza;
 
 bvals  = [Tb.groupdata.b  Tb2.groupdata.b  Tb.groupdata.b  - Tb2.groupdata.b]
 qbvals = [Tb.groupdata.qb Tb2.groupdata.qb Tb.groupdata.qb - Tb2.groupdata.qb]
@@ -938,7 +943,7 @@ qbvals =
             0            0            0
             0            0            0
 
-</pre><p>The values aren't exactly the same.  The differences arise because of some discrepancies in the way the growth curve calculations are done, specifically, how the tail end (age of last 10% of biomass to infinity) is handled (the differences will be more noticeable in long-lived stanza sets) in the EwE6 code vs in this code (Rpath handles things the same as I do).</p><p>The <tt>setstanzas</tt> method keeps an eye out for little differences between parameters that are already filled in and ones it tries to calculate.  If it finds a difference that is less than 0.5% of the value, it won't alter the already-filled in data.  If it finds a larger difference, it will change it, but it will issue a warning.</p><pre class="codeinput">Tb2 = Tb.calcstanza;
+</pre><p>The values aren't exactly the same.  The differences arise because of some discrepancies in the way the growth curve calculations are done in my code vs. in EwE6...specifically, how the tail end (age of last 10% of biomass to infinity) is handled (Rpath handles things the same as I do). The differences will be more noticeable in long-lived stanza sets, especially in the QB variable.</p><p>The <tt>setstanzas</tt> method keeps an eye out for little differences between parameters that are already filled in and ones it tries to calculate.  If it finds a difference that is less than 0.5% of the value, it won't alter the already-filled in data.  If it finds a larger difference, it will change it, but it will issue a warning (this is likely an indication that the original data source used a different calculation for the stable growth curve).</p><pre class="codeinput">Tb2 = Tb.calcstanza;
 Tb3 = Tb.setstanzas;
 isequaln(Tb.groupdata.b, Tb2.groupdata.b)
 isequaln(Tb.groupdata.b, Tb3.groupdata.b)
@@ -995,18 +1000,20 @@ ans =
 % advantage of providing a clear "paper trail" for all your model
 % parameters, but you have to be careful that you fill in all the necessary
 % values.  While I provide a few basic checks of input, I'm not quite as
-% good as EwE6 is at  required vs. optional given the architecture of your
+% good as EwE6 is at required vs. optional given the architecture of your
 % specific ecosystem.
 %
 % Personally, I prefer a combination of the two techniques, where possible.
 % Use the EwE6 software during the initial data-gathering step of building
 % an Ecopath model.  That will allow you to take advantage of all the
-% graphical utilities that warn you when parameters are incorrect.  Once
-% the model data is acceptable, and the Ecopath Parameterization
-% calculations in EwE6 return a balanced (or at least nearly-balanced)
-% result, move over to this tool for project-specific parameter
-% adjustments.  This process allows you to preserve one copy of the base
-% model while also keeping project-specific details clearly documented.
+% graphical utilities that warn you when parameters are blatantly
+% incorrect.  Once the model data is acceptable (not necessarily
+% mass-balanced yet, but perhaps somewhere in the neighborhood), move over
+% to this tool for project-specific parameter adjustments.  This process
+% allows you to preserve one copy of the base model while also keeping
+% project-specific details clearly documented, and clearly documenting
+% whether parameters were changed from their data-based values for balance
+% purposes or some other reason.
 
 %% Importing Ecopath with Ecosim data
 %
@@ -1185,7 +1192,7 @@ names = regexprep(names, '[\s-\.'']', '');
 Esa = ecopathmodel(ngroup, nlive, ngear, 'groups', names, 'pp', pp)
 
 %%
-% The ecoathmodel object properties include several table arrays.  You can
+% The ecopathmodel object properties include several table arrays.  You can
 % refer to the ecopathmodel property descriptions (|help ecopathmodel|) to
 % see what parameters are stored in each table.  The variable names are all
 % based on those used in EwE6, so they should be familiar to most Ecopath
@@ -1472,8 +1479,8 @@ Tb.groupdata
 Tb.stanzadata
 
 %%
-% As you can see, the non-leading data doesn't really need to be calculated
-% here.  But what would happen if we did?
+% As you can see, the non-leading group data is already present, so we
+% don't really need to recalculate it. But what would happen if we did? 
 
 Tb2 = Tb.calcstanza;
 
@@ -1482,17 +1489,19 @@ qbvals = [Tb.groupdata.qb Tb2.groupdata.qb Tb.groupdata.qb - Tb2.groupdata.qb]
 
 %%
 % The values aren't exactly the same.  The differences arise because of
-% some discrepancies in the way the growth curve calculations are done,
-% specifically, how the tail end (age of last 10% of biomass to infinity)
-% is handled (the differences will be more noticeable in long-lived
-% stanza sets) in the EwE6 code vs in this code (Rpath handles things the
-% same as I do).
+% some discrepancies in the way the growth curve calculations are done in
+% my code vs. in EwE6...specifically, how the tail end (age of last 10% of
+% biomass to infinity) is handled (Rpath handles things the same as I do).
+% The differences will be more noticeable in long-lived stanza sets,
+% especially in the QB variable.
 %
 % The |setstanzas| method keeps an eye out for little differences between
 % parameters that are already filled in and ones it tries to calculate.  If
 % it finds a difference that is less than 0.5% of the value, it won't alter
 % the already-filled in data.  If it finds a larger difference, it will
-% change it, but it will issue a warning.
+% change it, but it will issue a warning (this is likely an indication that
+% the original data source used a different calculation for the stable
+% growth curve).
 
 Tb2 = Tb.calcstanza;
 Tb3 = Tb.setstanzas;

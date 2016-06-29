@@ -39,18 +39,20 @@
 % advantage of providing a clear "paper trail" for all your model
 % parameters, but you have to be careful that you fill in all the necessary
 % values.  While I provide a few basic checks of input, I'm not quite as
-% good as EwE6 is at  required vs. optional given the architecture of your
+% good as EwE6 is at required vs. optional given the architecture of your
 % specific ecosystem.
 %
 % Personally, I prefer a combination of the two techniques, where possible.
 % Use the EwE6 software during the initial data-gathering step of building
 % an Ecopath model.  That will allow you to take advantage of all the
-% graphical utilities that warn you when parameters are incorrect.  Once
-% the model data is acceptable, and the Ecopath Parameterization
-% calculations in EwE6 return a balanced (or at least nearly-balanced)
-% result, move over to this tool for project-specific parameter
-% adjustments.  This process allows you to preserve one copy of the base
-% model while also keeping project-specific details clearly documented.
+% graphical utilities that warn you when parameters are blatantly
+% incorrect.  Once the model data is acceptable (not necessarily
+% mass-balanced yet, but perhaps somewhere in the neighborhood), move over
+% to this tool for project-specific parameter adjustments.  This process
+% allows you to preserve one copy of the base model while also keeping
+% project-specific details clearly documented, and clearly documenting
+% whether parameters were changed from their data-based values for balance
+% purposes or some other reason.
 
 %% Importing Ecopath with Ecosim data
 %
@@ -229,7 +231,7 @@ names = regexprep(names, '[\s-\.'']', '');
 Esa = ecopathmodel(ngroup, nlive, ngear, 'groups', names, 'pp', pp)
 
 %%
-% The ecoathmodel object properties include several table arrays.  You can
+% The ecopathmodel object properties include several table arrays.  You can
 % refer to the ecopathmodel property descriptions (|help ecopathmodel|) to
 % see what parameters are stored in each table.  The variable names are all
 % based on those used in EwE6, so they should be familiar to most Ecopath
