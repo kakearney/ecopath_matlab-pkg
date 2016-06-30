@@ -81,13 +81,13 @@ modeldata(isnum) = cellfun(@num2str, modeldata(isnum), 'uni', 0);
 
 % Diet
 
-dc = table2array(EM.dc);
+dc = table2array(EM.dc(:,1:EM.nlive));
 is0 = dc == 0;
 dietdata = num2cell(dc);
 [dietdata{is0}] = deal('NA');
 dietdata(~is0) = cellfun(@num2str, dietdata(~is0), 'uni', 0);
 
-dietdata = [['Group' EM.name']; [EM.name dietdata]];
+dietdata = [['Group' EM.name(1:EM.nlive)']; [EM.name dietdata]];
 
 % Stanzas
 
@@ -116,7 +116,7 @@ stanzadata(isnum) = cellfun(@num2str, stanzadata(isnum), 'uni', 0);
 
 % Stanza groups
 
-stgrpcol = {'StGrpNum', 'StanzaGroup', 'nstanzas', 'VGBF_Ksp', 'VGBF_d', 'Wmat', 'RecPower'};
+stgrpcol = {'StGroupNum', 'StanzaGroup', 'nstanzas', 'VBGF_Ksp', 'VBGF_d', 'Wmat', 'RecPower'};
 
 stgrpnum = EM.stanzadata.stanzaID;
 stgrp = EM.stanza;
@@ -143,7 +143,7 @@ fid = fopen(modelfile, 'w+');
 fprintf(fid, [fmt(1:end-1) '\n'], modeldata{:});
 fclose(fid);
 
-fmt = repmat('%s,', 1, EM.ngroup+1);
+fmt = repmat('%s,', 1, EM.nlive+1);
 dietdata = dietdata';
 fid = fopen(dietfile, 'w+');
 fprintf(fid, [fmt(1:end-1) '\n'], dietdata{:});
