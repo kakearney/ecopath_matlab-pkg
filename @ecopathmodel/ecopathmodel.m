@@ -543,10 +543,10 @@ classdef ecopathmodel
                 obj.pedigree = val;
             else
                 idx = stanzaindices(obj);
-                nonlead = cellfun(@(x) x(2:end), idx, 'uni', 0);
+                nonlead = cellfun(@(x) x(1:end-1), idx, 'uni', 0);
                 nonlead = cat(1, nonlead{:});
 
-                [tf, loc] = ismember({'b','pb','qb','ba','baRate'}, obj.groupdata.Properties.VariableNames);
+                [tf, loc] = ismember({'b','pb','qb','ba','baRate','pp'}, obj.groupdata.Properties.VariableNames);
                 
                 % Can't apply pedigree to non-leading stanza group B, PB,
                 % or QB
@@ -580,8 +580,29 @@ classdef ecopathmodel
                     warning('Cannot set pedigree value for stanza ID; removing from table');
                 end
                 
-                isbad = isnonlead | isstzba | issidx;
+                
+                % Can't alter pp
+                
+                ispp = strcmp(val.property, 'groupdata') & ...
+                              val.column == loc(6);
+                if any(ispp)
+                    warning('Cannot set pedigree value for pp; removing from table');
+                end
+                
+                % Set
+                
+                isbad = isnonlead | isstzba | issidx | ispp;
                 obj.pedigree = val(~isbad,:);
+                
+                % Make sure no duplicates.  If so, use last.
+                
+                [~, idx] = unique(obj.pedigree(:,1:3), 'last');
+                obj.pedigree = obj.pedigree(idx,:);
+                
+                % Get rid of pedigrees assigned to a 0 or NaN
+                
+                vtmp = getpedigreevals(obj);
+                obj.pedigree = obj.pedigree(vtmp~=0,:);      
 
             end
             
