@@ -21,7 +21,10 @@ Ep = EM.ecopath;
 
 [~, b] = aggregate(aidx, Ep.b);
 
-bsum = 
+bsum = cellfun(@sum, b);
+bfrac = cellfun(@(x,y) x./y, b, num2cell(bsum), 'uni', 0);
+
+% Calculate weighted-average values for all other parameters
 
 
 
