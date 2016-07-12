@@ -89,6 +89,31 @@ function [x, Out] = createensemble(A, nsample, varargin)
 %               input ecopathmodel object (see subpedigreevalues method),
 %               columns correspond to rows in the pedigree table of the
 %               input ecopathmodel object.
+%
+%   Out:        1 x 1 structure with the following fields:
+%
+%               vmid:   nset x 1 array, point estimate (from center model)
+%                       for each parameter
+%
+%               mu:     nset x 1 array, mu values associated with the
+%                       lognormal distribution for each parameter
+%
+%               sig:    nset x 1 array, sigma values associated with the
+%                       lognormal distribution of each parameter 
+%
+%               lo:     nset x 1 array, the lower-end cutoff for the
+%                       uniform  and triangular distributions of each
+%                       parameter
+%
+%               hi:     nset x 1 array, of the upper-end cutoff for the
+%                       uniform and triangular distributions of each
+%                       parameter 
+%
+%               nall:   scalar, number of total parameter sets generated in
+%                       order to create the required number of parameter
+%                       sets.  For collect = 'all', this will be the same
+%                       as nset; for collect = 'balanced', it may be much
+%                       higher.
 
 % Copyright 2016 Kelly Kearney
 
@@ -129,11 +154,10 @@ vvar = (vciv./2).^2; % variance
 mu = log((vmid.^2)./sqrt(vvar+vmid.^2));
 sigma = sqrt(log(vvar./(vmid.^2)+1));
 
-% ... or upper/lower (for uniform)
+% ... or upper/lower (for uniform, triangular)
 
 lo = vmid - vciv;
 hi = vmid + vciv;
-
 
 
 %----------------
