@@ -102,7 +102,7 @@ z = z(ia);
 % Biomass and consumption of each stanza
 
 zsum = cumsum(z./12 .* da);    % Integral of Z, 0 to a
-l = exp(-zsum- xa'.*bab2);      % survivorship
+l = exp(-zsum- xa'.*bab2);     % survivorship
 
 num = l./sum(l);
 w = (1 - exp(-k.*xa'./12)).^3; % weight    
