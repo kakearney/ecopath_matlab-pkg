@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-28"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-07-12"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,10 +66,12 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org/">http://ecopath.org/</a>, as well as to the following journal articles:</p><p>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</p><p>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</p><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> object</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#6">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#16">Filling in multi-stanza group parameters</a></li></ul></div><h2>The <tt>ecopathmodel</tt> object<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel object, which holds all the input data related to a particular modeled ecosystem.  This includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but perhaps somewhere in the neighborhood), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and clearly documenting whether parameters were changed from their data-based values for balance purposes or some other reason.</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: https://github.com/brianb/mdbtools. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files, you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
+  </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org">http://ecopath.org</a>, as well as to the following journal articles:</p><div><ul><li>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</li><li>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</li></ul></div><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.  Full documentation of the class and its asscoiated methods can be accessed via the standard Matlab help format, e.g.:</p><pre class="language-matlab">help <span class="string">ecopathmodel</span>
+doc <span class="string">ecopathmodel</span>
+help <span class="string">ecopathmodel/ecopath</span>
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> object</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#6">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#16">Filling in multi-stanza group parameters</a></li><li><a href="#22">Calculating Ecopath mass balance</a></li><li><a href="#26">Generating an ensemble of Ecopath models</a></li><li><a href="#33">Network indices</a></li><li><a href="#35">Consolidating groups in a model</a></li><li><a href="#36">Converting to graph objects</a></li><li><a href="#37">Old syntax vs new syntax</a></li></ul></div><h2>The <tt>ecopathmodel</tt> object<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel object, which holds all the input data related to a particular modeled ecosystem.  This includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but perhaps somewhere in the neighborhood), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and clearly documenting whether parameters were changed from their data-based values for balance purposes or some other reason.</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: <a href="https://github.com/brianb/mdbtools">https://github.com/brianb/mdbtools</a>. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files, you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
 Gen37 = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Generic_37.EwEmdb'</span>));
-</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name
-restrictions:
+</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
   Baleen whales -&gt; BaleenWhales
   Toothed whales -&gt; ToothedWhales
   Sharks, large -&gt; Sharks_Large
@@ -95,18 +97,18 @@ restrictions:
   Zooplankton, other -&gt; Zooplankton_Other
   Benthic plants -&gt; BenthicPlants
  
-Warning: Non-zero value found for detrital P/B, replacing with
-zero (shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero
+(shifting to detpb column where empty):
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital Q/B, replacing with
+zero:
   Phytoplankton (NaN)
   BenthicPlants (NaN)
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
   Phytoplankton (NaN)
   BenthicPlants (NaN)
   Detritus (NaN)
@@ -159,28 +161,26 @@ ans =
     BenthicPlants                     2      10      0    NaN       0      0    0        NaN       1    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
     Detritus                        100       0      0      0       0      0    0        NaN       2    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
 
-</pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sea Lucey and Kerim Aydin.  It is available for download on GitHub: https://github.com/slucey/RpathDev.  The Rpath package includes two functions, read.rpath.params and write.rpath.params, to import and export data from comma-delimited text files.</p><p>This code includes a function to read data from .csv files that match the format used by those two functions.  The following example reads in the model described in the Rpath vignette (REco.params):</p><pre class="codeinput">rfolder = <span class="string">'~/Documents/Research/Working/Rpath/tests/'</span>;
-REco = rpath2ecopathmodel(fullfile(rfolder, <span class="string">'REco'</span>));
-</pre><pre class="codeoutput">Warning: Variable names were modified to make them valid MATLAB
-identifiers. 
-Warning: Detritus groups found with missing biomass; replacing
-with 0:
+</pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sea Lucey and Kerim Aydin.  It is available for download on GitHub: <a href="https://github.com/slucey/RpathDev">https://github.com/slucey/RpathDev</a>.  The Rpath package includes two functions, <tt>read.rpath.param</tt> and <tt>write.rpath.param</tt>, to import and export data from comma-delimited text files.  This code includes a function to read data from .csv files that match the format used by those two functions.  The following example reads in the model described in the Rpath vignette (REco.params):</p><pre class="codeinput">rfolder = <span class="string">'~/Documents/Research/Working/Rpath/tests/'</span>;
+REco = rpath2ecopathmodel(fullfile(rfolder, <span class="string">'reco_prestanza'</span>));
+</pre><pre class="codeoutput">Warning: Variable names were modified to make them valid MATLAB identifiers. 
+Warning: Detritus groups found with missing biomass; replacing with 0:
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for detrital P/B, replacing with
-zero (shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero
+(shifting to detpb column where empty):
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital Q/B, replacing with
+zero:
   Phytoplankton (NaN)
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
   Phytoplankton (NaN)
   Detritus (NaN)
   Discards (NaN)
@@ -207,8 +207,8 @@ Warning: NaN found in detritus import, replacing with 0:
   Zooplankton (NaN)
   Phytoplankton (NaN)
  
-Warning: Cannot set pedigree value for non-leading stanza group
-B, PB, or QB; removing from table 
+Warning: Cannot set pedigree value for non-leading stanza group B, PB, or
+QB; removing from table 
 </pre><p>Again this function will typically issue several warinngs related to the differing ways this code and Rpath use NaNs vs 0s as placeholders for certain parameters.  Rpath also assigns pedigree values to all groups, even non-leading stanza groups; my code doesn't allow that so those values are stripped out of the pedigree table.</p><h2>Building an <tt>ecopathmodel</tt> object manually<a name="6"></a></h2><p>As I mentioned above, I don't really recommend that you start a model from scratch using just this tool.  My focus when developing this code was to increase the flexibility of the Ecopath algorithm, not to replicate the EwE6 GUI capabilities (including its many data validation checks).</p><p>However, Ecopath models are very often published in peer-reviewed journals or technical reports without accompanying data files.  In these cases, you many need to manually transcribe the data from various printed tables in order to carry out additional calculations.</p><p>For this example, I'm going to use the Eastern Pacific Subarctic Gyre ecosystem model, which is the one I happened to be working with during the development of this class, and which required manual transcription. The details of that model were published in</p><p>Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci Rep 25</p><p>Start by creating an empty <tt>ecopathmodel</tt> object.  For this, you need 3 parameters:</p><div><ul><li>number of total groups</li><li>number of live groups</li><li>number of fishing gears/fleets.</li></ul></div><p>While not required, it's highly recommended that you also add the names of all groups, fleets, and stanzas, since that data is used to set up and label all the table columns and rows, and the type of each group (i.e. whether consumer, producer, or mixotroph), since that is used to validate other parameters' values as they're added.</p><pre class="codeinput">names = {<span class="keyword">...</span>
 <span class="string">'Sperm whales'</span>
 <span class="string">'Toothed whales'</span>
@@ -442,39 +442,38 @@ Esa.groupdata.bh(nob)  = NaN;
 Esa.groupdata.qb(noqb) = NaN;
 Esa.groupdata.ee(noee) = NaN;
 Esa.groupdata.ge(noge) = NaN;
-</pre><pre class="codeoutput">Warning: Detritus groups found with missing biomass; replacing
-with 0:
+</pre><pre class="codeoutput">Warning: Detritus groups found with missing biomass; replacing with 0:
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for detrital P/B, replacing with
-zero (shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero
+(shifting to detpb column where empty):
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital Q/B, replacing with
+zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital GS,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital GS, replacing with
+zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
   LargePhytoplankton (NaN)
   SmallPhytoplankton (NaN)
   DNH3 (NaN)
@@ -683,11 +682,10 @@ ans =
     Discards                  0        0         0    NaN       0      0    0        NaN    2     1           0     NaN       0        0       NaN         NaN       NaN            NaN    NaN      0     
 
 </pre><p>You can look at the stable growth curve plots by using the <tt>'plot'</tt> option:</p><pre class="codeinput">REco.calcstanza(<span class="string">'plot'</span>, true);
-</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_01.png" style="width:560px;height:420px;" alt=""> <p>The <tt>setstanzas</tt> method does almost the same thing as the <tt>calcstanza</tt> method.  However, it provides a few additional checks before filling in the B and QB values.  This is advantageous if you import data from an EwE6 file, which has the non-leading stanza parameters already filled in.  For example, let's look at another stock example from the EwE6 software,  the Tampa Bay model:</p><pre class="codeinput">Tb = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Tampa_Bay.EwEmdb'</span>));
+</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_01.png" alt=""> <p>The <tt>setstanzas</tt> method does almost the same thing as the <tt>calcstanza</tt> method.  However, it provides a few additional checks before filling in the B and QB values.  This is advantageous if you import data from an EwE6 file, which has the non-leading stanza parameters already filled in.  For example, let's look at another stock example from the EwE6 software,  the Tampa Bay model:</p><pre class="codeinput">Tb = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Tampa_Bay.EwEmdb'</span>));
 Tb.groupdata
 Tb.stanzadata
-</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name
-restrictions:
+</pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
   0-12 Snook -&gt; Snook0_12
   3-12 Snook -&gt; Snook3_12
   12-48 Snook -&gt; Snook12_48
@@ -736,19 +734,19 @@ restrictions:
   Sand Trout -&gt; SandTrout
   Sea Trout -&gt; SeaTrout
  
-Warning: Non-zero value found for detrital P/B, replacing with
-zero (shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero
+(shifting to detpb column where empty):
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital Q/B,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital Q/B, replacing with
+zero:
   AttachedMicroalgae (NaN)
   SeaGrass (NaN)
   Phytoplankton (NaN)
   Detritus (NaN)
  
-Warning: Non-zero value found for a producer or detrital GE,
-replacing with zero:
+Warning: Non-zero value found for a producer or detrital GE, replacing with
+zero:
   AttachedMicroalgae (NaN)
   SeaGrass (NaN)
   Phytoplankton (NaN)
@@ -957,27 +955,298 @@ ans =
 
      1
 
-</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+</pre><h2>Calculating Ecopath mass balance<a name="22"></a></h2><p>The primary function asscoiated with the <tt>ecopathmodel</tt> object is the Ecopath mass balance algorithm, which is called via the <tt>ecopath</tt> method. When called without any output arguments, it also calls the <tt>displaybasic</tt> method, which prints the results to the command window, using a format that somewhat mimics the "Basic Input" and "Basic Estimates" panel in the EwE6 software; filled-in values are in blue, and problematic values (e.g. EE values over 1) are in red.</p><p>We can use the Generic 37 model that we loaded above as an example.</p><pre class="codeinput">displaybasic(Gen37, [], false);
+</pre><pre class="codeoutput">    Name                       TL  HA BH  B     PB   QB  EE  GE   GS  DI 
+ 1: BaleenWhales                    1     0.001 0.03  30          0.2 0
+ 2: ToothedWhales                   1     0.002 0.05  40          0.2 0
+ 3: Seals                           1     0.003 0.07  50          0.2 0
+ 4: Birds                           1     0.001  0.1 100          0.2 0
+ 5: Sharks_Large                    1       0.1  0.3         0.15 0.2 0
+ 6: Sharks_SmallMedium              1       0.3  0.6          0.2 0.2 0
+ 7: Rays_Large                      1       0.1  0.3         0.15 0.2 0
+ 8: Rays_SmallMedium                1       0.3  0.6          0.2 0.2 0
+ 9: Pelagics_Large                  1       0.4  0.3          0.2 0.2 0
+10: Pelagics_Medium                 1       1.2  0.6         0.25 0.2 0
+11: Pelagics_Small_Carniv           1         5  0.6         0.25 0.2 0
+12: Pelagics_Small_Herbiv           1       2.5  0.6         0.25 0.2 0
+13: Benthopelagics_Large            1       0.2  0.3         0.25 0.2 0
+14: Benthopelagics_SmallMedium      1       0.4  0.6         0.25 0.2 0
+15: Demersals_Large                 1       0.5  0.3         0.15 0.2 0
+16: Demersals_Medium                1         2  0.6          0.2 0.2 0
+17: Demersals_Small                 1         5    1         0.25 0.2 0
+18: Reeffish_Large                  1       0.1  0.3         0.15 0.2 0
+19: Reeffish_Medium                 1       0.5  0.6          0.2 0.2 0
+20: Flatfish_Large                  1       0.1  0.3         0.15 0.2 0
+21: Flatfish_SmallMedium            1         1  0.8         0.25 0.2 0
+22: Reeffish_Small                  1         1    1         0.25 0.2 0
+23: Bathypelagics                   1       0.5  0.5         0.25 0.2 0
+24: Bathydemersals                  1       0.2  0.2          0.3 0.2 0
+25: Jellyfish                       1         1   10         0.25 0.2 0
+26: Cephalopods                     1       0.5    1          0.3 0.2 0
+27: Shrimps                         1         2  2.5          0.3 0.2 0
+28: Lobsters_Crabs                  1       0.5    2          0.3 0.2 0
+29: Macrobenthos                    1        10    2          0.3 0.2 0
+30: Meiobenthos                     1        15   10          0.3 0.2 0
+31: Corals                          1       0.1    1 1.5          0.2 0
+32: Softcorals_Sponges_Etc          1         2  0.2          0.3 0.2 0
+33: Krill                           1         1    5         0.25 0.2 0
+34: Zooplankton_Other               1        10   30         0.25 0.4 0
+35: Phytoplankton                   1        15  150   0        0   0 0
+36: BenthicPlants                   1         2   10   0        0   0 0
+37: Detritus                        1       100    0   0   0    0   0 0
+</pre><p>Note that I'm only using the false flag as a third input to that command since I'm sending this document through Matlab's publish feature; in typical use, you would just use:</p><pre class="language-matlab">displaybasic(Gen37);
+</pre><p>or the equivalent class-calling syntax:</p><pre class="language-matlab">Gen37.displaybasic;
+</pre><p>and get the colored output I describe above.</p><p>To calculate the missing values, as well as a few additional metrics (trophic level, flow rates between groups, etc.), call the <tt>ecopath</tt> method:</p><pre class="codeinput">Ep = Gen37.ecopath
+</pre><pre class="codeoutput">
+Ep = 
+
+           ngroup: 37
+          trophic: [37x1 double]
+         areafrac: [37x1 double]
+               bh: [37x1 double]
+                b: [37x1 double]
+               pb: [37x1 double]
+               qb: [37x1 double]
+               ee: [37x1 double]
+               ge: [37x1 double]
+               ba: [37x1 double]
+           baRate: [37x1 double]
+        migration: [37x1 double]
+        flowtodet: [38x1 double]
+         omnivory: [37x1 double]
+           neteff: [37x1 double]
+     fishMortRate: [37x1 double]
+     predMortRate: [37x1 double]
+         predMort: [37x37 double]
+    migrationRate: [37x1 double]
+    otherMortRate: [37x1 double]
+               q0: [37x37 double]
+            q0sum: [1x37 double]
+      respiration: [37x1 double]
+        detexport: 1483.3
+       searchRate: [37x37 double]
+           import: [38x1 double]
+           export: [38x1 double]
+             flow: [42x42 double]
+              Idx: [1x1 struct]
+
+</pre><p>The <tt>Ep</tt> output structure holds several different variables.  You can view the basic variables (B, PB, QB, EE, etc.) using the <tt>displaybasic</tt> method with the output structure as a second input</p><pre class="codeinput">displaybasic(Gen37, Ep, false);
+</pre><pre class="codeoutput">    Name                       TL      HA BH    B     PB   QB       EE        GE       GS  DI 
+ 1: BaleenWhales                3.49943 1 0.001 0.001 0.03       30         0    0.001 0.2 0
+ 2: ToothedWhales               4.18296 1 0.002 0.002 0.05       40         0  0.00125 0.2 0
+ 3: Seals                       4.45768 1 0.003 0.003 0.07       50  0.380952   0.0014 0.2 0
+ 4: Birds                       3.81662 1 0.001 0.001  0.1      100         0    0.001 0.2 0
+ 5: Sharks_Large                4.38218 1   0.1   0.1  0.3        2  0.333333     0.15 0.2 0
+ 6: Sharks_SmallMedium          4.03505 1   0.3   0.3  0.6        3  0.333333      0.2 0.2 0
+ 7: Rays_Large                   3.8299 1   0.1   0.1  0.3        2       0.4     0.15 0.2 0
+ 8: Rays_SmallMedium            3.86893 1   0.3   0.3  0.6        3  0.111111      0.2 0.2 0
+ 9: Pelagics_Large              4.34375 1   0.4   0.4  0.3      1.5  0.476667      0.2 0.2 0
+10: Pelagics_Medium             3.78428 1   1.2   1.2  0.6      2.4  0.905417     0.25 0.2 0
+11: Pelagics_Small_Carniv       3.07895 1     5     5  0.6      2.4  0.756129     0.25 0.2 0
+12: Pelagics_Small_Herbiv       2.22222 1   2.5   2.5  0.6      2.4  0.931111     0.25 0.2 0
+13: Benthopelagics_Large        3.71761 1   0.2   0.2  0.3      1.2  0.833333     0.25 0.2 0
+14: Benthopelagics_SmallMedium  3.79242 1   0.4   0.4  0.6      2.4  0.833333     0.25 0.2 0
+15: Demersals_Large             4.22841 1   0.5   0.5  0.3        2  0.866667     0.15 0.2 0
+16: Demersals_Medium            4.21287 1     2     2  0.6        3     0.925      0.2 0.2 0
+17: Demersals_Small             3.62327 1     5     5    1        4    0.9852     0.25 0.2 0
+18: Reeffish_Large               4.2272 1   0.1   0.1  0.3        2  0.666667     0.15 0.2 0
+19: Reeffish_Medium             3.81687 1   0.5   0.5  0.6        3       0.8      0.2 0.2 0
+20: Flatfish_Large              4.17949 1   0.1   0.1  0.3        2  0.833333     0.15 0.2 0
+21: Flatfish_SmallMedium        3.74819 1     1     1  0.8      3.2   0.69375     0.25 0.2 0
+22: Reeffish_Small               3.0945 1     1     1    1        4       0.7     0.25 0.2 0
+23: Bathypelagics               3.11357 1   0.5   0.5  0.5        2       0.2     0.25 0.2 0
+24: Bathydemersals               3.4818 1   0.2   0.2  0.2 0.666667  0.166667      0.3 0.2 0
+25: Jellyfish                   2.83673 1     1     1   10       40      0.08     0.25 0.2 0
+26: Cephalopods                 2.99196 1   0.5   0.5    1  3.33333     0.862      0.3 0.2 0
+27: Shrimps                     2.15556 1     2     2  2.5  8.33333      0.99      0.3 0.2 0
+28: Lobsters_Crabs              3.17642 1   0.5   0.5    2  6.66667      0.81      0.3 0.2 0
+29: Macrobenthos                 2.9932 1    10    10    2  6.66667  0.841633      0.3 0.2 0
+30: Meiobenthos                 2.55556 1    15    15   10  33.3333    0.6522      0.3 0.2 0
+31: Corals                        1.555 1   0.1   0.1    1      1.5      0.45 0.666667 0.2 0
+32: Softcorals_Sponges_Etc          2.5 1     2     2  0.2 0.666667     0.075      0.3 0.2 0
+33: Krill                       2.78947 1     1     1    5       20  0.675333     0.25 0.2 0
+34: Zooplankton_Other                 2 1    10    10   30      120   0.90067     0.25 0.4 0
+35: Phytoplankton                     1 1    15    15  150        0  0.527473        0   0 0
+36: BenthicPlants                     1 1     2     2   10        0 0.0333333        0   0 0
+37: Detritus                          1 1   100   100    0        0         0        0   0 0
+</pre><p>To access the data in more detail, you can browse through the variables in the output structure.  See the help page for the <tt>ecopath</tt> method for full details on each of these variables.  For the most part, they correspond to different tables in the "Parameterization (Ecopath)" panel of EwE6.</p><p>If you happen to get an error message saying that the algorithm was unable to find a solution for the center model (usually accompained by warning messages about rank deficient and/or singular matrices), this likely indicates a problem with your input data.  I do some rudimentary checks on the data, but not a comprehensive check on whether the Ecopath system of equations is over- or underdetermined.  The exact combinations of variables that need to be filled in in order to solve the system of equations can get a bit convoluted, but the primary requirements are:</p><div><ul><li>No NaNs in catch (EM.landing and EM.discard tables), immigration (EM.groupdata.immig), emigration (defined as either EM.groupdata.emig OR EM.groupdata.emigRate.*EM.groupdata.b, one must be non-NaN),  biomass accumulation (EM.groupdata.ba OR EM.groupdata.baRate.*EM.groupdata.b), or diet composition (EM.dc)</li><li>For each group, at least one of B, PB, QB, and EE must be non-NaN</li><li>Biomass (B) of unfished apex predators should be non-NaN.</li><li>Biomass (B) and consumption rate (QB) for multistanza groups should be filled in (Did you remember to run <tt>setstanzas</tt>?)</li></ul></div><p>If you've checked this, and still get a warning, I recommend using the EwE6 software. That software is better designed for the initial data-gathering process, and will give you copious feedback on which parameters are missing or redundant.  Once you have a model that will calculate in EwE6 without any popup warnings (even if it's not balanced), then you can move back over to this software.</p><h2>Generating an ensemble of Ecopath models<a name="26"></a></h2><p>The construction of a typical Ecopath model involves the compilation of a large amount of population-related data, including biomass, production rates, consumption rates, diet fractions, growth efficiencies, and assimilation efficiencies for each functional group included in the model. These data typically come from a wide variety of sources, ranging from high-quality scientific surveys to fisheries landing data, empirical relationships, and other models. The uncertainty values on these numbers can be very high, up to or beyond an order of magnitude from the point estimates, and accurate measurement of these uncertainties is rare.</p><p>The <tt>creatensemble</tt> method allows you to start exploring the uncertainty in an Ecopath model, and to incorporate that uncertainty into calculations.  It does so by varying Ecopath input parameters based on pedigree values.  The term pedigree comes from EwE6, where uncertainty values are directly linked to the assumed quality of certain data sources (for example, high-precision sampling within your ecosystem of choice has a high pedigree, which translates to a smaller confidence interval; guesstimates have a low pedigree and wide confidence interval).  I personally don't like all these layers of lookup tables (data source -&gt; pedigree index -&gt; confidence interval). In my code, pedigrees are defined as fractions of a point estimate (recommended between 0 and 1, though there's nothing restricting you from assigning values &gt;1).  In EwE6, pedigrees are assigned on a per-group basis for B, QB, PB, Diet, and Catch.  Rpath does the same, but with the ability to break the catch pedigrees up by gear types.  In this code, you can assign a pedigree value to almost any parameter stored in the ecopathmodel table properties.</p><p>The <tt>createensemble</tt> method translates pedigree values into probability distribution functions using one of 3 options:</p><div><ul><li>uniform: A uniform distribution between x-ped*x and x+ped*x</li><li>lognormal: A lognormal distribution with mean x and variance (ped*x/2)^2</li><li>triangular: A triangular distribution with a peak at x and decreasing to 0 at x-ped*x and x+ped*x</li></ul></div><p><img vspace="5" hspace="5" src="../pedigree.png" alt=""> </p><p>We'll use the Tampa Bay model as an example here.  This model doesn't include any pedigree values in the original file, so we have to add some. The easiest way to add to the pedigree table is to use the <tt>addpedigree</tt> method, though you can build it manually too.  You can add to a single element:</p><pre class="codeinput">Tb = Tb.addpedigree(<span class="string">'groupdata'</span>, <span class="string">'Snook90_'</span>, <span class="string">'b'</span>, 0.5);
+</pre><p>or to an entire column or row of data (similar to how diet pedigrees are treated in EwE6):</p><pre class="codeinput">Tb = Tb.addpedigree(<span class="string">'dc'</span>, {}, <span class="string">'Catfish'</span>, 0.2);
+Tb.pedigree
+</pre><pre class="codeoutput">
+ans = 
+
+     property      row    column    pedigree
+    ___________    ___    ______    ________
+
+    'dc'           18     34        0.2     
+    'dc'           19     34        0.2     
+    'dc'           25     34        0.2     
+    'dc'           26     34        0.2     
+    'dc'           27     34        0.2     
+    'dc'           28     34        0.2     
+    'dc'           29     34        0.2     
+    'dc'           30     34        0.2     
+    'dc'           31     34        0.2     
+    'dc'           32     34        0.2     
+    'dc'           34     34        0.2     
+    'dc'           35     34        0.2     
+    'dc'           36     34        0.2     
+    'dc'           37     34        0.2     
+    'dc'           38     34        0.2     
+    'dc'           39     34        0.2     
+    'dc'           45     34        0.2     
+    'groupdata'     5      1        0.5     
+
+</pre><p>Notice that pedigree values corresponding to variables that are 0 (such as the rows corresponding to critters that aren't part of the catfish diet) are automatically removed from the pedigree table.</p><p>With a pedigree in place, we can build an ensemble.  You can choose to return either all generated values, or only those sets that result in balanced models.</p><pre class="codeinput">x = Tb.createensemble(500, <span class="string">'pdfname'</span>, <span class="string">'uniform'</span>, <span class="string">'collect'</span>, <span class="string">'balanced'</span>);
+</pre><pre class="codeoutput">Generating ensembles...
+ 100% [=================================================&gt;] Attempted: 1033
+</pre><p>One thing to note is that the <tt>creatensemble</tt> method does not adjust parameters to meet Ecopath requirements.  That process is done by the <tt>subpedigreevalues</tt> method (which is usually called under the hood by the <tt>ecopath</tt> method).  For example, if we look at the diet composition values for the catfish (the first 17 entries in the pedigree table):</p><pre class="codeinput"><span class="comment">% Setup for histograms</span>
+
+hopts = {<span class="string">'normalization'</span>, <span class="string">'count'</span>, <span class="string">'displaystyle'</span>, <span class="string">'stairs'</span>};
+cmap = jet(17);
+
+<span class="comment">% Plot histograms of createensemble output</span>
+
+figure;
+ax(1) = subplot(2,1,1);
+hold <span class="string">on</span>;
+hh = gobjects(17,1);
+<span class="keyword">for</span> ii = 1:17
+    hh(ii) = histogram(x(:,ii), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
+<span class="keyword">end</span>
+htot = histogram(sum(x(:,1:17),2), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>);
+
+<span class="comment">% Run output through subpedigreevalues and plot histograms</span>
+
+B = Tb.subpedigreevalues(x');
+dc = reshape(B.dc, [], size(x,1));
+idx = sub2ind([Tb.ngroup Tb.ngroup], Tb.pedigree.row(1:17), Tb.pedigree.column(1:17));
+ax(2) = subplot(2,1,2);
+hold <span class="string">on</span>;
+<span class="keyword">for</span> ii = 1:17
+    histogram(dc(idx(ii),:), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
+<span class="keyword">end</span>
+histogram(sum(dc(idx,:),1), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>, <span class="string">'binlimits'</span>, [0.999 1.001]);
+
+<span class="comment">% Legend</span>
+
+htmp = plot([0 1], nan(2,18));
+set(htmp, {<span class="string">'color'</span>}, num2cell([cmap; 0 0 0],2));
+legendflex(htmp, [Tb.name(Tb.pedigree.row(1:17)); <span class="string">'Total'</span>], <span class="keyword">...</span>
+    <span class="string">'fontsize'</span>, 8, <span class="string">'interpreter'</span>, <span class="string">'none'</span>, <span class="string">'ref'</span>, ax(2), <span class="keyword">...</span>
+    <span class="string">'anchor'</span>, {<span class="string">'s'</span>,<span class="string">'n'</span>}, <span class="string">'nrow'</span>, 2, <span class="string">'xscale'</span>, 0.2, <span class="string">'buffer'</span>, [0 -20], <span class="keyword">...</span>
+    <span class="string">'box'</span>, <span class="string">'off'</span>);
+
+<span class="comment">% Titles</span>
+
+set(ax, <span class="string">'ylim'</span>, ax(1).YLim);
+title(ax(1), <span class="string">'Diet fraction values returned by createensemble'</span>);
+title(ax(2), <span class="string">'Diet fraction values after subpedigreevalues adjustment'</span>);
+</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_02.png" alt=""> <p>we can see that prior to adjustment, the distributions of the diet components are uniform-ish (minus the bits that were thrown out due to balance constraints), and the sum of diet fractions is normally distributed around 1 (central limit theorem in action!) After adjustments, the diet fraction components shift to a normal-ish distribution (more central limit theorem) and the sum of diet fractions is now exactly 1 for all parameter sets.</p><p>Similarly, if we look at the biomass of all our modeled critters:</p><pre class="codeinput">b = permute(B.groupdata(:,1,:), [1 3 2]);
+figure;
+boxplot(log10(b'), <span class="string">'orientation'</span>, <span class="string">'horizontal'</span>, <span class="string">'labels'</span>, Tb.name);
+set(gca, <span class="string">'fontsize'</span>, 8);
+xlabel(<span class="string">'log10(B)'</span>);
+</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_03.png" alt=""> <p>we can see that even though we only generated random values for one group's biomass, all the Snook stanza groups get adjusted to match that leading stanza, preserving the prescribed age growth curve.</p><p><b>Dealing with precariusly-balanced models</b></p><p>The Tampa Bay model happens to have a lot of wiggle room in its parameters, and we only applied pedigree values to a few parameters, so ~50% of the parameter sets that were generated  result in balanced parameter sets.  Most models, particularly management-oriented ones with full pedigrees, will be much less forgiving, and may take a long time to return the requested number of balanced parameter sets.</p><p>Some models may have extremely low balance rates, requiring thousands of parameter sets to be tested to get just one or two that meet the Ecopath mass balance requirements.  I refer to these as "precariously balanced." They often originate from an Ecopath model that was originally unbalanced and then had its parameters manually tweaked until it just barely squeezed under the all EE&lt;1 bar. The problem with this is that if you then nudge any single parameter just a tiny bit, it falls out of balance.</p><p>So what should you do in this case?  Option 1 is to just set the program running... if you have a few days of computer time to spare, you may eventually get an ensemble big enough for your purposes.  Option 2 is to use the 'collect all' option to take a look at your parameter space, and figure out which parameters are the biggest troublemakers.  Is it always the same one or two groups whose EE is out of bounds? If you reduce the pedigrees on all but one or two parameters at a time, can you narrow down the combos of parameters that push things out of bounds?  These sorts of analyses can get you closer to a balanced ensemble, and also may elucidate additional parameter constraints that weren't initially apparent in your raw input data.</p><h2>Network indices<a name="33"></a></h2><p>The <tt>networkindices</tt> method was inspired by Guesnet et al.'s work, which applied ecological network analysis metrics to an ensemble of Ecopath models, such as those described in the previous section:</p><p>Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-B&eacute;at B, Karimi B, Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web parameter uncertainty into Ecopath-derived ecological network indicators. Ecol Modell 313:29?40</p><p>The <tt>networkindices</tt> method provides a comparable function to Guesnet et al.'s <tt>ENAtool.m</tt> software (which is itself a wrapper around an older version of this Matlab Ecopath library).  The underlying calculations have been streamlined, and expanded to include many additional metrics from the <a href="https://cran.r-project.org/web/packages/NetIndices/index.htm">NetIndices R package</a>.</p><p>When using these network indices, one should keep in mind that many of the network index statistics are dependent on the topology of the underlying food web graph, including where one draws the boundaries between "internal" and "external" (are fishing fleets in?  What about detrital pools?), and whether one resolves import and export into multiple fluxes or a single term.  At the moment, this function offers the 'fleet' parameter to choose whether fishing fleets are internal to or external to the food web.  Additional variations may be offered in the future.</p><p>Netowrk indices can be applied to a single food web:</p><pre class="codeinput">Stats = Tb.networkindices
+</pre><pre class="codeoutput">
+Stats = 
+
+          n: 59
+       TSTp: 21099
+       TSTf: 14218
+       Ltot: 521
+       Lint: 462
+         LD: 8.8305
+          C: 0.13501
+       Tavg: 40.497
+    TSTfavg: 240.99
+       Cavg: 0.19981
+          A: 34905
+         DC: 59951
+          O: 25046
+         AC: 0.58222
+        AMI: 1.6543
+         HR: 2.2084
+         DR: 0.55409
+         RU: 0.7491
+       Hmax: 348.51
+         Hc: 282.87
+         CE: 0.81165
+       Hsys: 65.641
+        APL: 2.0664
+       TSTc: 70.395
+       TSTs: 14148
+        FCI: 0.0049509
+       FCIb: 0.0033364
+       Qsum: 597.78
+       Psum: 7020.3
+    catchTL: 2.5644
+         GE: 0.00015042
+          T: [62x62 double]
+
+</pre><p>or to an entire ensemble:</p><pre class="codeinput">StatsEns = Tb.networkindices(<span class="string">'ensemble'</span>, x')
+</pre><pre class="codeoutput">
+StatsEns = 
+
+          n: 59
+       TSTp: [1x500 double]
+       TSTf: [1x500 double]
+       Ltot: 521
+       Lint: 462
+         LD: 8.8305
+          C: 0.13501
+       Tavg: [1x500 double]
+    TSTfavg: [1x500 double]
+       Cavg: 0.19981
+          A: [1x500 double]
+         DC: [1x500 double]
+          O: [1x500 double]
+         AC: [1x500 double]
+        AMI: [1x500 double]
+         HR: [1x500 double]
+         DR: [1x500 double]
+         RU: [1x500 double]
+       Hmax: 348.51
+         Hc: [1x500 double]
+         CE: [1x500 double]
+       Hsys: [1x500 double]
+        APL: [1x500 double]
+       TSTc: [1x500 double]
+       TSTs: [1x500 double]
+        FCI: [1x500 double]
+       FCIb: [1x500 double]
+       Qsum: [1x500 double]
+       Psum: [1x500 double]
+    catchTL: [1x500 double]
+         GE: [1x500 double]
+          T: [62x62x500 double]
+
+</pre><h2>Consolidating groups in a model<a name="35"></a></h2><h2>Converting to graph objects<a name="36"></a></h2><h2>Old syntax vs new syntax<a name="37"></a></h2><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% An overview of the ecopathmodel class
 %
 % The ecopathmodel class offers a Matlab-based implementation of the
 % popular Ecopath mass-balance algorithm.  For information on the Ecopath
 % concept, I refer you to the official Ecopath with Ecosim website:
-% http://ecopath.org/, as well as to the following journal articles:
+% <http://ecopath.org>, as well as to the following journal articles:
 %
-% Christensen, V. & Pauly, D. ECOPATH IIREPLACE_WITH_DASH_DASHa software for balancing
+% * Christensen, V. & Pauly, D. ECOPATH IIREPLACE_WITH_DASH_DASHa software for balancing
 % steady-state ecosystem models and calculating network characteristics.
 % Ecological Modelling 61, 169-185 (1992).  
-% 
-% Christensen, V. & Walters, C. J. Ecopath with Ecosim: methods,
+% * Christensen, V. & Walters, C. J. Ecopath with Ecosim: methods,
 % capabilities and limitations. Ecological Modelling 172, 109-139 (2004).
 %
 % This overview assumes that you are already familiar with the Ecopath
 % concept, and simply focuses on the use of this particular
 % implementation.  Please note that this code is intended to replicate only
 % the Ecopath algorithm, not Ecosim, Ecospace, or any of the other
-% Ecopath-derived functionalities within the full EwE software.  
+% Ecopath-derived functionalities within the full EwE software.  Full
+% documentation of the class and its asscoiated methods can be accessed via
+% the standard Matlab help format, e.g.: 
+% 
+%   help ecopathmodel
+%   doc ecopathmodel
+%   help ecopathmodel/ecopath
 %
 %% The |ecopathmodel| object
 %
@@ -1023,7 +1292,7 @@ ans =
 % these files into an |ecopathmodel| object, with two caveats:
 %
 % # You need to first install the |mdbtools| set of command-line utilities.
-% They're available for download here: https://github.com/brianb/mdbtools.
+% They're available for download here: <https://github.com/brianb/mdbtools>.
 % Install instruction for *nix systems are included on GitHub; for Mac, I
 % recommend installing via either MacPorts or Homebrew.  Windows users (and
 % I know that's most of the Ecopath-using community): I've never compiled
@@ -1064,16 +1333,15 @@ Gen37.groupdata
 %
 % Rpath is an R-based implementation of Ecopath with Ecosim, written by Sea
 % Lucey and Kerim Aydin.  It is available for download on GitHub:
-% https://github.com/slucey/RpathDev.  The Rpath package includes two
-% functions, read.rpath.params and write.rpath.params, to import and export
-% data from comma-delimited text files.
-%
-% This code includes a function to read data from .csv files that match the
-% format used by those two functions.  The following example reads in the
-% model described in the Rpath vignette (REco.params):
+% <https://github.com/slucey/RpathDev>.  The Rpath package includes two
+% functions, |read.rpath.param| and |write.rpath.param|, to import and export
+% data from comma-delimited text files.  This code includes a function to
+% read data from .csv files that match the format used by those two
+% functions.  The following example reads in the model described in the
+% Rpath vignette (REco.params):  
 
 rfolder = '~/Documents/Research/Working/Rpath/tests/';
-REco = rpath2ecopathmodel(fullfile(rfolder, 'REco'));
+REco = rpath2ecopathmodel(fullfile(rfolder, 'reco_prestanza'));
 
 %%
 % Again this function will typically issue several warinngs related to the
@@ -1508,9 +1776,293 @@ Tb3 = Tb.setstanzas;
 isequaln(Tb.groupdata.b, Tb2.groupdata.b)
 isequaln(Tb.groupdata.b, Tb3.groupdata.b)
 
+%% Calculating Ecopath mass balance
+%
+% The primary function asscoiated with the |ecopathmodel| object is the
+% Ecopath mass balance algorithm, which is called via the |ecopath| method.
+% When called without any output arguments, it also calls the
+% |displaybasic| method, which prints the results to the command window,
+% using a format that somewhat mimics the "Basic Input" and "Basic
+% Estimates" panel in the EwE6 software; filled-in values are in blue, and
+% problematic values (e.g. EE values over 1) are in red.
+%
+% We can use the Generic 37 model that we loaded above as an example.
+
+displaybasic(Gen37, [], false); 
+
+%%
+% Note that I'm only using the false flag as a third input to that command
+% since I'm sending this document through Matlab's publish feature; in
+% typical use, you would just use:  
+%
+%   displaybasic(Gen37);
+%
+% or the equivalent class-calling syntax:
+%
+%   Gen37.displaybasic;
+%
+% and get the colored output I describe above.
+% 
+% To calculate the missing values, as well as a few additional metrics
+% (trophic level, flow rates between groups, etc.), call the |ecopath|
+% method:
+
+Ep = Gen37.ecopath
+
+%%
+% The |Ep| output structure holds several different variables.  You can
+% view the basic variables (B, PB, QB, EE, etc.) using the |displaybasic|
+% method with the output structure as a second input
+
+displaybasic(Gen37, Ep, false); 
+
+%%
+% To access the data in more detail, you can browse through the variables
+% in the output structure.  See the help page for the |ecopath| method for
+% full details on each of these variables.  For the most part, they
+% correspond to different tables in the "Parameterization (Ecopath)" panel
+% of EwE6.
+%
+% If you happen to get an error message saying that the algorithm was
+% unable to find a solution for the center model (usually accompained
+% by warning messages about rank deficient and/or singular matrices), this
+% likely indicates a problem with your input data.  I do some rudimentary
+% checks on the data, but not a comprehensive check on whether the Ecopath
+% system of equations is over- or underdetermined.  The exact combinations
+% of variables that need to be filled in in order to solve the system of
+% equations can get a bit convoluted, but the primary requirements are:
+%
+% * No NaNs in catch (EM.landing and EM.discard tables), immigration
+% (EM.groupdata.immig), emigration (defined as either EM.groupdata.emig OR
+% EM.groupdata.emigRate.*EM.groupdata.b, one must be non-NaN),  biomass
+% accumulation (EM.groupdata.ba OR EM.groupdata.baRate.*EM.groupdata.b), or
+% diet composition (EM.dc)    
+% * For each group, at least one of B, PB, QB, and EE must be non-NaN
+% * Biomass (B) of unfished apex predators should be non-NaN.
+% * Biomass (B) and consumption rate (QB) for multistanza groups should be
+% filled in (Did you remember to run |setstanzas|?)
+%
+% If you've checked this, and still get a warning, I recommend using the
+% EwE6 software. That software is better designed for the initial
+% data-gathering process, and will give you copious feedback on which
+% parameters are missing or redundant.  Once you have a model that will
+% calculate in EwE6 without any popup warnings (even if it's not balanced),
+% then you can move back over to this software. 
 
 
+%% Generating an ensemble of Ecopath models
+%
+% The construction of a typical Ecopath model involves the compilation of a
+% large amount of population-related data, including biomass, production
+% rates, consumption rates, diet fractions, growth efficiencies, and
+% assimilation efficiencies for each functional group included in the
+% model. These data typically come from a wide variety of sources, ranging
+% from high-quality scientific surveys to fisheries landing data, empirical
+% relationships, and other models. The uncertainty values on these numbers
+% can be very high, up to or beyond an order of magnitude from the point
+% estimates, and accurate measurement of these uncertainties is rare. 
+%
+% The |creatensemble| method allows you to start exploring the uncertainty
+% in an Ecopath model, and to incorporate that uncertainty into
+% calculations.  It does so by varying Ecopath input parameters based on
+% pedigree values.  The term pedigree comes from EwE6, where uncertainty
+% values are directly linked to the assumed quality of certain data sources
+% (for example, high-precision sampling within your ecosystem of choice has
+% a high pedigree, which translates to a smaller confidence interval;
+% guesstimates have a low pedigree and wide confidence interval).  I
+% personally don't like all these layers of lookup tables (data source ->
+% pedigree index -> confidence interval). In my code, pedigrees are
+% defined as fractions of a point estimate (recommended between
+% 0 and 1, though there's nothing restricting you from assigning values
+% >1).  In EwE6, pedigrees are assigned on a per-group basis for B, QB, PB,
+% Diet, and Catch.  Rpath does the same, but with the ability to break the
+% catch pedigrees up by gear types.  In this code, you can assign a
+% pedigree value to almost any parameter stored in the ecopathmodel table
+% properties.  
+%
+% The |createensemble| method translates pedigree values into probability
+% distribution functions using one of 3 options:
+%
+% * uniform: A uniform distribution between x-ped*x and x+ped*x
+% * lognormal: A lognormal distribution with mean x and variance
+% (ped*x/2)^2  
+% * triangular: A triangular distribution with a peak at x and decreasing
+% to 0 at x-ped*x and x+ped*x 
+%
+% <<../pedigree.png>>
+%
+% We'll use the Tampa Bay model as an example here.  This model doesn't
+% include any pedigree values in the original file, so we have to add some.
+% The easiest way to add to the pedigree table is to use the |addpedigree|
+% method, though you can build it manually too.  You can add to a single
+% element:
 
+Tb = Tb.addpedigree('groupdata', 'Snook90_', 'b', 0.5);
+
+%%
+% or to an entire column or row of data (similar to how diet pedigrees are
+% treated in EwE6):
+
+Tb = Tb.addpedigree('dc', {}, 'Catfish', 0.2);
+Tb.pedigree
+
+%%
+% Notice that pedigree values corresponding to variables that are 0 (such
+% as the rows corresponding to critters that aren't part of the catfish
+% diet) are automatically removed from the pedigree table.  
+
+%%
+% With a pedigree in place, we can build an ensemble.  You can choose to
+% return either all generated values, or only those sets that result in
+% balanced models.  
+
+x = Tb.createensemble(500, 'pdfname', 'uniform', 'collect', 'balanced');
+
+%%
+%
+% One thing to note is that the |creatensemble| method does not adjust
+% parameters to meet Ecopath requirements.  That process is done by the
+% |subpedigreevalues| method (which is usually called under the hood by the
+% |ecopath| method).  For example, if we look at the diet composition
+% values for the catfish (the first 17 entries in the pedigree table):
+
+% Setup for histograms
+
+hopts = {'normalization', 'count', 'displaystyle', 'stairs'};
+cmap = jet(17);
+
+% Plot histograms of createensemble output
+
+figure;
+ax(1) = subplot(2,1,1);
+hold on;
+hh = gobjects(17,1);
+for ii = 1:17
+    hh(ii) = histogram(x(:,ii), hopts{:}, 'edgecolor', cmap(ii,:));
+end
+htot = histogram(sum(x(:,1:17),2), hopts{:}, 'edgecolor', 'k');
+
+% Run output through subpedigreevalues and plot histograms
+
+B = Tb.subpedigreevalues(x');
+dc = reshape(B.dc, [], size(x,1));
+idx = sub2ind([Tb.ngroup Tb.ngroup], Tb.pedigree.row(1:17), Tb.pedigree.column(1:17));
+ax(2) = subplot(2,1,2);
+hold on;
+for ii = 1:17
+    histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
+end
+histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'binlimits', [0.999 1.001]);
+
+% Legend
+
+htmp = plot([0 1], nan(2,18));
+set(htmp, {'color'}, num2cell([cmap; 0 0 0],2));
+legendflex(htmp, [Tb.name(Tb.pedigree.row(1:17)); 'Total'], ...
+    'fontsize', 8, 'interpreter', 'none', 'ref', ax(2), ...
+    'anchor', {'s','n'}, 'nrow', 2, 'xscale', 0.2, 'buffer', [0 -20], ...
+    'box', 'off');
+
+% Titles
+
+set(ax, 'ylim', ax(1).YLim);
+title(ax(1), 'Diet fraction values returned by createensemble');
+title(ax(2), 'Diet fraction values after subpedigreevalues adjustment');
+
+%%
+% we can see that prior to adjustment, the distributions of the diet
+% components are uniform-ish (minus the bits that were thrown out due to
+% balance constraints), and the sum of diet fractions is normally
+% distributed around 1 (central limit theorem in action!)
+% After adjustments, the diet fraction components shift to a normal-ish
+% distribution (more central limit theorem) and the sum of diet
+% fractions is now exactly 1 for all parameter sets.
+%
+% Similarly, if we look at the biomass of all our modeled critters:
+
+b = permute(B.groupdata(:,1,:), [1 3 2]);
+figure;
+boxplot(log10(b'), 'orientation', 'horizontal', 'labels', Tb.name);
+set(gca, 'fontsize', 8);
+xlabel('log10(B)');
+
+%%
+% we can see that even though we only generated random values for one
+% group's biomass, all the Snook stanza groups get adjusted to match that
+% leading stanza, preserving the prescribed age growth curve.
+%
+% *Dealing with precariusly-balanced models*
+%
+% The Tampa Bay model happens to have a lot of wiggle room in its
+% parameters, and we only applied pedigree values to a few parameters, so
+% ~50% of the parameter sets that were generated  result in
+% balanced parameter sets.  Most models, particularly management-oriented
+% ones with full pedigrees, will be much less forgiving, and may take a
+% long time to return the requested number of balanced parameter sets.  
+%
+% Some models may have extremely low balance rates, requiring thousands of
+% parameter sets to be tested to get just one or two that meet the Ecopath
+% mass balance requirements.  I refer to these as "precariously balanced."
+% They often originate from an Ecopath model that was originally unbalanced
+% and then had its parameters manually tweaked until it just barely
+% squeezed under the all EE<1 bar. The problem with this is that if you then
+% nudge any single parameter just a tiny bit, it falls out of balance.
+%
+% So what should you do in this case?  Option 1 is to just set the program
+% running... if you have a few days of computer time to spare, you may
+% eventually get an ensemble big enough for your purposes.  Option 2 is to
+% use the 'collect all' option to take a look at your parameter space, and
+% figure out which parameters are the biggest troublemakers.  Is it always
+% the same one or two groups whose EE is out of bounds? If you reduce the
+% pedigrees on all but one or two parameters at a time, can you narrow down
+% the combos of parameters that push things out of bounds?  These sorts of
+% analyses can get you closer to a balanced ensemble, and also may
+% elucidate additional parameter constraints that weren't initially
+% apparent in your raw input data.
+
+
+%% Network indices
+%
+% The |networkindices| method was inspired by Guesnet et al.'s work, which
+% applied ecological network analysis metrics to an ensemble of Ecopath
+% models, such as those described in the previous section:
+%
+% Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-Béat B, Karimi B,
+% Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web
+% parameter uncertainty into Ecopath-derived ecological network indicators.
+% Ecol Modell 313:29?40  
+%
+% The |networkindices| method provides a comparable function to Guesnet et
+% al.'s |ENAtool.m| software (which is itself a wrapper around an older
+% version of this Matlab Ecopath library).  The underlying calculations
+% have been streamlined, and expanded to include many additional metrics from the
+% <https://cran.r-project.org/web/packages/NetIndices/index.htm NetIndices R package>.
+%
+% When using these network indices, one should keep in mind that many of
+% the network index statistics are dependent on the topology of the
+% underlying food web graph, including where one draws the boundaries
+% between "internal" and "external" (are fishing fleets in?  What about
+% detrital pools?), and whether one resolves import and export into
+% multiple fluxes or a single term.  At the moment, this function offers
+% the 'fleet' parameter to choose whether fishing fleets are internal to or
+% external to the food web.  Additional variations may be offered in the
+% future.
+%
+% Netowrk indices can be applied to a single food web:
+
+Stats = Tb.networkindices
+
+%%
+% or to an entire ensemble:
+
+StatsEns = Tb.networkindices('ensemble', x')
+
+
+%% Consolidating groups in a model
+
+%% Converting to graph objects
+
+%% Old syntax vs new syntax
 
 
 

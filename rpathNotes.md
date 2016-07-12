@@ -9,3 +9,5 @@
 
 - aggregating groups
   - what to do when biomass is missing for one or more aggregates?
+	
+- check for overdetermined on ecopath?

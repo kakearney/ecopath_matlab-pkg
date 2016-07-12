@@ -1,0 +1,781 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>networkindices</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-06-30"><meta name="DC.source" content="networkindices.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> S = networkindices(EM, varargin)
+<span class="comment">%NETWORKINDICES Calculate ecological network indices</span>
+<span class="comment">%</span>
+<span class="comment">% S = networkindices(EM)</span>
+<span class="comment">% S = networkindices(EM. p1, v1, ...)</span>
+<span class="comment">%</span>
+<span class="comment">% This function calculates a variety of network indices for an Ecopath</span>
+<span class="comment">% model.  The indices calculated are based on the NetIndices R package;</span>
+<span class="comment">% these are similar to (but in some cases not identical to) the formulas</span>
+<span class="comment">% used by Statistics and Network Analysis tools in EwE6.  I have also</span>
+<span class="comment">% included a handful of Ecopath-specific indices that are not part of the</span>
+<span class="comment">% NetIndices package.</span>
+<span class="comment">%</span>
+<span class="comment">% Note: This is still a work in progress... do not rely on values marked as</span>
+<span class="comment">% a work in progress yet.</span>
+<span class="comment">%</span>
+<span class="comment">% Input variables:</span>
+<span class="comment">%</span>
+<span class="comment">%   EM:         ecopathmodel object</span>
+<span class="comment">%</span>
+<span class="comment">% Optional input variables:</span>
+<span class="comment">%</span>
+<span class="comment">%   fleet:      How are fishing fleets treated?</span>
+<span class="comment">%               'in':   Considered nodes of the system, catches are</span>
+<span class="comment">%                       within-system fluxes, landings are considered</span>
+<span class="comment">%                       exports from the fleet node and discards to</span>
+<span class="comment">%                       detritus are within-system fluxes</span>
+<span class="comment">%               'out':  Fleets are external to the system, the landing</span>
+<span class="comment">%                       portion of catches is an export and the discard</span>
+<span class="comment">%                       portion is routed directly from fish group to</span>
+<span class="comment">%                       detritus</span>
+<span class="comment">%</span>
+<span class="comment">%   ensemble:   nped x nset array of values.  Each column represents one</span>
+<span class="comment">%               set of values to be substituted into EM using the</span>
+<span class="comment">%               subpedigreevalsues method.  If included, statistics will be</span>
+<span class="comment">%               calculated for all ensemble members rather than the central</span>
+<span class="comment">%               model defined by the ecopathmodel object.</span>
+<span class="comment">%</span>
+<span class="comment">% Output variables:</span>
+<span class="comment">%</span>
+<span class="comment">%   S:          n x 1 structure with the following fields.</span>
+<span class="comment">%</span>
+<span class="comment">%               T:          ng x ng array, Flow from compartment j to i,</span>
+<span class="comment">%                           where j represents the columns of the flow</span>
+<span class="comment">%                           matrix and i the rows (note that this</span>
+<span class="comment">%                           row/column convention is the opposite of most</span>
+<span class="comment">%                           of my Ecopath-related functions, but I've</span>
+<span class="comment">%                           preserved it for consistency with the R</span>
+<span class="comment">%                           package).</span>
+<span class="comment">%</span>
+<span class="comment">%               TSTp:       Total system throughput.</span>
+<span class="comment">%</span>
+<span class="comment">%               TSTf:       Total system throughflow.</span>
+<span class="comment">%</span>
+<span class="comment">%               Ltot:       Number of links</span>
+<span class="comment">%</span>
+<span class="comment">%               Lint:       Number of internal links</span>
+<span class="comment">%</span>
+<span class="comment">%               LD:         Link density</span>
+<span class="comment">%</span>
+<span class="comment">%               C:          Connectance</span>
+<span class="comment">%</span>
+<span class="comment">%               Tavg:       Average link weight</span>
+<span class="comment">%</span>
+<span class="comment">%               TSTfavg:    Average compartment throughflow</span>
+<span class="comment">%</span>
+<span class="comment">%               Cavg:       Compartmentalization</span>
+<span class="comment">%</span>
+<span class="comment">%               A:          Ascendency</span>
+<span class="comment">%</span>
+<span class="comment">%               DC:         Development capacity</span>
+<span class="comment">%</span>
+<span class="comment">%               O:          System overhead</span>
+<span class="comment">%</span>
+<span class="comment">%               AC:         Extent of development</span>
+<span class="comment">%</span>
+<span class="comment">%               TSTc:       Total system cycled throughflow (work in</span>
+<span class="comment">%                           progress)</span>
+<span class="comment">%</span>
+<span class="comment">%               TSTs:       Total system non-cycled throughflow (work in</span>
+<span class="comment">%                           progress)</span>
+<span class="comment">%</span>
+<span class="comment">%               FCI:        Finn's cycling index (work in progress)</span>
+<span class="comment">%</span>
+<span class="comment">%               FCIb:       Revised Finn's cycling index (work in progress)</span>
+<span class="comment">%</span>
+<span class="comment">%               Qsum:       Sum of consumption</span>
+<span class="comment">%</span>
+<span class="comment">%               Psum:       Sum of production</span>
+<span class="comment">%</span>
+<span class="comment">%               catchTL:    mean trophic level of catch</span>
+<span class="comment">%</span>
+<span class="comment">%               GE:         gross efficiency (catches/net primary</span>
+<span class="comment">%                           production)</span>
+
+<span class="comment">% Copyright 2016 Kelly Kearney</span>
+
+p = inputParser;
+p.addParameter(<span class="string">'fleet'</span>, <span class="string">'in'</span>);
+p.addParameter(<span class="string">'ensemble'</span>, zeros(height(EM.pedigree),0), @(x) validateattributes(x, {<span class="string">'numeric'</span>}, {<span class="string">'2d'</span>, <span class="string">'nrows'</span>, height(EM.pedigree)}));
+p.parse(varargin{:});
+
+Opt = p.Results;
+Opt.fleet = validatestring(Opt.fleet, {<span class="string">'in'</span>, <span class="string">'out'</span>});
+
+
+<span class="keyword">if</span> isempty(Opt.ensemble)
+    Ep = EM.ecopath;
+    B = struct;
+<span class="keyword">else</span>
+    [~, Ep] = EM.ecopath(<span class="string">'ensemble'</span>, Opt.ensemble);
+    B = EM.subpedigreevalues(Opt.ensemble);
+<span class="keyword">end</span>
+
+nens = length(Ep);
+<span class="keyword">for</span> ii = nens:-1:1
+
+    <span class="comment">%------------------</span>
+    <span class="comment">% Transport/flow</span>
+    <span class="comment">% matrix</span>
+    <span class="comment">%------------------</span>
+
+    flds = {<span class="string">'landing'</span>, <span class="string">'discard'</span>, <span class="string">'discardFate'</span>};
+    <span class="keyword">for</span> ifld = 1:length(flds)
+        <span class="keyword">if</span> isfield(B, flds{ifld})
+            In.(flds{ifld}) = B.(flds{ifld})(:,:,ii);
+        <span class="keyword">else</span>
+            In.(flds{ifld}) = table2array(EM.(flds{ifld}));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+
+    <span class="keyword">switch</span> Opt.fleet
+        <span class="keyword">case</span> <span class="string">'in'</span>
+            <span class="keyword">if</span> ii == nens
+                exidx = [Ep(ii).Idx.out Ep(ii).Idx.lan];
+                inidx = [Ep(ii).Idx.gpp];
+                uuidx = Ep(ii).Idx.res;
+
+                idx = setdiff(1:size(Ep(ii).flow,1), [exidx inidx uuidx]);
+            <span class="keyword">end</span>
+
+            S(ii).n = length(idx);
+
+            S(ii).T = zeros(S(ii).n + 3);
+            S(ii).T(1:S(ii).n,1:S(ii).n) = Ep(ii).flow(idx,idx);
+
+            S(ii).T(1:S(ii).n,S(ii).n+1) = sum(Ep(ii).flow(idx,exidx), 2);
+            S(ii).T(1:S(ii).n,S(ii).n+2) = Ep(ii).flow(idx,uuidx);
+            S(ii).T(S(ii).n+3,1:S(ii).n) = Ep(ii).flow(inidx,idx);
+
+        <span class="keyword">case</span> <span class="string">'out'</span>
+
+            <span class="keyword">if</span> ii == nens
+                exidx = [Ep(ii).Idx.out Ep(ii).Idx.lan];
+                inidx = [Ep(ii).Idx.gpp];
+                uuidx = Ep(ii).Idx.res;
+
+                idx = setdiff(1:size(Ep(ii).flow,1), [exidx inidx uuidx Ep(ii).Idx.gear]);
+            <span class="keyword">end</span>
+
+            <span class="comment">% First, reroute flows so bypass gears</span>
+
+            catches = [sum(In.landing,2) In.discard];
+            fate1 = [zeros(1,EM.ngroup-EM.nlive); In.discardFate];
+            fate1 = [fate1 1-sum(fate1,2)];
+
+            ttmp = Ep(ii).flow;
+            ttmp(Ep(ii).Idx.gear,:) = 0;
+            ttmp(:,Ep(ii).Idx.gear) = 0;
+            ttmp([Ep(ii).Idx.liv Ep(ii).Idx.det], [Ep(ii).Idx.det, Ep(ii).Idx.lan]) = <span class="keyword">...</span>
+                ttmp([Ep(ii).Idx.liv Ep(ii).Idx.det], [Ep(ii).Idx.det, Ep(ii).Idx.lan]) + catches*fate1;
+
+            <span class="comment">% Convert to T</span>
+
+            S(ii).n = length(idx);
+
+            S(ii).T = zeros(S(ii).n + 3);
+            S(ii).T(1:S(ii).n,1:S(ii).n) = ttmp(idx,idx);
+
+            S(ii).T(1:S(ii).n,S(ii).n+1) = sum(ttmp(idx,exidx), 2);
+            S(ii).T(1:S(ii).n,S(ii).n+2) = ttmp(idx,uuidx);
+            S(ii).T(S(ii).n+3,1:S(ii).n) = ttmp(inidx,idx);
+
+    <span class="keyword">end</span>
+
+    S(ii).T = S(ii).T'; <span class="comment">% T_ij, i = sink, j = source</span>
+
+    <span class="comment">%------------------------</span>
+    <span class="comment">% General network indices</span>
+    <span class="comment">%------------------------</span>
+
+    <span class="comment">% Total system throughput</span>
+
+    S(ii).TSTp = sum(S(ii).T(:));
+
+    <span class="comment">% Total system throughflow</span>
+
+    S(ii).TSTf = sum(reshape(S(ii).T(1:S(ii).n,1:S(ii).n),[],1)) + <span class="keyword">...</span>
+             sum(S(ii).T(:,S(ii).n+3)) - sum(S(ii).T(S(ii).n+1,:)) - sum(S(ii).T(S(ii).n+2,:));
+
+    <span class="comment">% Number of links</span>
+
+    <span class="keyword">if</span> ii == nens
+        S(ii).Ltot = nnz(S(ii).T);
+    <span class="keyword">else</span>
+        S(ii).Ltot = S(nens).Ltot;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Number of internal links</span>
+
+    <span class="keyword">if</span> ii == nens
+        S(ii).Lint = nnz(S(ii).T(1:S(ii).n,1:S(ii).n));
+    <span class="keyword">else</span>
+        S(ii).Lint = S(nens).Lint;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Link density</span>
+
+    <span class="keyword">if</span> ii == nens
+        S(ii).LD = S(ii).Ltot./S(ii).n;
+    <span class="keyword">else</span>
+        S(ii).LD = S(nens).LD;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Connectance</span>
+
+    <span class="keyword">if</span> ii == nens
+        S(ii).C = S(ii).Lint./(S(ii).n*(S(ii).n-1));
+    <span class="keyword">else</span>
+        S(ii).C = S(nens).C;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Average link weight</span>
+
+    S(ii).Tavg = S(ii).TSTp./S(ii).Ltot;
+
+    <span class="comment">% Average compartment throughflow</span>
+
+    S(ii).TSTfavg = S(ii).TSTf./S(ii).n;
+
+    <span class="comment">% Compartmentalization</span>
+
+    <span class="keyword">if</span> ii == nens
+        adj = S(ii).T(1:S(ii).n,1:S(ii).n) &gt; 0;
+        c = zeros(size(adj));
+        <span class="keyword">for</span> ir = 1:S(ii).n
+            <span class="keyword">for</span> jj = 1:S(ii).n
+                c(ir,jj) = (sum(adj(:,ir) &amp; adj(:,jj)) + sum(adj(ir,:) &amp; adj(jj,:))) ./ <span class="keyword">...</span>
+                           (sum(adj(:,ir) | adj(:,jj)) + sum(adj(ir,:) | adj(jj,:)));
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        S(ii).Cavg = sum(c(~eye(size(c))))./(S(ii).n*(S(ii).n-1));
+    <span class="keyword">else</span>
+        S(ii).Cavg = S(nens).Cavg;
+    <span class="keyword">end</span>
+
+    <span class="comment">%------------------------</span>
+    <span class="comment">% Growth and development</span>
+    <span class="comment">% Indices</span>
+    <span class="comment">%------------------------</span>
+
+    <span class="comment">% Ascendency</span>
+
+    TixTj = bsxfun(@times, sum(S(ii).T,1), sum(S(ii).T,2));
+
+    tmp = S(ii).T .* log2(S(ii).T.*S(ii).TSTp./TixTj);
+    S(ii).A = nansum(tmp(:));
+
+    <span class="comment">% Development capacity</span>
+
+    tmp = S(ii).T .* log2(S(ii).T./S(ii).TSTp);
+    S(ii).DC = -nansum(tmp(:));
+
+    <span class="comment">% Overhead</span>
+
+    S(ii).O = S(ii).DC - S(ii).A;
+
+    <span class="comment">% Extent of development</span>
+
+    S(ii).AC = S(ii).A./S(ii).DC;
+
+    <span class="comment">%------------------------</span>
+    <span class="comment">% Pathway analysis</span>
+    <span class="comment">%------------------------</span>
+
+    <span class="comment">% TODO: Need to test this vs R NetIndices results</span>
+
+    <span class="comment">% Total system cycled throughflow</span>
+
+    Tstar = S(ii).T(1:S(ii).n,1:S(ii).n);
+    Tj = sum(Tstar,1); <span class="comment">% sum outflows</span>
+    Ti = sum(Tstar,2); <span class="comment">% sum inflows</span>
+
+    I = eye(S(ii).n);
+
+    compTF = max(Ti', Tj);
+    Qij = bsxfun(@rdivide, Tstar, compTF);
+    IQ = I - Qij;
+    M = inv(IQ);
+    diaM = diag(M);
+
+    S(ii).TSTc = sum((1 - 1./diaM).*Tj');
+
+<span class="comment">%     Gstar = Tstar./bsxfun(@max, Ti, Tj);</span>
+<span class="comment">%     Gstar = Tstar./max([Ti' Tj]);</span>
+<span class="comment">%     Gstar(isnan(Gstar)) = 0;</span>
+
+<span class="comment">%</span>
+<span class="comment">%     Q = inv(I - Gstar);</span>
+<span class="comment">%</span>
+<span class="comment">%     S(ii).TSTc = sum((1 - diag(Q)).*Tj'); % TODO: not right, getting negatives</span>
+<span class="comment">%</span>
+    <span class="comment">% Total system non-cycled throughflow</span>
+
+    S(ii).TSTs = S(ii).TSTf - S(ii).TSTc;
+
+    <span class="comment">% Finn's cycling index</span>
+
+    S(ii).FCI = S(ii).TSTc./S(ii).TSTf;
+
+    <span class="comment">% Revised Finn's cycling index</span>
+
+    S(ii).FCIb = S(ii).TSTc./S(ii).TSTp;
+
+    <span class="comment">%------------------------</span>
+    <span class="comment">% Environ analysis</span>
+    <span class="comment">%------------------------</span>
+
+<span class="comment">%     % Transitive closure matrix</span>
+<span class="comment">%</span>
+<span class="comment">%     S(ii).G = bsxfun(@rdivide, Tstar, Tj);</span>
+<span class="comment">%     S(ii).G(isnan(S(ii).G)) = 0;</span>
+<span class="comment">%</span>
+<span class="comment">%     % Integral nondimensional matrix</span>
+<span class="comment">%</span>
+<span class="comment">%     S(ii).N = inv(I - S(ii).G);</span>
+
+    <span class="comment">%-------------------</span>
+    <span class="comment">% Ecopath statistics</span>
+    <span class="comment">%-------------------</span>
+
+    S(ii).Qsum = sum(Ep(ii).q0sum(1:EM.nlive)); <span class="comment">% Sum of consumption</span>
+    S(ii).Psum = sum(Ep(ii).pb .* Ep(ii).b); <span class="comment">% Sum of production</span>
+
+    fmort = Ep(ii).fishMortRate .* Ep(ii).b;
+    S(ii).catchTL = sum(fmort./sum(fmort) .* Ep(ii).trophic);
+
+    netpp = sum(Ep(ii).pb .* Ep(ii).b .* (EM.groupdata.pp == 1));
+    S(ii).GE = sum(fmort)./netpp;
+
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">The class ecopathmodel has no Constant property or Static method named 'networkindices'.
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function S = networkindices(EM, varargin)
+%NETWORKINDICES Calculate ecological network indices
+%
+% S = networkindices(EM)
+% S = networkindices(EM. p1, v1, ...)
+%
+% This function calculates a variety of network indices for an Ecopath
+% model.  The indices calculated are based on the NetIndices R package;
+% these are similar to (but in some cases not identical to) the formulas
+% used by Statistics and Network Analysis tools in EwE6.  I have also
+% included a handful of Ecopath-specific indices that are not part of the
+% NetIndices package.
+%
+% Note: This is still a work in progress... do not rely on values marked as
+% a work in progress yet.
+%
+% Input variables:
+%
+%   EM:         ecopathmodel object
+%
+% Optional input variables:
+%
+%   fleet:      How are fishing fleets treated?
+%               'in':   Considered nodes of the system, catches are
+%                       within-system fluxes, landings are considered
+%                       exports from the fleet node and discards to
+%                       detritus are within-system fluxes  
+%               'out':  Fleets are external to the system, the landing
+%                       portion of catches is an export and the discard
+%                       portion is routed directly from fish group to
+%                       detritus
+%
+%   ensemble:   nped x nset array of values.  Each column represents one
+%               set of values to be substituted into EM using the
+%               subpedigreevalsues method.  If included, statistics will be
+%               calculated for all ensemble members rather than the central
+%               model defined by the ecopathmodel object.
+%
+% Output variables:
+%
+%   S:          n x 1 structure with the following fields.
+%
+%               T:          ng x ng array, Flow from compartment j to i,
+%                           where j represents the columns of the flow
+%                           matrix and i the rows (note that this
+%                           row/column convention is the opposite of most
+%                           of my Ecopath-related functions, but I've
+%                           preserved it for consistency with the R
+%                           package).
+%
+%               TSTp:       Total system throughput.  
+%
+%               TSTf:       Total system throughflow.
+%
+%               Ltot:       Number of links
+%
+%               Lint:       Number of internal links
+%           
+%               LD:         Link density
+%
+%               C:          Connectance
+%
+%               Tavg:       Average link weight
+%
+%               TSTfavg:    Average compartment throughflow
+%
+%               Cavg:       Compartmentalization
+%
+%               A:          Ascendency
+%
+%               DC:         Development capacity
+%
+%               O:          System overhead
+%
+%               AC:         Extent of development
+%
+%               TSTc:       Total system cycled throughflow (work in
+%                           progress) 
+%
+%               TSTs:       Total system non-cycled throughflow (work in
+%                           progress)
+%
+%               FCI:        Finn's cycling index (work in progress)
+%
+%               FCIb:       Revised Finn's cycling index (work in progress)
+%
+%               Qsum:       Sum of consumption
+%
+%               Psum:       Sum of production
+%
+%               catchTL:    mean trophic level of catch
+%
+%               GE:         gross efficiency (catches/net primary
+%                           production) 
+
+% Copyright 2016 Kelly Kearney
+
+p = inputParser;
+p.addParameter('fleet', 'in');
+p.addParameter('ensemble', zeros(height(EM.pedigree),0), @(x) validateattributes(x, {'numeric'}, {'2d', 'nrows', height(EM.pedigree)})); 
+p.parse(varargin{:});
+
+Opt = p.Results;
+Opt.fleet = validatestring(Opt.fleet, {'in', 'out'});
+
+
+if isempty(Opt.ensemble)
+    Ep = EM.ecopath;
+    B = struct;
+else
+    [~, Ep] = EM.ecopath('ensemble', Opt.ensemble);
+    B = EM.subpedigreevalues(Opt.ensemble);
+end
+
+nens = length(Ep);
+for ii = nens:-1:1
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % Transport/flow 
+    % matrix
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    
+    flds = {'landing', 'discard', 'discardFate'};
+    for ifld = 1:length(flds)
+        if isfield(B, flds{ifld})
+            In.(flds{ifld}) = B.(flds{ifld})(:,:,ii);
+        else
+            In.(flds{ifld}) = table2array(EM.(flds{ifld}));
+        end
+    end
+    
+
+    switch Opt.fleet
+        case 'in'
+            if ii == nens
+                exidx = [Ep(ii).Idx.out Ep(ii).Idx.lan];
+                inidx = [Ep(ii).Idx.gpp];
+                uuidx = Ep(ii).Idx.res;
+
+                idx = setdiff(1:size(Ep(ii).flow,1), [exidx inidx uuidx]);
+            end
+
+            S(ii).n = length(idx);
+
+            S(ii).T = zeros(S(ii).n + 3);
+            S(ii).T(1:S(ii).n,1:S(ii).n) = Ep(ii).flow(idx,idx);
+
+            S(ii).T(1:S(ii).n,S(ii).n+1) = sum(Ep(ii).flow(idx,exidx), 2);
+            S(ii).T(1:S(ii).n,S(ii).n+2) = Ep(ii).flow(idx,uuidx);
+            S(ii).T(S(ii).n+3,1:S(ii).n) = Ep(ii).flow(inidx,idx);
+
+        case 'out'
+
+            if ii == nens
+                exidx = [Ep(ii).Idx.out Ep(ii).Idx.lan];
+                inidx = [Ep(ii).Idx.gpp];
+                uuidx = Ep(ii).Idx.res;
+
+                idx = setdiff(1:size(Ep(ii).flow,1), [exidx inidx uuidx Ep(ii).Idx.gear]);
+            end
+            
+            % First, reroute flows so bypass gears
+
+            catches = [sum(In.landing,2) In.discard];
+            fate1 = [zeros(1,EM.ngroup-EM.nlive); In.discardFate]; 
+            fate1 = [fate1 1-sum(fate1,2)];
+
+            ttmp = Ep(ii).flow;
+            ttmp(Ep(ii).Idx.gear,:) = 0;
+            ttmp(:,Ep(ii).Idx.gear) = 0;
+            ttmp([Ep(ii).Idx.liv Ep(ii).Idx.det], [Ep(ii).Idx.det, Ep(ii).Idx.lan]) = ...
+                ttmp([Ep(ii).Idx.liv Ep(ii).Idx.det], [Ep(ii).Idx.det, Ep(ii).Idx.lan]) + catches*fate1;
+
+            % Convert to T
+
+            S(ii).n = length(idx);
+
+            S(ii).T = zeros(S(ii).n + 3);
+            S(ii).T(1:S(ii).n,1:S(ii).n) = ttmp(idx,idx);
+
+            S(ii).T(1:S(ii).n,S(ii).n+1) = sum(ttmp(idx,exidx), 2);
+            S(ii).T(1:S(ii).n,S(ii).n+2) = ttmp(idx,uuidx);
+            S(ii).T(S(ii).n+3,1:S(ii).n) = ttmp(inidx,idx);
+
+    end
+
+    S(ii).T = S(ii).T'; % T_ij, i = sink, j = source
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % General network indices
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+    % Total system throughput
+
+    S(ii).TSTp = sum(S(ii).T(:));
+
+    % Total system throughflow
+
+    S(ii).TSTf = sum(reshape(S(ii).T(1:S(ii).n,1:S(ii).n),[],1)) + ...
+             sum(S(ii).T(:,S(ii).n+3)) - sum(S(ii).T(S(ii).n+1,:)) - sum(S(ii).T(S(ii).n+2,:));
+
+    % Number of links
+
+    if ii == nens
+        S(ii).Ltot = nnz(S(ii).T);
+    else
+        S(ii).Ltot = S(nens).Ltot;
+    end
+
+    % Number of internal links
+
+    if ii == nens
+        S(ii).Lint = nnz(S(ii).T(1:S(ii).n,1:S(ii).n));
+    else
+        S(ii).Lint = S(nens).Lint;
+    end
+
+    % Link density
+
+    if ii == nens
+        S(ii).LD = S(ii).Ltot./S(ii).n;
+    else
+        S(ii).LD = S(nens).LD;
+    end
+
+    % Connectance
+
+    if ii == nens
+        S(ii).C = S(ii).Lint./(S(ii).n*(S(ii).n-1));
+    else
+        S(ii).C = S(nens).C;
+    end
+
+    % Average link weight
+
+    S(ii).Tavg = S(ii).TSTp./S(ii).Ltot;
+
+    % Average compartment throughflow
+
+    S(ii).TSTfavg = S(ii).TSTf./S(ii).n; 
+
+    % Compartmentalization
+
+    if ii == nens
+        adj = S(ii).T(1:S(ii).n,1:S(ii).n) > 0;
+        c = zeros(size(adj));
+        for ir = 1:S(ii).n
+            for jj = 1:S(ii).n
+                c(ir,jj) = (sum(adj(:,ir) & adj(:,jj)) + sum(adj(ir,:) & adj(jj,:))) ./ ...
+                           (sum(adj(:,ir) | adj(:,jj)) + sum(adj(ir,:) | adj(jj,:)));
+            end
+        end
+
+        S(ii).Cavg = sum(c(~eye(size(c))))./(S(ii).n*(S(ii).n-1));
+    else
+        S(ii).Cavg = S(nens).Cavg;
+    end
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % Growth and development
+    % Indices
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+    % Ascendency
+
+    TixTj = bsxfun(@times, sum(S(ii).T,1), sum(S(ii).T,2));
+
+    tmp = S(ii).T .* log2(S(ii).T.*S(ii).TSTp./TixTj);
+    S(ii).A = nansum(tmp(:));
+
+    % Development capacity
+
+    tmp = S(ii).T .* log2(S(ii).T./S(ii).TSTp);
+    S(ii).DC = -nansum(tmp(:));
+
+    % Overhead
+
+    S(ii).O = S(ii).DC - S(ii).A;
+
+    % Extent of development
+
+    S(ii).AC = S(ii).A./S(ii).DC;
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % Pathway analysis
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+    % TODO: Need to test this vs R NetIndices results
+    
+    % Total system cycled throughflow
+
+    Tstar = S(ii).T(1:S(ii).n,1:S(ii).n);
+    Tj = sum(Tstar,1); % sum outflows
+    Ti = sum(Tstar,2); % sum inflows
+
+    I = eye(S(ii).n);
+
+    compTF = max(Ti', Tj);
+    Qij = bsxfun(@rdivide, Tstar, compTF);
+    IQ = I - Qij;
+    M = inv(IQ);
+    diaM = diag(M);
+    
+    S(ii).TSTc = sum((1 - 1./diaM).*Tj');
+    
+%     Gstar = Tstar./bsxfun(@max, Ti, Tj);
+%     Gstar = Tstar./max([Ti' Tj]);
+%     Gstar(isnan(Gstar)) = 0;
+    
+% 
+%     Q = inv(I - Gstar);
+% 
+%     S(ii).TSTc = sum((1 - diag(Q)).*Tj'); % TODO: not right, getting negatives
+%     
+    % Total system non-cycled throughflow
+    
+    S(ii).TSTs = S(ii).TSTf - S(ii).TSTc;
+    
+    % Finn's cycling index
+    
+    S(ii).FCI = S(ii).TSTc./S(ii).TSTf;
+    
+    % Revised Finn's cycling index
+    
+    S(ii).FCIb = S(ii).TSTc./S(ii).TSTp;
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+    % Environ analysis
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH
+
+%     % Transitive closure matrix
+%     
+%     S(ii).G = bsxfun(@rdivide, Tstar, Tj);
+%     S(ii).G(isnan(S(ii).G)) = 0;
+%     
+%     % Integral nondimensional matrix
+%     
+%     S(ii).N = inv(I - S(ii).G);
+
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    % Ecopath statistics
+    %REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    
+    S(ii).Qsum = sum(Ep(ii).q0sum(1:EM.nlive)); % Sum of consumption
+    S(ii).Psum = sum(Ep(ii).pb .* Ep(ii).b); % Sum of production
+    
+    fmort = Ep(ii).fishMortRate .* Ep(ii).b;
+    S(ii).catchTL = sum(fmort./sum(fmort) .* Ep(ii).trophic);
+    
+    netpp = sum(Ep(ii).pb .* Ep(ii).b .* (EM.groupdata.pp == 1));
+    S(ii).GE = sum(fmort)./netpp;
+    
+
+end
+##### SOURCE END #####
+--></body></html>
