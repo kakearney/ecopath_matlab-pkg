@@ -63,30 +63,37 @@ A.fleet = A.fleet(fltorder);
 
 % Change row/column indices of pedigree table to match
 
-[~,rowgrp] = ismember(A.pedigree.row, grporder);
-[~,rowflt] = ismember(A.pedigree.row, fltorder);
-[~,colgrp] = ismember(A.pedigree.column, grporder);
-[~,coldet] = ismember(A.pedigree.column, detorder);
-[~,colflt] = ismember(A.pedigree.column, fltorder);
+if ~isempty(A.pedigree)
 
-isgrp = strcmp(A.pedigree.property, 'groupdata');
-A.pedigree.row(isgrp) = rowgrp(isgrp);
+    [~,rowgrp] = ismember(A.pedigree.row, grporder);
+    [~,rowflt] = ismember(A.pedigree.row, fltorder);
+    [~,colgrp] = ismember(A.pedigree.column, grporder);
+    [~,coldet] = ismember(A.pedigree.column, detorder);
+    [~,colflt] = ismember(A.pedigree.column, fltorder);
 
-isdc = strcmp(A.pedigree.property, 'dc');
-A.pedigree.row(isdc)    = rowgrp(isdc);
-A.pedigree.column(isdc) = colgrp(isdc);
+    Ped = A.pedigree;
 
-iscatch = ismember(A.pedigree.property, {'landing', 'discard'});
-A.pedigree.row(iscatch)    = rowgrp(iscatch);
-A.pedigree.column(iscatch) = colflt(iscatch);
+    isgrp = strcmp(Ped.property, 'groupdata');
+    Ped.row(isgrp) = rowgrp(isgrp);
 
-isdf = strcmp(A.pedigree.property, 'df');
-A.pedigree.row(isdf)    = rowgrp(isdf);
-A.pedigree.column(isdf) = coldet(isdf);
+    isdc = strcmp(Ped.property, 'dc');
+    Ped.row(isdc)    = rowgrp(isdc);
+    Ped.column(isdc) = colgrp(isdc);
 
-isdis = strcmp(A.pedigree.property, 'discardFate');
-A.pedigree.row(isdis)    = rowflt(isdis);
-A.pedigree.column(isdis) = coldet(isdis);
+    iscatch = ismember(Ped.property, {'landing', 'discard'});
+    Ped.row(iscatch)    = rowgrp(iscatch);
+    Ped.column(iscatch) = colflt(iscatch);
+
+    isdf = strcmp(Ped.property, 'df');
+    Ped.row(isdf)    = rowgrp(isdf);
+    Ped.column(isdf) = coldet(isdf);
+
+    isdis = strcmp(Ped.property, 'discardFate');
+    Ped.row(isdis)    = rowflt(isdis);
+    Ped.column(isdis) = coldet(isdis);
+
+    A.pedigree = Ped;
+end
 
 
 
