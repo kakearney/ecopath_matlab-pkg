@@ -5,11 +5,11 @@ function [EM, A] = mdb2ecopathmodel(file)
 % [EM, A] = mdb2ecopathmodel(file)
 %
 % This function creates an ecopathmodel object based on the data in an EwE6
-% database file.  It is only designed to work with EwE version 6 files;
-% older files must be converted via the conversion utility that comes with
-% EwE6.  The newer files are usually saved with a .ewemdb (or .EwEmdb) file
-% extension, as opposed to older ones that simply carried the .mdb
-% extension.
+% database file.  It is only designed to work with EwE version 6 files (has
+% been tested for EwE6.4 and EwE6.5); older files must be converted via the
+% conversion utility that comes with EwE6.  The newer files are usually
+% saved with a .ewemdb (or .EwEmdb) file extension, as opposed to older
+% ones that simply carried the .mdb extension.
 %
 % This function relies on the mdbtools utilities to read the MS Access
 % database files (https://github.com/brianb/mdbtools).  Mac users can get
