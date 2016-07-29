@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-07-12"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-07-29"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -69,7 +69,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
   </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org">http://ecopath.org</a>, as well as to the following journal articles:</p><div><ul><li>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</li><li>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</li></ul></div><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.  Full documentation of the class and its asscoiated methods can be accessed via the standard Matlab help format, e.g.:</p><pre class="language-matlab">help <span class="string">ecopathmodel</span>
 doc <span class="string">ecopathmodel</span>
 help <span class="string">ecopathmodel/ecopath</span>
-</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> object</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#6">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#16">Filling in multi-stanza group parameters</a></li><li><a href="#22">Calculating Ecopath mass balance</a></li><li><a href="#26">Generating an ensemble of Ecopath models</a></li><li><a href="#33">Network indices</a></li><li><a href="#35">Consolidating groups in a model</a></li><li><a href="#36">Converting to graph objects</a></li><li><a href="#37">Old syntax vs new syntax</a></li></ul></div><h2>The <tt>ecopathmodel</tt> object<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel object, which holds all the input data related to a particular modeled ecosystem.  This includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but perhaps somewhere in the neighborhood), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and clearly documenting whether parameters were changed from their data-based values for balance purposes or some other reason.</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: <a href="https://github.com/brianb/mdbtools">https://github.com/brianb/mdbtools</a>. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files, you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> class</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#6">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#16">Filling in multi-stanza group parameters</a></li><li><a href="#22">Calculating Ecopath mass balance</a></li><li><a href="#26">Generating an ensemble of Ecopath models</a></li><li><a href="#33">Calculating network indices</a></li><li><a href="#35">Consolidating groups in a model</a></li><li><a href="#36">Converting to graph objects</a></li><li><a href="#37">Old syntax vs new syntax</a></li></ul></div><h2>The <tt>ecopathmodel</tt> class<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel class.  The properties of an <tt>ecopathmodel</tt> object store the input data related to a particular modeled ecosystem; this is the data that would be entered under the "Input data" panel in Ecopath with Ecosim 6.4 (EwE6), and includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but able to be checked for balance without popping up and warning messages), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and clearly documenting whether parameters were changed from their original values for balance purposes or some other reason.</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: <a href="https://github.com/brianb/mdbtools">https://github.com/brianb/mdbtools</a>. Install instruction for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files (EwE5 .mdb files), you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.  (There were some minor changes made to the file format between EwE6.4 and EwE6.5... the changed table properties are untouched by this routine, so either format is fine).</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software:</p><pre class="codeinput">epfolder = <span class="string">'~/Documents/Research/Working/EcopathModels/'</span>;
 Gen37 = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Generic_37.EwEmdb'</span>));
 </pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
   Baleen whales -&gt; BaleenWhales
@@ -97,8 +97,8 @@ Gen37 = mdb2ecopathmodel(fullfile(epfolder, <span class="string">'Generic_37.EwE
   Zooplankton, other -&gt; Zooplankton_Other
   Benthic plants -&gt; BenthicPlants
  
-Warning: Non-zero value found for detrital P/B, replacing with zero
-(shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
+detpb column where empty):
   Detritus (NaN)
  
 Warning: Non-zero value found for a producer or detrital Q/B, replacing with
@@ -168,8 +168,8 @@ Warning: Detritus groups found with missing biomass; replacing with 0:
   Detritus (NaN)
   Discards (NaN)
  
-Warning: Non-zero value found for detrital P/B, replacing with zero
-(shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
+detpb column where empty):
   Detritus (NaN)
   Discards (NaN)
  
@@ -207,8 +207,8 @@ Warning: NaN found in detritus import, replacing with 0:
   Zooplankton (NaN)
   Phytoplankton (NaN)
  
-Warning: Cannot set pedigree value for non-leading stanza group B, PB, or
-QB; removing from table 
+Warning: Cannot set pedigree value for non-leading stanza group B, PB, or QB;
+removing from table 
 </pre><p>Again this function will typically issue several warinngs related to the differing ways this code and Rpath use NaNs vs 0s as placeholders for certain parameters.  Rpath also assigns pedigree values to all groups, even non-leading stanza groups; my code doesn't allow that so those values are stripped out of the pedigree table.</p><h2>Building an <tt>ecopathmodel</tt> object manually<a name="6"></a></h2><p>As I mentioned above, I don't really recommend that you start a model from scratch using just this tool.  My focus when developing this code was to increase the flexibility of the Ecopath algorithm, not to replicate the EwE6 GUI capabilities (including its many data validation checks).</p><p>However, Ecopath models are very often published in peer-reviewed journals or technical reports without accompanying data files.  In these cases, you many need to manually transcribe the data from various printed tables in order to carry out additional calculations.</p><p>For this example, I'm going to use the Eastern Pacific Subarctic Gyre ecosystem model, which is the one I happened to be working with during the development of this class, and which required manual transcription. The details of that model were published in</p><p>Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci Rep 25</p><p>Start by creating an empty <tt>ecopathmodel</tt> object.  For this, you need 3 parameters:</p><div><ul><li>number of total groups</li><li>number of live groups</li><li>number of fishing gears/fleets.</li></ul></div><p>While not required, it's highly recommended that you also add the names of all groups, fleets, and stanzas, since that data is used to set up and label all the table columns and rows, and the type of each group (i.e. whether consumer, producer, or mixotroph), since that is used to validate other parameters' values as they're added.</p><pre class="codeinput">names = {<span class="keyword">...</span>
 <span class="string">'Sperm whales'</span>
 <span class="string">'Toothed whales'</span>
@@ -446,8 +446,8 @@ Esa.groupdata.ge(noge) = NaN;
   DNH3 (NaN)
   POM (NaN)
  
-Warning: Non-zero value found for detrital P/B, replacing with zero
-(shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
+detpb column where empty):
   DNH3 (NaN)
   POM (NaN)
  
@@ -479,7 +479,7 @@ zero:
   DNH3 (NaN)
   POM (NaN)
  
-</pre><p>Next up, diet fractions.  Here's one of my personal pet peeves: publishing sparse matrices (like Ecopath diet fraction matrices) as tables of mostly empty space spread across multiple printed pages.  Can we all agree to stop doing this?  Pretty please?</p><p>Anyway, diet data was copied and pasted from Table B8 (all 5 pages of it) of the report into a csv file, which I've pasted here to minimize the number of supporting files needed for this example.</p><pre class="codeinput">dietcsv = {<span class="keyword">...</span>
+</pre><p>Next up, diet fractions.  The diet data for this model are found in Table B8 of the report (all 5 pages of it... can we all agree that publishing sparse matrices as giant tables of mostly empty space across multiple pages is a less than ideal way to share data?  Can we all stop doing this?  Pretty please?  Sorry, I digress...)  Diet data was copied and pasted from Table B8 of the report into a csv file, which I've pasted here to minimize the number of supporting files needed for this example.</p><pre class="codeinput">dietcsv = {<span class="keyword">...</span>
 <span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
 <span class="string">',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
 <span class="string">',0.22725,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'</span>
@@ -605,7 +605,8 @@ Esa.discardFate(:,:) = {0.5, 0.5};
 <span class="comment">% allows that possibility, via the |detpb| column.  However, the rate used</span>
 <span class="comment">% in this particular study wasn't published, so I took the easy way out and</span>
 <span class="comment">% simply substituted some approximate values (for Ecopath balance purposes,</span>
-<span class="comment">% this number doesn't affect the calculations at all).</span>
+<span class="comment">% the only constraint of detrital biomass is that it be large enough to</span>
+<span class="comment">% cover detritivore diet, and otherwise it does not affect the results).</span>
 
 Esa.groupdata.b(isdet) = ones(ngroup-nlive,1)*50;
 </pre><p>At this point, we have a fully-populated ecopathmodel object</p><h2>Filling in multi-stanza group parameters<a name="16"></a></h2><p>Multi-stanza groups in an Ecopath model represent different life stages of a single functional group.  In time-dynamic models such as Ecosim, growth leads to a flux of biomass from younger groups to older groups. Although this tool does not explicitly include Ecosim-like calculations, I do strive to maintain consistency with EwE6 and Rpath, which means that multistanza groups must match the stable age distibution requirements.</p><p>The primary <tt>ecopathmodel</tt> method for calculating stanza-related parameters is the <tt>calcstanza</tt> method, which fills in the biomass (b), comsumption rates (qb), and biomass accumulation rates (ba) for all groups that are part of a multistanza set.</p><p>As an example, let's look at the REco model that we read in above.  This model includes 4 multi-stanza sets, with two groups apeice:</p><pre class="codeinput">REco.stanzadata
@@ -734,8 +735,8 @@ Tb.stanzadata
   Sand Trout -&gt; SandTrout
   Sea Trout -&gt; SeaTrout
  
-Warning: Non-zero value found for detrital P/B, replacing with zero
-(shifting to detpb column where empty):
+Warning: Non-zero value found for detrital P/B, replacing with zero (shifting to
+detpb column where empty):
   Detritus (NaN)
  
 Warning: Non-zero value found for a producer or detrital Q/B, replacing with
@@ -1099,7 +1100,7 @@ ans =
 
 </pre><p>Notice that pedigree values corresponding to variables that are 0 (such as the rows corresponding to critters that aren't part of the catfish diet) are automatically removed from the pedigree table.</p><p>With a pedigree in place, we can build an ensemble.  You can choose to return either all generated values, or only those sets that result in balanced models.</p><pre class="codeinput">x = Tb.createensemble(500, <span class="string">'pdfname'</span>, <span class="string">'uniform'</span>, <span class="string">'collect'</span>, <span class="string">'balanced'</span>);
 </pre><pre class="codeoutput">Generating ensembles...
- 100% [=================================================&gt;] Attempted: 1033
+ 100% [=================================================&gt;] Attempted: 1061
 </pre><p>One thing to note is that the <tt>creatensemble</tt> method does not adjust parameters to meet Ecopath requirements.  That process is done by the <tt>subpedigreevalues</tt> method (which is usually called under the hood by the <tt>ecopath</tt> method).  For example, if we look at the diet composition values for the catfish (the first 17 entries in the pedigree table):</p><pre class="codeinput"><span class="comment">% Setup for histograms</span>
 
 hopts = {<span class="string">'normalization'</span>, <span class="string">'count'</span>, <span class="string">'displaystyle'</span>, <span class="string">'stairs'</span>};
@@ -1147,7 +1148,7 @@ figure;
 boxplot(log10(b'), <span class="string">'orientation'</span>, <span class="string">'horizontal'</span>, <span class="string">'labels'</span>, Tb.name);
 set(gca, <span class="string">'fontsize'</span>, 8);
 xlabel(<span class="string">'log10(B)'</span>);
-</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_03.png" alt=""> <p>we can see that even though we only generated random values for one group's biomass, all the Snook stanza groups get adjusted to match that leading stanza, preserving the prescribed age growth curve.</p><p><b>Dealing with precariusly-balanced models</b></p><p>The Tampa Bay model happens to have a lot of wiggle room in its parameters, and we only applied pedigree values to a few parameters, so ~50% of the parameter sets that were generated  result in balanced parameter sets.  Most models, particularly management-oriented ones with full pedigrees, will be much less forgiving, and may take a long time to return the requested number of balanced parameter sets.</p><p>Some models may have extremely low balance rates, requiring thousands of parameter sets to be tested to get just one or two that meet the Ecopath mass balance requirements.  I refer to these as "precariously balanced." They often originate from an Ecopath model that was originally unbalanced and then had its parameters manually tweaked until it just barely squeezed under the all EE&lt;1 bar. The problem with this is that if you then nudge any single parameter just a tiny bit, it falls out of balance.</p><p>So what should you do in this case?  Option 1 is to just set the program running... if you have a few days of computer time to spare, you may eventually get an ensemble big enough for your purposes.  Option 2 is to use the 'collect all' option to take a look at your parameter space, and figure out which parameters are the biggest troublemakers.  Is it always the same one or two groups whose EE is out of bounds? If you reduce the pedigrees on all but one or two parameters at a time, can you narrow down the combos of parameters that push things out of bounds?  These sorts of analyses can get you closer to a balanced ensemble, and also may elucidate additional parameter constraints that weren't initially apparent in your raw input data.</p><h2>Network indices<a name="33"></a></h2><p>The <tt>networkindices</tt> method was inspired by Guesnet et al.'s work, which applied ecological network analysis metrics to an ensemble of Ecopath models, such as those described in the previous section:</p><p>Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-B&eacute;at B, Karimi B, Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web parameter uncertainty into Ecopath-derived ecological network indicators. Ecol Modell 313:29?40</p><p>The <tt>networkindices</tt> method provides a comparable function to Guesnet et al.'s <tt>ENAtool.m</tt> software (which is itself a wrapper around an older version of this Matlab Ecopath library).  The underlying calculations have been streamlined, and expanded to include many additional metrics from the <a href="https://cran.r-project.org/web/packages/NetIndices/index.htm">NetIndices R package</a>.</p><p>When using these network indices, one should keep in mind that many of the network index statistics are dependent on the topology of the underlying food web graph, including where one draws the boundaries between "internal" and "external" (are fishing fleets in?  What about detrital pools?), and whether one resolves import and export into multiple fluxes or a single term.  At the moment, this function offers the 'fleet' parameter to choose whether fishing fleets are internal to or external to the food web.  Additional variations may be offered in the future.</p><p>Netowrk indices can be applied to a single food web:</p><pre class="codeinput">Stats = Tb.networkindices
+</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_03.png" alt=""> <p>we can see that even though we only generated random values for one group's biomass, all the Snook stanza groups get adjusted to match that leading stanza, preserving the prescribed age growth curve.</p><p><b>Dealing with precariously-balanced models</b></p><p>The Tampa Bay model happens to have a lot of wiggle room in its parameters, and we only applied pedigree values to a few parameters, so ~50% of the parameter sets that were generated  result in balanced parameter sets.  Most models, particularly management-oriented ones with full pedigrees, will be much less forgiving, and may take a long time to return the requested number of balanced parameter sets.</p><p>Some models may have extremely low balance rates, requiring thousands of parameter sets to be tested to get just one or two that meet the Ecopath mass balance requirements.  I refer to these as "precariously balanced." They often originate from an Ecopath model that was originally unbalanced and then had its parameters manually tweaked until it just barely squeezed under the all EE&lt;1 bar. The problem with this is that if you then nudge any single parameter just a tiny bit, it falls out of balance.</p><p>So what should you do in this case?  Option 1 is to just set the program running... if you have a few days of computer time to spare, you may eventually get an ensemble big enough for your purposes.  Option 2 is to use the 'collect all' option to take a look at your parameter space, and figure out which parameters are the biggest troublemakers.  Is it always the same one or two groups whose EE is out of bounds? If you reduce the pedigrees on all but one or two parameters at a time, can you narrow down the combos of parameters that push things out of bounds?  These sorts of analyses can get you closer to a balanced ensemble, and also may elucidate additional parameter constraints that weren't initially apparent in your raw input data.</p><h2>Calculating network indices<a name="33"></a></h2><p>The <tt>networkindices</tt> method was inspired by Guesnet et al, 2015, which applied ecological network analysis metrics to an ensemble of Ecopath models, such as those described in the previous section:</p><div><ul><li>Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-B&eacute;at B, Karimi B, Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web parameter uncertainty into Ecopath-derived ecological network indicators. Ecol Modell 313:29-40</li></ul></div><p>The <tt>networkindices</tt> method provides a comparable function to Guesnet et al.'s <tt>ENAtool.m</tt> software (which is itself a wrapper around an older version of this Matlab Ecopath library).  The underlying calculations have been streamlined, and expanded to include many additional metrics from the <a href="https://cran.r-project.org/web/packages/NetIndices/index.htm">NetIndices R package</a>.</p><p>When using these network indices, one should keep in mind that many of the network index statistics are dependent on the topology of the underlying food web graph, including where one draws the boundaries between "internal" and "external" nodes (are fishing fleets in?  What about detrital pools?), and whether one resolves import and export into multiple fluxes or a single term.  At the moment, this function offers the 'fleet' parameter to choose whether fishing fleets are internal to or external to the food web.  Additional variations may be offered in the future.</p><p>Network indices can be applied to a single food web:</p><pre class="codeinput">Stats = Tb.networkindices
 </pre><pre class="codeoutput">
 Stats = 
 
@@ -1221,7 +1222,54 @@ StatsEns =
          GE: [1x500 double]
           T: [62x62x500 double]
 
-</pre><h2>Consolidating groups in a model<a name="35"></a></h2><h2>Converting to graph objects<a name="36"></a></h2><h2>Old syntax vs new syntax<a name="37"></a></h2><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+</pre><h2>Consolidating groups in a model<a name="35"></a></h2><p>The <tt>combinegroups</tt> method allows you to consolidate two or more functional groups or fleets into a single one.  This can be useful if you start with a model that's more highly resolved than necessary for your research purposes.</p><p>For example, we can use this method to combine all the multistanza groups in the Tampa Bay model into single functional groups.</p><pre class="codeinput">grps = {<span class="keyword">...</span>
+    {<span class="keyword">...</span>
+    <span class="string">'Snook0_12'</span>
+    <span class="string">'Snook3_12'</span>}
+    {<span class="keyword">...</span>
+    <span class="string">'Snook12_48'</span>
+    <span class="string">'Snook48_90'</span>
+    <span class="string">'Snook90_'</span>}
+    {<span class="keyword">...</span>
+    <span class="string">'RedDrum0_3'</span>
+    <span class="string">'RedDrum3_8'</span>
+    <span class="string">'RedDrum8_18'</span>
+    <span class="string">'RedDrum18_36'</span>
+    <span class="string">'RedDrum36_'</span>}
+    {<span class="keyword">...</span>
+    <span class="string">'SeaTrout0_3'</span>
+    <span class="string">'SeaTrout3_18'</span>
+    <span class="string">'SeaTrout18_'</span>}
+    {<span class="keyword">...</span>
+    <span class="string">'SandTrout0_3'</span>
+    <span class="string">'SandTrout3_12'</span>
+    <span class="string">'SandTrout12_'</span>}};
+
+New = Tb.combinegroups(grps{:});
+</pre><h2>Converting to graph objects<a name="36"></a></h2><p>In R2015b, Matlab introduced graph and digraph objects as a new data type, with a variety of graph-theory-related functions to go along with them.  The <tt>graph</tt> method converts an Ecopath model into one of these graph objects.  This is particularly useful to access the graph plotting methods.</p><pre class="codeinput"><span class="comment">% Create graph, w/o out-of-system fluxes or flows to detritus</span>
+
+G = Gen37.graph(<span class="string">'oos'</span>, false, <span class="string">'det'</span>, false);
+
+<span class="comment">% Plot, using the layered graph layout (mostly preserves trophic direction)</span>
+
+figure; axes(<span class="string">'position'</span>, [0 0 1 1]);
+h = plot(G, <span class="string">'layout'</span>, <span class="string">'layered'</span>, <span class="string">'direction'</span>, <span class="string">'up'</span>, <span class="keyword">...</span>
+    <span class="string">'edgecolor'</span>, ones(1,3)*0.5, <span class="string">'nodecolor'</span>, <span class="string">'k'</span>);
+
+<span class="comment">% Highlight one group and its prey and predator groups</span>
+
+grp = <span class="string">'Pelagics_Small_Carniv'</span>;
+cmap = get(0, <span class="string">'defaultaxescolororder'</span>);
+highlight(h, grp, <span class="string">'nodecolor'</span>, cmap(2,:), <span class="string">'markersize'</span>, 8);
+prey = predecessors(G, grp);
+pred = successors(G, grp);
+highlight(h, prey, <span class="string">'nodecolor'</span>, cmap(1,:), <span class="string">'markersize'</span>, 5);
+highlight(h, pred, <span class="string">'nodecolor'</span>, cmap(3,:), <span class="string">'markersize'</span>, 5);
+highlight(h, prey, grp, <span class="string">'edgecolor'</span>, cmap(1,:), <span class="string">'linewidth'</span>, 2);
+highlight(h, grp, pred, <span class="string">'edgecolor'</span>, cmap(3,:), <span class="string">'linewidth'</span>, 2);
+
+axis <span class="string">off</span>;
+</pre><img vspace="5" hspace="5" src="ecopathmodel_overview_04.png" alt=""> <h2>Old syntax vs new syntax<a name="37"></a></h2><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% An overview of the ecopathmodel class
 %
@@ -1248,10 +1296,12 @@ StatsEns =
 %   doc ecopathmodel
 %   help ecopathmodel/ecopath
 %
-%% The |ecopathmodel| object
+%% The |ecopathmodel| class
 %
-% The foundation of this package is the ecopathmodel object, which holds
-% all the input data related to a particular modeled ecosystem.  This
+% The foundation of this package is the ecopathmodel class.  The properties
+% of an |ecopathmodel| object store the input data related to a particular
+% modeled ecosystem; this is the data that would be entered under the
+% "Input data" panel in Ecopath with Ecosim 6.4 (EwE6), and
 % includes the  definition of functional groups and fishing fleets and the
 % connections between them, as well as the many parameters associated with
 % each state variable and group-to-group flow process.  
@@ -1277,12 +1327,12 @@ StatsEns =
 % an Ecopath model.  That will allow you to take advantage of all the
 % graphical utilities that warn you when parameters are blatantly
 % incorrect.  Once the model data is acceptable (not necessarily
-% mass-balanced yet, but perhaps somewhere in the neighborhood), move over
-% to this tool for project-specific parameter adjustments.  This process
-% allows you to preserve one copy of the base model while also keeping
-% project-specific details clearly documented, and clearly documenting
-% whether parameters were changed from their data-based values for balance
-% purposes or some other reason.
+% mass-balanced yet, but able to be checked for balance without popping up 
+% and warning messages), move over to this tool for project-specific
+% parameter adjustments.  This process allows you to preserve one copy of
+% the base model while also keeping project-specific details clearly
+% documented, and clearly documenting whether parameters were changed from
+% their original values for balance purposes or some other reason.    
 
 %% Importing Ecopath with Ecosim data
 %
@@ -1302,9 +1352,12 @@ StatsEns =
 % Windows system, or have a better way of reading .mdb files into Matlab on
 % a Windows machine (using the Database Toolbox, maybe?), please contact
 % me!  I'd love to make this utility easier to use on Windows.
-% # I expect all files to use the EwE6 format.  If you have older files,
-% you'll first need to import them into EwE6 and let its conversion tool
-% convert to the newer format.
+% # I expect all files to use the EwE6 format.  If you have older files
+% (EwE5 .mdb files), you'll first need to import them into EwE6 and let its
+% conversion tool convert to the newer format.  (There were some minor
+% changes made to the file format between EwE6.4 and EwE6.5... the changed
+% table properties are untouched by this routine, so either format is
+% fine). 
 %
 % This example reads in one of the example ecosystems that ships with the
 % EwE6 software:
@@ -1574,14 +1627,13 @@ Esa.groupdata.ee(noee) = NaN;
 Esa.groupdata.ge(noge) = NaN;
 
 %%
-% Next up, diet fractions.  Here's one of my personal pet peeves:
-% publishing sparse matrices (like Ecopath diet fraction matrices) as  
-% tables of mostly empty space spread across multiple printed pages.  Can
-% we all agree to stop doing this?  Pretty please?     
-%
-% Anyway, diet data was copied and pasted from Table B8 (all 5 pages of it)
-% of the report into a csv file, which I've pasted here to minimize the
-% number of supporting files needed for this example.      
+% Next up, diet fractions.  The diet data for this model are found in Table
+% B8 of the report (all 5 pages of it... can we all agree that publishing
+% sparse matrices as giant tables of mostly empty space across multiple
+% pages is a less than ideal way to share data?  Can we all stop doing
+% this?  Pretty please?  Sorry, I digress...)  Diet data was copied and 
+% pasted from Table B8 of the report into a csv file, which I've pasted
+% here to minimize the number of supporting files needed for this example.
 
 dietcsv = {...
 ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
@@ -1692,7 +1744,8 @@ Esa.discardFate(:,:) = {0.5, 0.5};
 % allows that possibility, via the |detpb| column.  However, the rate used
 % in this particular study wasn't published, so I took the easy way out and
 % simply substituted some approximate values (for Ecopath balance purposes,
-% this number doesn't affect the calculations at all).
+% the only constraint of detrital biomass is that it be large enough to
+% cover detritivore diet, and otherwise it does not affect the results).
 
 Esa.groupdata.b(isdet) = ones(ngroup-nlive,1)*50;
 
@@ -1991,7 +2044,7 @@ xlabel('log10(B)');
 % group's biomass, all the Snook stanza groups get adjusted to match that
 % leading stanza, preserving the prescribed age growth curve.
 %
-% *Dealing with precariusly-balanced models*
+% *Dealing with precariously-balanced models*
 %
 % The Tampa Bay model happens to have a lot of wiggle room in its
 % parameters, and we only applied pedigree values to a few parameters, so
@@ -2021,16 +2074,16 @@ xlabel('log10(B)');
 % apparent in your raw input data.
 
 
-%% Network indices
+%% Calculating network indices
 %
-% The |networkindices| method was inspired by Guesnet et al.'s work, which
+% The |networkindices| method was inspired by Guesnet et al, 2015, which
 % applied ecological network analysis metrics to an ensemble of Ecopath
 % models, such as those described in the previous section:
 %
-% Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-Béat B, Karimi B,
+% * Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-Béat B, Karimi B,
 % Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web
 % parameter uncertainty into Ecopath-derived ecological network indicators.
-% Ecol Modell 313:29?40  
+% Ecol Modell 313:29-40  
 %
 % The |networkindices| method provides a comparable function to Guesnet et
 % al.'s |ENAtool.m| software (which is itself a wrapper around an older
@@ -2041,14 +2094,14 @@ xlabel('log10(B)');
 % When using these network indices, one should keep in mind that many of
 % the network index statistics are dependent on the topology of the
 % underlying food web graph, including where one draws the boundaries
-% between "internal" and "external" (are fishing fleets in?  What about
+% between "internal" and "external" nodes (are fishing fleets in?  What about
 % detrital pools?), and whether one resolves import and export into
 % multiple fluxes or a single term.  At the moment, this function offers
 % the 'fleet' parameter to choose whether fishing fleets are internal to or
 % external to the food web.  Additional variations may be offered in the
 % future.
 %
-% Netowrk indices can be applied to a single food web:
+% Network indices can be applied to a single food web:
 
 Stats = Tb.networkindices
 
@@ -2059,8 +2112,75 @@ StatsEns = Tb.networkindices('ensemble', x')
 
 
 %% Consolidating groups in a model
+%
+% The |combinegroups| method allows you to consolidate two or more
+% functional groups or fleets into a single one.  This can be useful if you
+% start with a model that's more highly resolved than necessary for your
+% research purposes.  
+%
+% For example, we can use this method to combine all the multistanza groups
+% in the Tampa Bay model into single functional groups.
+
+
+grps = {...
+    {...
+    'Snook0_12'
+    'Snook3_12'}
+    {...
+    'Snook12_48'
+    'Snook48_90'
+    'Snook90_'}
+    {...
+    'RedDrum0_3'
+    'RedDrum3_8'
+    'RedDrum8_18'
+    'RedDrum18_36'
+    'RedDrum36_'}
+    {...
+    'SeaTrout0_3'
+    'SeaTrout3_18'
+    'SeaTrout18_'}
+    {...
+    'SandTrout0_3'
+    'SandTrout3_12'
+    'SandTrout12_'}};
+
+New = Tb.combinegroups(grps{:});
+
+
+
 
 %% Converting to graph objects
+%
+% In R2015b, Matlab introduced graph and digraph objects as a new data
+% type, with a variety of graph-theory-related functions to go along with
+% them.  The |graph| method converts an Ecopath model into one of these
+% graph objects.  This is particularly useful to access the graph plotting
+% methods.
+
+% Create graph, w/o out-of-system fluxes or flows to detritus
+
+G = Gen37.graph('oos', false, 'det', false); 
+
+% Plot, using the layered graph layout (mostly preserves trophic direction)
+
+figure; axes('position', [0 0 1 1]); 
+h = plot(G, 'layout', 'layered', 'direction', 'up', ...
+    'edgecolor', ones(1,3)*0.5, 'nodecolor', 'k');
+
+% Highlight one group and its prey and predator groups
+
+grp = 'Pelagics_Small_Carniv';
+cmap = get(0, 'defaultaxescolororder');
+highlight(h, grp, 'nodecolor', cmap(2,:), 'markersize', 8);
+prey = predecessors(G, grp);
+pred = successors(G, grp);
+highlight(h, prey, 'nodecolor', cmap(1,:), 'markersize', 5);
+highlight(h, pred, 'nodecolor', cmap(3,:), 'markersize', 5);
+highlight(h, prey, grp, 'edgecolor', cmap(1,:), 'linewidth', 2);
+highlight(h, grp, pred, 'edgecolor', cmap(3,:), 'linewidth', 2);
+
+axis off;
 
 %% Old syntax vs new syntax
 

@@ -23,10 +23,12 @@
 %   doc ecopathmodel
 %   help ecopathmodel/ecopath
 %
-%% The |ecopathmodel| object
+%% The |ecopathmodel| class
 %
-% The foundation of this package is the ecopathmodel object, which holds
-% all the input data related to a particular modeled ecosystem.  This
+% The foundation of this package is the ecopathmodel class.  The properties
+% of an |ecopathmodel| object store the input data related to a particular
+% modeled ecosystem; this is the data that would be entered under the
+% "Input data" panel in Ecopath with Ecosim 6.4 (EwE6), and
 % includes the  definition of functional groups and fishing fleets and the
 % connections between them, as well as the many parameters associated with
 % each state variable and group-to-group flow process.  
@@ -52,12 +54,12 @@
 % an Ecopath model.  That will allow you to take advantage of all the
 % graphical utilities that warn you when parameters are blatantly
 % incorrect.  Once the model data is acceptable (not necessarily
-% mass-balanced yet, but perhaps somewhere in the neighborhood), move over
-% to this tool for project-specific parameter adjustments.  This process
-% allows you to preserve one copy of the base model while also keeping
-% project-specific details clearly documented, and clearly documenting
-% whether parameters were changed from their data-based values for balance
-% purposes or some other reason.
+% mass-balanced yet, but able to be checked for balance without popping up 
+% and warning messages), move over to this tool for project-specific
+% parameter adjustments.  This process allows you to preserve one copy of
+% the base model while also keeping project-specific details clearly
+% documented, and clearly documenting whether parameters were changed from
+% their original values for balance purposes or some other reason.    
 
 %% Importing Ecopath with Ecosim data
 %
@@ -77,9 +79,12 @@
 % Windows system, or have a better way of reading .mdb files into Matlab on
 % a Windows machine (using the Database Toolbox, maybe?), please contact
 % me!  I'd love to make this utility easier to use on Windows.
-% # I expect all files to use the EwE6 format.  If you have older files,
-% you'll first need to import them into EwE6 and let its conversion tool
-% convert to the newer format.
+% # I expect all files to use the EwE6 format.  If you have older files
+% (EwE5 .mdb files), you'll first need to import them into EwE6 and let its
+% conversion tool convert to the newer format.  (There were some minor
+% changes made to the file format between EwE6.4 and EwE6.5... the changed
+% table properties are untouched by this routine, so either format is
+% fine). 
 %
 % This example reads in one of the example ecosystems that ships with the
 % EwE6 software:
@@ -106,14 +111,19 @@ Gen37.groupdata
 
 %% Importing Rpath data
 %
-% Rpath is an R-based implementation of Ecopath with Ecosim, written by Sea
-% Lucey and Kerim Aydin.  It is available for download on GitHub:
-% <https://github.com/slucey/RpathDev>.  The Rpath package includes two
-% functions, |read.rpath.param| and |write.rpath.param|, to import and export
-% data from comma-delimited text files.  This code includes a function to
-% read data from .csv files that match the format used by those two
-% functions.  The following example reads in the model described in the
-% Rpath vignette (REco.params):  
+% Rpath is an R-based implementation of Ecopath with Ecosim, written by
+% Sean Lucey and Kerim Aydin.  It is currently in beta-testing and
+% available for download on GitHub: <https://github.com/slucey/RpathDev>.
+% Rpath primarily bases its calculations around R data tables, but it also
+% provides some utilities to read and write parameter data from .csv files.
+% In order to maintain some consistency across all the Ecopath flavors,
+% I've adopted this format as an alternative input format.  The
+% |rpath2ecopathmodel| and |ecopathmodel2rpath| methods in this package
+% perform the same reading and writing tasks as the |read.rpath.params| and
+% |write.rpath.params| functions in Rpath, respectively.     
+%
+% The following example reads in the model described in the Rpath vignette
+% (REco.params):   
 
 rfolder = '~/Documents/Research/Working/Rpath/tests/';
 REco = rpath2ecopathmodel(fullfile(rfolder, 'reco_prestanza'));
@@ -349,14 +359,13 @@ Esa.groupdata.ee(noee) = NaN;
 Esa.groupdata.ge(noge) = NaN;
 
 %%
-% Next up, diet fractions.  Here's one of my personal pet peeves:
-% publishing sparse matrices (like Ecopath diet fraction matrices) as  
-% tables of mostly empty space spread across multiple printed pages.  Can
-% we all agree to stop doing this?  Pretty please?     
-%
-% Anyway, diet data was copied and pasted from Table B8 (all 5 pages of it)
-% of the report into a csv file, which I've pasted here to minimize the
-% number of supporting files needed for this example.      
+% Next up, diet fractions.  The diet data for this model are found in Table
+% B8 of the report (all 5 pages of it... can we all agree that publishing
+% sparse matrices as giant tables of mostly empty space across multiple
+% pages is a less than ideal way to share data?  Can we all stop doing
+% this?  Pretty please?  Sorry, I digress...)  Diet data was copied and 
+% pasted from Table B8 of the report into a csv file, which I've pasted
+% here to minimize the number of supporting files needed for this example.
 
 dietcsv = {...
 ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,'
@@ -467,7 +476,8 @@ Esa.discardFate(:,:) = {0.5, 0.5};
 % allows that possibility, via the |detpb| column.  However, the rate used
 % in this particular study wasn't published, so I took the easy way out and
 % simply substituted some approximate values (for Ecopath balance purposes,
-% this number doesn't affect the calculations at all).
+% the only constraint of detrital biomass is that it be large enough to
+% cover detritivore diet, and otherwise it does not affect the results).
 
 Esa.groupdata.b(isdet) = ones(ngroup-nlive,1)*50;
 
@@ -796,7 +806,7 @@ xlabel('log10(B)');
 % apparent in your raw input data.
 
 
-%% Network indices
+%% Calculating network indices
 %
 % The |networkindices| method was inspired by Guesnet et al, 2015, which
 % applied ecological network analysis metrics to an ensemble of Ecopath
@@ -833,11 +843,76 @@ Stats = Tb.networkindices
 StatsEns = Tb.networkindices('ensemble', x')
 
 
-
-
 %% Consolidating groups in a model
+%
+% The |combinegroups| method allows you to consolidate two or more
+% functional groups or fleets into a single one.  This can be useful if you
+% start with a model that's more highly resolved than necessary for your
+% research purposes.  
+%
+% For example, we can use this method to combine all the multistanza groups
+% in the Tampa Bay model into single functional groups.
+
+
+grps = {...
+    {...
+    'Snook0_12'
+    'Snook3_12'}
+    {...
+    'Snook12_48'
+    'Snook48_90'
+    'Snook90_'}
+    {...
+    'RedDrum0_3'
+    'RedDrum3_8'
+    'RedDrum8_18'
+    'RedDrum18_36'
+    'RedDrum36_'}
+    {...
+    'SeaTrout0_3'
+    'SeaTrout3_18'
+    'SeaTrout18_'}
+    {...
+    'SandTrout0_3'
+    'SandTrout3_12'
+    'SandTrout12_'}};
+
+New = Tb.combinegroups(grps{:});
+
+
+
 
 %% Converting to graph objects
+%
+% In R2015b, Matlab introduced graph and digraph objects as a new data
+% type, with a variety of graph-theory-related functions to go along with
+% them.  The |graph| method converts an Ecopath model into one of these
+% graph objects.  This is particularly useful to access the graph plotting
+% methods.
+
+% Create graph, w/o out-of-system fluxes or flows to detritus
+
+G = Gen37.graph('oos', false, 'det', false); 
+
+% Plot, using the layered graph layout (mostly preserves trophic direction)
+
+figure; axes('position', [0 0 1 1]); 
+h = plot(G, 'layout', 'layered', 'direction', 'up', ...
+    'edgecolor', ones(1,3)*0.5, 'nodecolor', 'k');
+
+% Highlight one group and its prey and predator groups
+
+grp = 'Pelagics_Small_Carniv';
+cmap = get(0, 'defaultaxescolororder');
+highlight(h, grp, 'nodecolor', cmap(2,:), 'markersize', 8);
+prey = predecessors(G, grp);
+pred = successors(G, grp);
+highlight(h, prey, 'nodecolor', cmap(1,:), 'markersize', 5);
+highlight(h, pred, 'nodecolor', cmap(3,:), 'markersize', 5);
+highlight(h, prey, grp, 'edgecolor', cmap(1,:), 'linewidth', 2);
+highlight(h, grp, pred, 'edgecolor', cmap(3,:), 'linewidth', 2);
+
+axis off;
 
 %% Old syntax vs new syntax
 
