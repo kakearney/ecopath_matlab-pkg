@@ -657,10 +657,10 @@ classdef ecopathmodel
             
         
         %------------------------------------------------------------------
-        function A = setstanzas(A)
+        function A = checkstanza(A)
         %SETSTANZAS Fill in (or validate) B, QB, and BA values for stanzas
         %
-        % A = setstanzas(A)
+        % A = checkstanza(A)
         %
         % This method is a wrapper around the calcstanza method.  Rather
         % than recalculating all multi-stanza group values, it checks to
