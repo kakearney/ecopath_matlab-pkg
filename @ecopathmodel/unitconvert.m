@@ -1,5 +1,35 @@
 function A = unitconvert(A, oldunit, newunit, varargin)
-
+%UNITCONVERT Convert units of parameter values
+%
+% A = unitconvert(EM, oldunit, newunit, varargin)
+%
+% This method recalculas parameters value, assuming a change in units of
+% the mass, area/volume, and/or time dimensions of the dataset.
+%
+% Input variables:
+%
+%   EM:         ecopathmodel object
+%
+%   oldunit:    string representing units of input model, in the format of
+%               'M/A/T', where M, A, and T can be any of: 
+%               M:  'tons wet weight', 't ww', 't C', 'g C', 'mmol N',
+%                   'mmol n', 'mol N'
+%               A:  'km^2', 'm^2', 'km^3', 'm^3'
+%               T:  'year', 'yr', 'day', 'd', 'sec', 's'
+%
+%   newunit:    string representing units of output model, same format as
+%               oldunit
+%
+% Optional input variables (passed as parameter/value pairs):
+%
+%   wwCfrac:    fraction of wet weight composed of carbon [0.05]
+%
+%   c2n:        carbon/nitrogen ratio [16/106]
+%
+%   cmw:        molecular weight of carbon (g/mol) [12.0107]
+%
+%   depth:      depth (km) over which biomass is spread (when converting
+%               from per area to per volumn units, or vice versa) [NaN] 
 
 % Parse and check input
 
