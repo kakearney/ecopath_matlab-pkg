@@ -90,15 +90,15 @@ function A = networkindices(T)
 %
 %           (Finn's suite, pathway analysis)           
 %
-%           TSTc:       Total system cycled throughflow (work in progress)
+%           TSTc:       Total system cycled throughflow
 %
-%           TSTs:       Total system non-cycled throughflow (work in
-%                       progress)
+%           TSTs:       Total system non-cycled throughflow 
 %
-%           FCI:        Finn's cycling index (work in progress)
+%           FCI:        Finn's cycling index
 %
-%           FCIb:       Revised Finn's cycling index (work in progress)
+%           FCIb:       Revised Finn's cycling index
 
+% Copyright 2016 Kelly Kearney
 
 % Check input
 
@@ -169,8 +169,8 @@ for ii = 1:nweb
         A.C = A.Lint./(A.n*(A.n-1));    % Connectance
     end
 
-    A.Tavg(ii) = A.TSTp(ii)./A.Ltot;        % Average link weight
-    A.TSTfavg(ii) = A.TSTf(ii)./A.n;        % Average compartment throughflow
+    A.Tavg(ii) = A.TSTp(ii)./A.Ltot;    % Average link weight
+    A.TSTfavg(ii) = A.TSTf(ii)./A.n;    % Average compartment throughflow
 
     % Compartmentalization
 
@@ -202,30 +202,30 @@ for ii = 1:nweb
 
     A.A(ii) = sum(asc(ispos));      % Ascendency
     A.DC(ii) = -sum(cap(ispos));    % Development capacity
-    A.O(ii) = A.DC(ii) - A.A(ii);           % Overhead
-    A.AC(ii) = A.A(ii)./A.DC(ii);           % Extent of development
+    A.O(ii) = A.DC(ii) - A.A(ii);   % Overhead
+    A.AC(ii) = A.A(ii)./A.DC(ii);   % Extent of development
 
     %------------------------
     % Network uncertainty 
     % indices
     %------------------------
 
-    A.AMI(ii) = A.A(ii)/A.TSTp(ii);         % Average mutual information
+    A.AMI(ii) = A.A(ii)/A.TSTp(ii); % Average mutual information
 
     Q = FlowFrom./A.TSTp(ii);
     Q = Q(Q > 0);
 
     A.HR(ii) = -sum(Q.*log2(Q));    % Statistical uncertainty
-    A.DR(ii) = A.HR(ii) - A.AMI(ii);        % Conditional uncertainty index
-    A.RU(ii) = A.AMI(ii)/A.HR(ii);          % Realized uncertainty index
+    A.DR(ii) = A.HR(ii) - A.AMI(ii);% Conditional uncertainty index
+    A.RU(ii) = A.AMI(ii)/A.HR(ii);  % Realized uncertainty index
     A.Hmax = ncomp * log2(ncomp+1); % Network uncertainty
 
     blsum = bsxfun(@rdivide, Tij, FlowFrom) .* log2(bsxfun(@rdivide, Tij, FlowFrom));
     blsum = sum(blsum(Tij>0));
 
     A.Hc(ii) = blsum + A.Hmax;      % Constraint information
-    A.CE(ii) = A.Hc(ii)./A.Hmax;        % Constraint efficiency
-    A.Hsys(ii) = A.Hmax - A.Hc(ii);     % Network efficiency
+    A.CE(ii) = A.Hc(ii)./A.Hmax;    % Constraint efficiency
+    A.Hsys(ii) = A.Hmax - A.Hc(ii); % Network efficiency
 
     %------------------------
     % Pathway analysis
@@ -245,8 +245,8 @@ for ii = 1:nweb
     diaM = diag(M);
 
     A.TSTc(ii) = sum((1-1./diaM).*FlowFromC');  % Cycled throughflow
-    A.TSTs(ii) = A.TSTf(ii) - A.TSTc(ii);               % Non-cycled throughflow
-    A.FCI(ii) = A.TSTc(ii)/A.TSTf(ii);                  % Finn's Cycling Index
-    A.FCIb(ii) = A.TSTc(ii)/A.TSTp(ii);                 % Finn's Cycling Index, revisited
+    A.TSTs(ii) = A.TSTf(ii) - A.TSTc(ii);       % Non-cycled throughflow
+    A.FCI(ii) = A.TSTc(ii)/A.TSTf(ii);          % Finn's Cycling Index
+    A.FCIb(ii) = A.TSTc(ii)/A.TSTp(ii);         % Finn's Cycling Index, revised
 end
 

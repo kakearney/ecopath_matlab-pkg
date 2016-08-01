@@ -11,9 +11,6 @@ function S = networkindices(EM, varargin)
 % included a handful of Ecopath-specific indices that are not part of the
 % NetIndices package.
 %
-% Note: This is still a work in progress... do not rely on values marked as
-% a work in progress yet.
-%
 % Input variables:
 %
 %   EM:         ecopathmodel object
@@ -32,7 +29,7 @@ function S = networkindices(EM, varargin)
 %
 %   ensemble:   nped x nset array of values.  Each column represents one
 %               set of values to be substituted into EM using the
-%               subpedigreevalsues method.  If included, statistics will be
+%               subpedigreevalues method.  If included, statistics will be
 %               calculated for all ensemble members rather than the central
 %               model defined by the ecopathmodel object.
 %
@@ -158,7 +155,6 @@ T = permute(T, [2 1 3]); % T_ij, i = sink, j = source
 S = networkindices(T);
     
 % Add a few Ecopath-specific indices
-
 
 S.Qsum = nan(1,nens);
 S.Psum = nan(1,nens);
