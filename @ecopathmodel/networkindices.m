@@ -149,7 +149,11 @@ for ii = nens:-1:1
 end
 
 T = permute(T, [2 1 3]); % T_ij, i = sink, j = source
-    
+
+if any(T(:)) < 0
+    error('Negative fluxes found in flow matrix T');
+end
+
 % Calculate main indices
     
 S = networkindices(T);
