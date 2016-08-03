@@ -915,9 +915,16 @@ S.gs(S.pp >= 1) = 0;    % Q = 0 so unassim irrelevant for detritus and producers
 
 q0 = bsxfun(@times, S.dc, S.qb' .* S.b'); % Consumption of prey
 
-mort  = bsxfun(@times, S.b .* S.pb .* (1 - S.ee), [S.df 1-sum(S.df,2)]); 
-egest = bsxfun(@times, S.b .* S.qb .* S.gs, [S.df 1-sum(S.df,2)]); 
-discards = bsxfun(@times, sum(S.discard,1)', [S.discardFate 1-sum(S.discardFate,2)]);
+detfout = 1 - sum(S.df,2);
+disfout = 1 - sum(S.discardFate,2);
+
+tol = 1e-6;  % Floating point causes some issues here, usually on order of 1e-8.
+detfout(abs(detfout)<tol) = 0;
+disfout(abs(disfout)<tol) = 0;
+
+mort  = bsxfun(@times, S.b .* S.pb .* (1 - S.ee), [S.df detfout]); 
+egest = bsxfun(@times, S.b .* S.qb .* S.gs, [S.df detfout]); 
+discards = bsxfun(@times, sum(S.discard,1)', [S.discardFate disfout]);
 imports = S.qb .* S.b .* S.import;
 
 respiration = S.qb.*S.b - S.pb.*S.b - (S.gs.*S.qb.*S.b);
@@ -955,7 +962,7 @@ surplus = nansum(flows(:,Idx.det),1)' - nansum(flows(Idx.det,:),2);
 
 % Surplus either goes to detrital groups or to export
 
-surplusfate = bsxfun(@times, surplus, [S.df(~islive,:) 1-sum(S.df(~islive,:),2)]);
+surplusfate = bsxfun(@times, surplus, [S.df(~islive,:) detfout(~islive)]);
 
 flows(Idx.det, [Idx.det Idx.out]) = surplusfate;
 
