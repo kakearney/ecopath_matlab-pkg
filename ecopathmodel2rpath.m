@@ -67,9 +67,10 @@ modeldata = [colname; [rowname num2cell(modeldata)]];
 % Diet data table  
 
 colname = addquotes(['Group'; EM.name(~isdet)]');
-rowname = addquotes(EM.name);
+rowname = addquotes([EM.name; 'Import']);
 
-dietdata = [colname; [rowname num2cell(table2array(EM.dc(:,~isdet)))]];
+dietdata = [table2array(EM.dc(:,~isdet)); EM.groupdata.import(~isdet)'];
+dietdata = [colname; [rowname num2cell(dietdata)]];
 
 if hasstz
 
