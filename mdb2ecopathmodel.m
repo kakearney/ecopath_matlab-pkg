@@ -190,6 +190,8 @@ EM.groupdata.ge       = A.EcopathGroup.ProdCons;
 EM.groupdata.gs       = A.EcopathGroup.Unassim;
 EM.groupdata.dtImp    = A.EcopathGroup.DtImports;
 
+EM.groupdata.ee(EM.nlive + (1:(EM.ngroup-EM.nlive))) = NaN; % Correct errant 0 from file
+
 % Imports
 
 EM.groupdata.import = A.EcopathGroup.ImpVar;
