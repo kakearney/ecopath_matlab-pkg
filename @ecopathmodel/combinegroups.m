@@ -195,7 +195,7 @@ E = emig - imig;
 idxout = max(aidx) + (1:4)';
 flows = aggregate2d(Ep.flow, [aidx; idxout], [aidx; idxout]);
 Idx.det = find(pptype == 2);
-Idx.res = size(flow,1) - 2;
+Idx.res = size(flows,1) - 2;
 Idx.liv = find(pptype < 2);
 detin = flows(:,Idx.det);
 deteaten = flows(Idx.det,Idx.liv);
