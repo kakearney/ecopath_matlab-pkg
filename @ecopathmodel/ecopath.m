@@ -1,5 +1,5 @@
 function varargout = ecopath(EM, varargin)
-%ECOPATH Rewrite of Ecopath algorithms
+%ECOPATH Calculate Ecopath mass balance for a food web
 %
 % ecopath(EM)
 % C = ecopath(EM)
