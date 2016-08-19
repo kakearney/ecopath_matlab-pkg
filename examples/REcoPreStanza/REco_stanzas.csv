@@ -1,0 +1,9 @@
+"StGroupNum","StanzaNum","GroupNum","Group","First","Last","Z","Leading"
+1,0,4,"JuvRoundfish1",0,23,2.026,FALSE
+1,0,5,"AduRoundfish1",24,400,0.42,TRUE
+2,0,6,"JuvRoundfish2",0,23,2.1,FALSE
+2,0,7,"AduRoundfish2",24,400,0.425,TRUE
+3,0,8,"JuvFlatfish1",0,23,1.5,FALSE
+3,0,9,"AduFlatfish1",24,400,0.26,TRUE
+4,0,10,"JuvFlatfish2",0,47,1.1,FALSE
+4,0,11,"AduFlatfish2",48,400,0.18,TRUE
