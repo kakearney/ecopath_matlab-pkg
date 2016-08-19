@@ -1,5 +1,6 @@
-# A Matlab implementation of Ecopath <img style="float: right;" width="150px" src="matlabEcopathLogo.png">
+# A Matlab implementation of Ecopath 
 
+<img style="float: right;" width="150px" src="matlabEcopathLogo.png">
 
 [Ecopath with Ecosim](http://www.ecopath.org) is a popular ecosystem modeling tool, used primarily in the fisheries modeling community. This package provides a Matlab-based implementation of the Ecopath algorithm, as well as several additional functions for further analysis and visualization of an Ecopath-style food web.
 
@@ -96,7 +97,7 @@ Descriptions of each function, along with syntax and description of input and ou
 doc ecopathmodel
 ```
 
-For an overview of the class, along with several examples of usage, please see the overview document: [html/ecopathmodel_overview.html]()
+For an overview of the class, along with several examples of usage, please see the overview document: [html/ecopathmodel_overview.html](https://rawgit.com/kakearney/ecopath_matlab-pkg/master/html/ecopathmodel_overview.html).
 
 
 
