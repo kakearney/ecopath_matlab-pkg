@@ -509,28 +509,6 @@ classdef ecopathmodel
                 error('Cannot set both EMIG and EMIGRATE (%s) for a group; choose one and set the other to NaN', str);
             end
             
-            
-%             bothb = ~isnan(val.b) & ~isnan(val.bh);
-%             unsynced = val.b(bothb) ~= val.bh(bothb).*val.areafrac(bothb);
-%             if any(unsynced)
-%                 str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
-%                 error('b and bh*areafrac values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
-%             end
-%             
-%             bothe = ~isnan(val.emig) & ~isnan(val.emigRate) & ~isnan(val.b);
-%             unsynced = val.emig(bothe) ~= val.emigRate(bothe).*val.b(bothe);
-%             if any(unsynced)
-%                 str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
-%                 error('emig and b*emigRate values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
-%             end
-%             
-%             bothba = ~isnan(val.ba) & ~isnan(val.baRate) & ~isnan(val.b);
-%             unsynced = val.ba(bothba) ~= val.baRate(bothba).*val.b(bothba);
-%             if any(unsynced)
-%                 str = sprintf('  %s\n', val.Properties.RowNames{unsynced});
-%                 error('ba and b*baRate values are out of sync for:\n%s\nNo changes to groupdata table were made', str);
-%             end
-            
             % Set groupdata after all adjustments have been made
             
             obj.groupdata = val;
@@ -658,7 +636,7 @@ classdef ecopathmodel
         
         %------------------------------------------------------------------
         function A = checkstanza(A)
-        %SETSTANZAS Fill in (or validate) B, QB, and BA values for stanzas
+        %CHECKSTANZA Fill in (or validate) B, QB, and BA values for stanzas
         %
         % A = checkstanza(A)
         %
