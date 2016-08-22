@@ -1,10 +1,50 @@
-# A Matlab implementation of Ecopath <img style="float: right;" width="100px" src="matlabEcopathLogo.png">
+<img src="./matlabEcopathLogo.png" width="100">
 
+# A Matlab implementation of Ecopath 
 
-[Ecopath with Ecosim](http://www.ecopath.org) is a popular ecosystem modeling tool, used primarily in the fisheries modeling community. This package provides a Matlab-based implementation of the Ecopath algorithm, as well as several additional functions for further analysis and visualization of an Ecopath-style food web.
+This package provides a Matlab-based implementation of the Ecopath algorithm (part of the popular fisheries ecosystem modeling tool [Ecopath with Ecosim](http://www.ecopath.org)), as well as a few functions for further analysis and visualization of an Ecopath-style food web.
 
+This software is intended for people already familiar with the Ecopath concept who wish to perform that particular calculation, as well as related analysis of food web properties, outside of the GUI environment provided by the original EwE software.  It assumes a basic working knowledge of Matlab.
 
-## Contents
+## Getting Started
+
+### Prerequisites
+
+This software requires [Matlab R2015b](http://www.mathworks.com/products/matlab/) or later.
+
+For full use, it also requires the [Statistics and Machine Learning Toolbox](http://www.mathworks.com/products/statistics/).
+
+No OS limitations beyond those required for Matlab itself.
+  
+### Downloading
+
+Git users can clone directly:
+
+`git clone git@github.com:kakearney/ecopath_matlab-pkg`
+
+Alternatively, you may download a zipped version of the source code via the _Clone or Download_ > _Download zip_ button above, or from the [ecopath_matlab](http://www.mathworks.com/matlabcentral/fileexchange/40082-ecopathlite-m--a-matlab-implementation-of-ecopath "FEX ecopath_matlab") entry on the MatlabCentral File Exchange.  The File Exchange entry is updated daily from this repository.
+
+### Installation
+
+Once downloaded (and unzipped, if necessary), all code subfolders in the main folder (i.e all folders except the `examples` and `html` folders) need to be added to your Matlab path:
+
+```matlab
+% Replace with location of the downloaded folder
+pth = './ecopath_matlab-pkg/';
+
+addpath(fullfile(pth, 'ConsoleProgressBar'); 
+addpath(fullfile(pth, 'aggregate'); 
+addpath(fullfile(pth, 'cellstr2'); 
+addpath(fullfile(pth, 'cprintf'); 
+addpath(fullfile(pth, 'ecopath_matlab'); 
+addpath(fullfile(pth, 'legendflex'); 
+addpath(fullfile(pth, 'readtext'); 
+addpath(fullfile(pth, 'regexpfound'); 
+addpath(fullfile(pth, 'setgetpos_V1.2'); 
+addpath(fullfile(pth, 'wraptext'); 
+```
+
+## Package Contents
 
 ### The `ecopathmodel` class
 
@@ -60,43 +100,15 @@ A few additional functions are provided alonside the `ecopathmodel` class, inclu
 * `rpath2ecopathmodel`: Create ecopathmodel object from Rpath data files
 * `trophiclevel`: Estimates trophic level of food web members
 
-## Installation
-
-This software requires Matlab R2015b or later.  
-
-To download, clone via git:
-
-`git clone git@github.com:kakearney/ecopath_matlab-pkg`
-
-Alternatively, you may download a zipped version of the source code via the _Clone or Download_ > _Download zip_ button above, or from the [MatlabCentral File Exchange](http://www.mathworks.com/matlabcentral/fileexchange/40082-ecopathlite-m--a-matlab-implementation-of-ecopath "FEX ecopath_matlab").
-
-Once downloaded (and unzipped, if necessary), all code subfolders in the main folder need to be added to your path (i.e all folders except the `examples` and `html` folders):
-
-```matlab
-% Replace with location of the downloaded folder
-pth = './ecopath_matlab-pkg/';
-
-addpath(fullfile(pth, 'ConsoleProgressBar'); 
-addpath(fullfile(pth, 'aggregate'); 
-addpath(fullfile(pth, 'cellstr2'); 
-addpath(fullfile(pth, 'cprintf'); 
-addpath(fullfile(pth, 'ecopath_matlab'); 
-addpath(fullfile(pth, 'legendflex'); 
-addpath(fullfile(pth, 'readtext'); 
-addpath(fullfile(pth, 'regexpfound'); 
-addpath(fullfile(pth, 'setgetpos_V1.2'); 
-addpath(fullfile(pth, 'wraptext'); 
-```
-
 ## Usage
 
-Descriptions of each function, along with syntax and description of input and output variables, can be found in the headers of each function, accessed in Matlab via the `help` command.  The reference page for the `ecopathmodel` class (including links to descriptions of all properties and methods) can be accessed via 
+Documentation for each function and method in this package is provided via standard Matlab function headers, accessed in Matlab via the `help` command.  The reference page for the `ecopathmodel` class (including links to descriptions of all properties and methods) can be accessed by typing the following in the Matlab Command Window:
 
 ```matlab
 doc ecopathmodel
 ```
 
-For an overview of the class, along with several examples of usage, please see the overview document: [html/ecopathmodel_overview.html](https://rawgit.com/kakearney/ecopath_matlab-pkg/master/html/ecopathmodel_overview.html).
+For an overview of the class, along with several examples of usage, please see the overview document: `ecopathmodel_overview.m`.  A published version of this file can be found in [html/ecopathmodel_overview.html](https://rawgit.com/kakearney/ecopath_matlab-pkg/master/html/ecopathmodel_overview.html).
 
 
 
