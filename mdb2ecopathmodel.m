@@ -33,7 +33,6 @@ function [EM, A] = mdb2ecopathmodel(file)
 
 % Copyright 2016 Kelly Kearney
 
-
 %----------------------------
 % Extract data from .mdb file
 %----------------------------
@@ -66,7 +65,9 @@ isemp = cellfun('isempty', tables);
 tables = tables(~isemp);  
 
 % Crazy regular expression for Excel-style comma-delimited stuff... find
-% commas that aren't imbedded within quotes
+% commas that aren't imbedded within quotes.  No longer needed with
+% readtable and readtext... but keeping it for reference because I'll never
+% be able to reinvent this ridiculousness. :-)
 
 pattern = ',(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))';
 
@@ -91,10 +92,10 @@ for it = 1:length(tables)
     end
     
     try
-        % TODO switch from datasets to tables
-        A.(tables{it}) = dataset('File', mdbtmp, 'Delimiter', ',');  
         
-        vname = get(A.(tables{it}), 'VarNames');
+        A.(tables{it}) = readtable(mdbtmp, 'Delimiter', ',');
+        vname = A.(tables{it}).Properties.VariableNames;
+        
         for iv = 1:length(vname)
             if isnumeric(A.(tables{it}).(vname{iv}))
                 A.(tables{it}).(vname{iv})(A.(tables{it}).(vname{iv}) == -9999) = NaN;
@@ -106,8 +107,9 @@ for it = 1:length(tables)
     catch
         
         try
-            % Dataset doesn't like Access-style commas-in-quotes fields, so
-            % parse those manually
+            % readtable will get tripped up if a field includes a newline
+            % character enclosed within quotes, so we need to manually
+            % parse that.
 
             [data, s] = readtext(mdbtmp, ',', '', '"');
             data(s.stringMask) = regexprep(data(s.stringMask), {'(^")|("$)', '""'}, {'', '"'});
@@ -116,7 +118,7 @@ for it = 1:length(tables)
             tmp(tmp == -9999) = NaN;
             data(s.numberMask) = num2cell(tmp);
             
-            A.(tables{it}) = cell2dataset(data);
+            A.(tables{it})  = cell2table(data(2:end,:), 'VariableNames', data(1,:));
             
         catch
             
