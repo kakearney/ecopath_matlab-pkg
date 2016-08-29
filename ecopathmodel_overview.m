@@ -33,21 +33,22 @@
 % connections between them, as well as the many parameters associated with
 % each state variable and group-to-group flow process.  
 %
-% Currently, there are three ways to create one of these objects:
+% Currently, there two primary methods to create one of these objects:
 %
-% # Load data from an EwE6 database file
-% # Load data from a set of Rpath-formatted .csv files
+% # Load data from one of the other flavors of Ecopath (from an EwE6
+% database file, Rpath set of .csv files, or EwE-F set of text
+% files)
 % # Build the model manually
 %
-% If you have a prexisting model, the first two methods are preferable to
+% If you have a prexisting model, the first method is preferable to
 % manual transcription, since in my experience it is very easy to
 % accidentally mis-transcribe a value, or transcribe it using less
-% precision than in the original model.  Building a model manually has the
-% advantage of providing a clear "paper trail" for all your model
-% parameters, but you have to be careful that you fill in all the necessary
-% values.  While I provide a few basic checks of input, I'm not quite as
-% good as EwE6 is at required vs. optional given the architecture of your
-% specific ecosystem.
+% precision than in the original software. Building a model manually, on
+% the other hand, has the advantage of providing a clear "paper trail" for
+% all your model parameters, but you have to be careful that you fill in
+% all the necessary values.  While I provide a few basic checks of input,
+% I'm not quite as good as EwE6 is at required vs. optional given the
+% architecture of your specific ecosystem. 
 %
 % Personally, I prefer a combination of the two techniques, where possible.
 % Use the EwE6 software during the initial data-gathering step of building
