@@ -222,7 +222,7 @@ if Opt.old
     bab2 = Base.BioAcc(ajidx)./Base.Biomass(ajidx);
     
     if ~isequal(bab1, bab2)
-        tmp = [EM.name(ajidx(:)) num2cell([bab1(:) bab2(:)])]';
+        tmp = [EM.name(ajidx(:)) num2cell([bab2(:) bab1(:)])]';
         str = sprintf('  %s: %g (base) vs %g (juvs)\n', tmp{:});
         warning('Found conflicting BA/B data for multi-stanza groups in Base and Juvs tables:\n%sReplacing Base values with those from Juvs', str);
     end
