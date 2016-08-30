@@ -48,10 +48,14 @@ else
     labels = cellstr(num2str((1:length(grps))', 'newgroup%d'));
 end
 
-iscellstr = @(x) iscell(x) & all(cellfun(@ischar, x));
+iscellstr = @(x) iscell(x) && all(cellfun(@ischar, x));
 
 if ~iscell(grps) || ~all(cellfun(iscellstr, grps))
     error('Inputs should be cell arrays of strings');
+end
+
+if ~(iscellstr(labels) && isequal(size(grps), size(labels)))
+    error('labels array should be cell array of strings, with same # of elements as groups listed');
 end
 
 grps = cellfun(@(x) x(:), grps, 'uni', 0); % make sure all column arrays
@@ -223,6 +227,9 @@ if any(hasba) % b/c floating point, only do if necessary
 end
 
 
+[~, detpb] = aggregate(aidxg, EM.groupdata.detpb, @nanmean);
+detpb = cat(1, detpb{:});
+
 % Add back the specially-handled groupdata variables
 
 gd.ageStart = age;
@@ -233,6 +240,7 @@ gd.pp = pptype(1:ngnew);
 gd.areafrac = ones(ngnew,1);
 gd.immig = imig;
 gd.emig = emig;
+gd.detpb = detpb;
 
 
 % If parameter was missing from all sub-groups in the original model,
@@ -272,6 +280,7 @@ disf(isnan(disf)) = 0;  % TODO: if group has no discard, this doesn't preserve d
 
 detf = detf(:,1:end-1);
 disf = disf(:,1:end-1);
+
 
 % Stanzas
 
