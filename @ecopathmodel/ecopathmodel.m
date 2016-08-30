@@ -622,8 +622,8 @@ classdef ecopathmodel
                 error('Names must be cell array of string');
             end
             if ~all(cellfun(@isvarname, val))
-                warning('Names must meet variable name restirctions; modfying');
-                val = matlab.lang.makeValidName(val, 'delete');
+                warning('Names must meet variable name restrictions; modifying');
+                val = matlab.lang.makeValidName(val, 'ReplacementStyle', 'delete');
             end
             
             obj.fleet = val;
