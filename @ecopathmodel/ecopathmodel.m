@@ -14,8 +14,10 @@ classdef ecopathmodel
 % - To refer to a set of input data for a particular ecosystem, intended to
 %   be used with the Ecopath (and/or Ecosim, Ecospace, etc.) algorithm(s)
 %
-% In this code, the ecopathmodel object represents the latter of these: a
-% storage-container for input data related to the Ecopath algorithm.  
+% In this code, the ecopathmodel object properties represent the latter of
+% these: a storage-container for input data related to the Ecopath
+% algorithm.  The mass-balancing algorithm is contained in the ecopath
+% method.
 %
 % The units used in the property descriptions are defined in terms of three
 % dimensions: M = mass, A = area (or volume), and T = time. In the original
@@ -31,7 +33,8 @@ classdef ecopathmodel
 % 
 % ecopathmodel Properties:
 %
-%   ngroup:     scalar, Number of groups (living and detrital) in the model
+%   ngroup:     scalar, Number of functional groups (living and detrital)
+%               in the model 
 %
 %   nlive:      scalar, Number of living groups (non-detrital) in model
 %
@@ -68,12 +71,12 @@ classdef ecopathmodel
 %                           assimilated (unitless)
 %
 %               dtImp:      detritus import (should be zero for all
-%                           non-detrital groups) (MA^-1 T^-1) 
+%                           non-detrital groups) (M A^-1 T^-1) 
 %
 %               bh:         habitat biomass, i.e. biomass per unit
 %                           habitable area (M A^-1).  This variable is
-%                           designed as a shortcut if all your critters are
-%                           clustered in only a small portion of the
+%                           designed as a shortcut if a particular critter
+%                           is clustered in only a small portion of the
 %                           habitat area, such that bh = b/areafrac.  For
 %                           each group, either b or bh can be defined;
 %                           leave as NaN to calculate based on the other.
@@ -119,7 +122,7 @@ classdef ecopathmodel
 %                           (for detrital groups only), indicates that the
 %                           biomass for this group should be estimated
 %                           assuming a turnover rate of the detrital pool
-%                           equal to this value. 
+%                           equal to this value.
 %
 %               import:     fraction of group's diet that comes from
 %                           outside the system (unitless, 0-1)
@@ -140,12 +143,16 @@ classdef ecopathmodel
 %               fraction of non-predatory losses (unassimilated
 %               consumption, non-predatory mortality) that go into each
 %               detrital pool. Rows correspond to functional groups,
-%               columns to detrital groups.
+%               columns to detrital groups.  Sum across rows shoud be <= 1;
+%               if <1, the remaining fraction is assumed to be exported
+%               from the system.
 %
 %   discardFate:table of discard fate (unitless, 0-1).  Values represent
 %               fraction of fisheries discards that go into each detrital
 %               pool. Rows correspond to gear types, columns to detrital
-%               groups.   
+%               groups.  Sum across rows shoud be <= 1; if <1, the
+%               remaining fraction is assumed to be exported from the
+%               system.  
 %
 %   stanza:     nstanza x 1 cell array of strings, names corresponding to
 %               stanza sets.  Stanza sets are used to indicate that 2 or
@@ -170,6 +177,16 @@ classdef ecopathmodel
 %                           set.  Can be used as an alternative reference
 %                           (as opposed to leading stanza biomass) when
 %                           calculating biomass-per-stanza-group curves.
+%               WmatWinf:   Wmat/Winf, where Wmat = weight at maturity and
+%                           Winf = asymptotic weight at age infinity.
+%                           This is an Ecosim-specific parameter, not used
+%                           in this code, but its value is saved here to
+%                           allow passing of Ecopath data between other EwE
+%                           flavors (e.g. from EwE6 to here to Rpath).
+%               RecPower:   Recruitment power.  This is also an
+%                           Ecosim-specific parameter, unused here and only
+%                           saved for future use by Rpath/EwE6/etc.
+%       
 %
 %   pedigree:   table of pedigree values for a model.  These values
 %               represent the uncertainty of a value as a fraction of that

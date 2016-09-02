@@ -1,5 +1,5 @@
 function G = graph(EM, varargin)
-%GRAPH Convert ecopathmodel object to a diagraph object
+%GRAPH Convert ecopathmodel object to a digraph object
 %
 % G = graph(EM)
 % G = graph(EM, p1, v1, ...)

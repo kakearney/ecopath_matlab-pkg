@@ -4,8 +4,8 @@ function A = calcstanza(A, varargin)
 % A = calcstanza(EM)
 % A = calcstanza(EM, p1, v1)
 %
-% This function calculates the B and QB values associated with multistanza
-% ecopath groups.
+% This function calculates the B, QB, and BA values associated with
+% multistanza ecopath groups. 
 %
 % A few caveats...
 %
@@ -30,9 +30,9 @@ function A = calcstanza(A, varargin)
 % Optional input variables (passed as parameter/value pairs)
 %
 %   plot:   logical scalar, true to plot growth curve details for each
-%           stanza group, primarily for debugging purposes.  [false] 
+%           stanza group [false] 
 %
-%   da:     discretizatin interval (months) for age calculations [1]
+%   da:     discretizatin interval (in months) for age calculations [1]
 %
 % Output variables:
 %
