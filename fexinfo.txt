@@ -1,0 +1,16 @@
+title: ecopath_matlab: A Matlab implementation of Ecopath
+
+one-liner: Reproduces the main mass-balance algorithm from the popular ecosystem modeling tool, Ecopath
+
+description: 
+
+This package provides a Matlab-based implementation of the Ecopath algorithm (part of the popular fisheries ecosystem modeling tool Ecopath with Ecosim (http://www.ecopath.org), as well as a few functions for further analysis and visualization of an Ecopath-style food web. 
+
+This software is intended for people already familiar with the Ecopath concept who wish to perform that particular calculation, as well as related analysis of food web properties, outside of the GUI environment provided by the original EwE software.
+
+
+Acknowledgements: cprintf, readtext, setgetpos, wraptext, ConsoleProgressBar
+
+Required Products: Stats Toolbox
+
+Matlab release: 2015b-2016a
