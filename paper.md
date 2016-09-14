@@ -7,7 +7,7 @@
   authors:
    - name: Kelly A. Kearney
      affiliation: University of Washington, JISAO
-  date:
+  date: 14 September 2016
   bibliography: paper.bib
   ---
 	
