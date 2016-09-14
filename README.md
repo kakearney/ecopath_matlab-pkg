@@ -2,6 +2,8 @@
 
 # A Matlab implementation of Ecopath 
 
+**Author: Kelly Kearney**
+
 This package provides a Matlab-based implementation of the Ecopath algorithm (part of the popular fisheries ecosystem modeling tool [Ecopath with Ecosim](http://www.ecopath.org)), as well as a few functions for further analysis and visualization of an Ecopath-style food web.
 
 This software is intended for people already familiar with the Ecopath concept who wish to perform that particular calculation, as well as related analysis of food web properties, outside of the GUI environment provided by the original EwE software.  It assumes a basic working knowledge of Matlab.
@@ -10,9 +12,7 @@ This software is intended for people already familiar with the Ecopath concept w
 
 ### Prerequisites
 
-This software requires [Matlab R2015b](http://www.mathworks.com/products/matlab/) or later.
-
-For full use, it also requires the [Statistics and Machine Learning Toolbox](http://www.mathworks.com/products/statistics/).
+This software requires [Matlab R2015b](http://www.mathworks.com/products/matlab/) or later.  It also requires the [Statistics and Machine Learning Toolbox](http://www.mathworks.com/products/statistics/).
 
 No OS limitations beyond those required for Matlab itself.
   
@@ -100,6 +100,7 @@ A few additional functions are provided alonside the `ecopathmodel` class, inclu
 * `rpath2ecopathmodel`: Create ecopathmodel object from Rpath data files
 * `trophiclevel`: Estimates trophic level of food web members
 
+
 ## Usage
 
 Documentation for each function and method in this package is provided via standard Matlab function headers, accessed in Matlab via the `help` command.  The reference page for the `ecopathmodel` class (including links to descriptions of all properties and methods) can be accessed by typing the following in the Matlab Command Window:
@@ -110,6 +111,27 @@ doc ecopathmodel
 
 For an overview of the class, along with several examples of usage, please see the overview document: `ecopathmodel_overview.m`.  A published version of this file can be found in [html/ecopathmodel_overview.html](https://rawgit.com/kakearney/ecopath_matlab-pkg/master/html/ecopathmodel_overview.html).
 
+## Contributions
+
+Community contributions to this package are welcome!
+
+To report bugs, please submit an issue [here](https://github.com/kakearney/ecopath_matlab-pkg/issues), and include:
+
+- your operating system
+- your version of Matlab and all relevant toolboxes (type `ver` at the Matlab command line to get this info)
+- code/data to reproduce the error or buggy behavior, and the full text of any error messages received
+
+Please also feel free to submit enhancement requests, or to send pull requests for bug fixes or new features.
+
+I do monitor the MatlabCentral FileExchange entry for any issues raised in the comments, but would prefer to track issues here on GitHub.
 
 
+### A note on versions
 
+I maintain tagged versions of this software for citation purposes only.  Actual improvements to the code are made continuously as issues arise, and are not labeled with version numbers.  My numbering system is, roughly:
+
+- 0.x: ecopathlite.m in its infancy, tailored to my Ph.D. thesis work.
+- 1.x: The mostly-stable ecopathlite.m code suite (available on GitHub as [ecopathlite-pkg](https://github.com/kakearney/ecopathlite-pkg)).  I plan to keep that code around for back-compatibility and previous citation purposes, but am no longer making any updates to it.
+- 2.x: Rewrite of ecopathlite.m and its companion functions with an object-oriented approach; reorganized, fully-documented, and now intended for full use by others.
+
+I began syncing this repo and the MatlabCentral File Exchange (FEX) entry in May 2015; the FEX labels that entry as "1.3". However, the "version numbers" listed on the FEX are automatically incremented based on updates I made to the FEX landing page (e.g. entry name, description), *not* based on changes to the underlying code.  I have no control over that numbering system, and it is only by luck that the version numbers I assign to tagged releases bear any resemblance to the ones on that page, so please do not refer to those for citation purposes.
