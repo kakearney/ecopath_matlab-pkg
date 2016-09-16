@@ -1,16 +1,16 @@
-  ---
-  title: 'ecopath_matlab: A Matlab-based implementation of the Ecopath food web algorithm'
-  tags:
-    - Ecopath
-    - food web
-    - network analysis
-  authors:
-   - name: Kelly A. Kearney
-     affiliation: University of Washington, JISAO
-  date: 14 September 2016
-  bibliography: paper.bib
-  ---
-	
+---
+title: 'ecopath_matlab: A Matlab-based implementation of the Ecopath food web algorithm'
+tags:
+  - Ecopath
+  - food web
+  - network analysis
+authors:
+ - name: Kelly A. Kearney
+   affiliation: University of Washington, JISAO
+date: 14 September 2016
+bibliography: paper.bib
+---
+
 # Summary
 
 The Ecopath with Ecosim model [@christensen2004] is one of the most widely-used ecosystem modeling frameworks in fisheries science, and its use has contributed to over 400 scientific publications [@Akoglu2015].  The software is centered on a mass-balance algorithm (Ecopath) that uses commonly-measured metrics of fish and fisheries to quantify key features of a food web network, including biomass/energy of all state variables in an ecosystem (living groups, detrital pools, and fishing fleets) and the fluxes between them.
