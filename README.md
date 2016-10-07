@@ -15,6 +15,8 @@ This software is intended for people already familiar with the Ecopath concept w
 This software requires [Matlab R2015b](http://www.mathworks.com/products/matlab/) or later.  It also requires the [Statistics and Machine Learning Toolbox](http://www.mathworks.com/products/statistics/).
 
 No OS limitations beyond those required for Matlab itself.
+
+At present, this package is not compatible with Octave (v4.0.3).
   
 ### Downloading
 
@@ -32,16 +34,16 @@ Once downloaded (and unzipped, if necessary), all code subfolders in the main fo
 % Replace with location of the downloaded folder
 pth = './ecopath_matlab-pkg/';
 
-addpath(fullfile(pth, 'ConsoleProgressBar'); 
-addpath(fullfile(pth, 'aggregate'); 
-addpath(fullfile(pth, 'cellstr2'); 
-addpath(fullfile(pth, 'cprintf'); 
-addpath(fullfile(pth, 'ecopath_matlab'); 
-addpath(fullfile(pth, 'legendflex'); 
-addpath(fullfile(pth, 'readtext'); 
-addpath(fullfile(pth, 'regexpfound'); 
-addpath(fullfile(pth, 'setgetpos_V1.2'); 
-addpath(fullfile(pth, 'wraptext'); 
+addpath(fullfile(pth, 'ConsoleProgressBar')); 
+addpath(fullfile(pth, 'aggregate')); 
+addpath(fullfile(pth, 'cellstr2')); 
+addpath(fullfile(pth, 'cprintf')); 
+addpath(fullfile(pth, 'ecopath_matlab')); 
+addpath(fullfile(pth, 'legendflex')); 
+addpath(fullfile(pth, 'readtext')); 
+addpath(fullfile(pth, 'regexpfound')); 
+addpath(fullfile(pth, 'setgetpos_V1.2')); 
+addpath(fullfile(pth, 'wraptext')); 
 ```
 
 ## Package Contents
