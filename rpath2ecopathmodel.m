@@ -104,6 +104,13 @@ if Opt.old
 else
     Stan = readtable([basename Opt.stanzastr '.csv'], 'TreatAsEmpty', 'NA');
     Sgrp = readtable([basename Opt.stgrpstr '.csv'], 'TreatAsEmpty', 'NA');
+ 
+    isn = isnan(Stan.StGroupNum);
+    Stan = Stan(~isn,:);
+    
+    isn = isnan(Sgrp.StGroupNum);
+    Sgrp = Sgrp(~isn,:);
+    
 end
 
 B.Base = Base;
@@ -116,6 +123,8 @@ if Opt.old
 else
     B.Juvs = [];
 end
+
+sflag = ~isempty(Stan);
 
 % Parse column names
 
@@ -138,11 +147,16 @@ pp     = Base.Type(isgroup);
 
 groups = strtrim(Base.Group(isgroup));
 fleets = strtrim(Base.Group(isgear));
-stanzas = Sgrp.StanzaGroup;
+if sflag
+    stanzas = Sgrp.StanzaGroup;
+else
+    stanzas = {};
+end
 
 grp = alternames(groups);
 flt = alternames(fleets);
 stz = alternames(stanzas);
+
 
 old = [groups; fleets; stanzas];
 new = [grp; flt; stz];
