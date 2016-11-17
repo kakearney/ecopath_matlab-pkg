@@ -1,3 +1,5 @@
+[![status](http://joss.theoj.org/papers/55cdc396174664e690bec9b2fa7c50bf/status.svg)](http://joss.theoj.org/papers/55cdc396174664e690bec9b2fa7c50bf)
+
 <img src="./matlabEcopathLogo.png" width="100">
 
 # A Matlab implementation of Ecopath 
