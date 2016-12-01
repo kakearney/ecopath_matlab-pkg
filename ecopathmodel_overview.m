@@ -737,26 +737,52 @@ cmap = jet(17);
 
 % Plot histograms of createensemble output
 
+calclims = @(x) [min(x(:)) max(x(:))];
+calcedges = @(x) linspace(x(1)-diff(x)*0.01, x(2)+diff(x)*0.01, 10);
+histoutline = @(edg,n,col) stairs([edg(1) reshape(edg,1,[]) edg(end)], [0 reshape(n,1,[]) 0], 'color', col);
+
 figure;
 ax(1) = subplot(2,1,1);
 hold on;
-hh = gobjects(17,1);
-for ii = 1:17
-    hh(ii) = histogram(x(:,ii), hopts{:}, 'edgecolor', cmap(ii,:));
+if verLessThan('matlab', 'R2016b')
+    for ii = 1:17
+        edg = calcedges(calclims(x(:,ii)));
+        ntmp = histc(x(:,ii), edg);
+        histoutline(edg, ntmp, cmap(ii,:));
+    end
+    edg = calcedges(calclims(sum(x(:,1:17),2)));
+    ntmp = histc(sum(x(:,1:17),2), edg);
+    histoutline(edg, ntmp, 'k');
+else
+    for ii = 1:17
+        histogram(x(:,ii), hopts{:}, 'edgecolor', cmap(ii,:));
+    end
+    histogram(sum(x(:,1:17),2), hopts{:}, 'edgecolor', 'k');
 end
-htot = histogram(sum(x(:,1:17),2), hopts{:}, 'edgecolor', 'k');
 
 % Run output through subpedigreevalues and plot histograms
 
 B = Tb.subpedigreevalues(x');
 dc = reshape(B.dc, [], size(x,1));
 idx = sub2ind([Tb.ngroup Tb.ngroup], Tb.pedigree.row(1:17), Tb.pedigree.column(1:17));
+
 ax(2) = subplot(2,1,2);
 hold on;
-for ii = 1:17
-    histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
+if verLessThan('matlab', 'R2016b')
+    for ii = 1:17
+        edg = calcedges(calclims(dc(idx(ii),:)));
+        ntmp = histc(dc(idx(ii),:), edg);
+        histoutline(edg, ntmp, cmap(ii,:));
+    end
+    edg = linspace(0.9,1.1,10);
+    ntmp = histc(sum(dc(idx,:),1), edg);
+    histoutline(edg, ntmp, 'k');
+else
+    for ii = 1:17
+        histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
+    end
+    histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k');
 end
-histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'binlimits', [0.999 1.001]);
 
 % Legend
 
