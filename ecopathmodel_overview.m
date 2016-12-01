@@ -744,7 +744,7 @@ histoutline = @(edg,n,col) stairs([edg(1) reshape(edg,1,[]) edg(end)], [0 reshap
 figure;
 ax(1) = subplot(2,1,1);
 hold on;
-if verLessThan('matlab', 'R2016b')
+if verLessThan('matlab', 'R2014b')
     for ii = 1:17
         edg = calcedges(calclims(x(:,ii)));
         ntmp = histc(x(:,ii), edg);
@@ -768,7 +768,7 @@ idx = sub2ind([Tb.ngroup Tb.ngroup], Tb.pedigree.row(1:17), Tb.pedigree.column(1
 
 ax(2) = subplot(2,1,2);
 hold on;
-if verLessThan('matlab', 'R2016b')
+if verLessThan('matlab', 'R2014b')
     for ii = 1:17
         edg = calcedges(calclims(dc(idx(ii),:)));
         ntmp = histc(dc(idx(ii),:), edg);
