@@ -67,26 +67,30 @@
 %
 % The current version of Ecopath with Ecosim stores data in
 % specially-formatted Microsoft Access database files, with the .EwEmdb
-% extension.  The |mdb2ecopathmodel| function will read data from one of
-% these files into an |ecopathmodel| object, with two caveats:
+% extension.
 %
-% # You need to first install the |mdbtools| set of command-line utilities.
-% They're available for download here: <https://github.com/brianb/mdbtools>.
-% Install instructions for *nix systems are included on GitHub; for Mac, I
-% recommend installing via either MacPorts or Homebrew.  Windows users (and
-% I know that's most of the Ecopath-using community): I've never compiled
-% this tool on a Windows machine, though I know it can be done.  I don't
-% work with any Windows machines myself, so this is a big shortcoming in
-% this code base at the moment. If any of you have compiled mdbtools on a
-% Windows system, or have a better way of reading .mdb files into Matlab on
-% a Windows machine (using the Database Toolbox, maybe?), please contact
-% me!  I'd love to make this utility easier to use on Windows.
-% # I expect all files to use the EwE6 format.  If you have older files
-% (EwE5 .mdb files), you'll first need to import them into EwE6 and let its
-% conversion tool convert to the newer format.  (There were some minor
-% changes made to the file format between EwE6.4 and EwE6.5... the changed
-% table properties are untouched by this routine, so either format is
-% fine). 
+% Freeing model data from these database files is not exactly a
+% straightforward proposition.  The file format is proprietary and
+% outdated, and typical use requires the proper (Windows-only) database
+% drivers for access.  Because of this, most Ecopath-related tools I'm aware of (like Rpath
+% or EwE-F) request users to copy and paste data from EwE into various
+% spreadsheets for import. I dislike this solution because it's vulnerable
+% to human error and the process needs to be repeated any time you update
+% the model in the EwE GUI.  Also, there are a lot of smaller tables
+% (pedigree lookup tables, stanza age-curve related stuff) that users tend
+% to set and then forget about.    
+%
+% I say all this as a bit of an apology for the fact that in order to read
+% these files into Matlab directly, you're going to need to install
+% some third-party tools.  If you're using Linux or Mac OS, you need the
+% mdbtools set of command-line utilities.  On Windows, you need python, the
+% pyodbc module, and a Microsoft Access ODBC driver. For further details of
+% this installation, type 
+% 
+%   help mdb2ecopathmodel
+%
+% at the Matlab command prompt.  Once you've gotten the appropriate
+% software set up, you can run the following example.
 %
 % This example reads in one of the example ecosystems that ships with the
 % EwE6 software (and that I've included in this package under the examples
@@ -781,7 +785,7 @@ else
     for ii = 1:17
         histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
     end
-    histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k');
+    histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'BinLimits', [0.99 1.01]);
 end
 
 % Legend
