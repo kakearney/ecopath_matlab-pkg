@@ -479,7 +479,7 @@ classdef ecopathmodel
             % Detrital biomass doesn't effect Ecopath balance, but needs to
             % be filled in as something
             
-            detbmissing = isnan(val.b) & val.pp == 2;
+            detbmissing = isnan(val.b) & isnan(val.bh) & val.pp == 2;
             if any(detbmissing)
                 warnmessage('Detritus groups found with missing biomass; replacing with 0', ...
                         detbmissing, 'b', val);
@@ -504,12 +504,25 @@ classdef ecopathmodel
             % Emig or Emig Rate
             %
             % Check these, make sure user doesn't set both
-           
+            
             bothb = ~isnan(val.b) & ~isnan(val.bh);
             if any(bothb)
-                str = sprintf('%s, ', val.Properties.RowNames{bothb});
-                str = str(1:end-2);
-                error('Cannot set both B and BH (%s) for a group; choose one and set the other to NaN', str);
+                
+                % Special case: detritus that was zeroed out due to
+                % missing both, but later had BH added
+                
+                detbh = bothb & val.pp == 2 & val.b == 0;
+                warnmessage('Found BH for detritus with B=0, using BH value and removing B', ...
+                    detbh, 'bh', val);
+                
+                % Otherwise... 
+                
+                bothb = bothb & ~detbh;
+                if any(bothb)
+                    str = sprintf('%s, ', val.Properties.RowNames{bothb});
+                    str = str(1:end-2);
+                    error('Cannot set both B and BH (%s) for a group; choose one and set the other to NaN', str);
+                end
             end
             
             bothba = ~isnan(val.ba) & ~isnan(val.baRate);
