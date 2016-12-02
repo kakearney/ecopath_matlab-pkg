@@ -11,8 +11,8 @@ function [xcon, yagg, yidxagg] = aggregate(x, y, fun)
 %
 % Input variables:
 %
-%   x:          n x 1 array, categories, can be either numeric or a cell
-%               array of strings  
+%   x:          n x p array, aggregator variable can be either numeric or a
+%               cell array of strings   
 %
 %   y:          n x m array, values to be grouped
 %
@@ -21,7 +21,7 @@ function [xcon, yagg, yidxagg] = aggregate(x, y, fun)
 %
 % Output variables:
 %
-%   xcon:       unique values of x
+%   xcon:       unique rows of x
 %
 %   yagg:       cell array of y values corresponding to each x.
 %
