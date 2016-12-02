@@ -42,3 +42,4 @@ Thumbs.db
 mdbexport/build
 mdbexport/dist
 mdbexport/*egg*
+*__pycache__*
