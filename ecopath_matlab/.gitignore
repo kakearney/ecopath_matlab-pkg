@@ -35,3 +35,11 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Project-specific #
+######################
+
+mdbexport/build
+mdbexport/dist
+mdbexport/*egg*
+*__pycache__*

@@ -5,11 +5,21 @@ function S = networkindices(EM, varargin)
 % S = networkindices(EM, p1, v1, ...)
 %
 % This function calculates a variety of network indices for an Ecopath
-% model.  The indices calculated are based on the NetIndices R package;
-% these are similar to (but in some cases not identical to) the formulas
-% used by Statistics and Network Analysis tools in EwE6.  I have also
-% included a handful of Ecopath-specific indices that are not part of the
-% NetIndices package.
+% model.  It was inspired by the following study:
+%
+% Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-Béat B, Karimi B,
+% Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web
+% parameter uncertainty into Ecopath-derived ecological network indicators.
+% Ecol Modell 313:29?40   
+% DOI: 10.1016/j.ecolmodel.2015.05.036
+%
+% The specific network indices calculated herein have been streamlined
+% compared to the code offered alongside the above publication. The indices
+% calculated are primarily based on the NetIndices R package; these are
+% similar to (but in some cases not identical to) the formulas used by
+% Statistics and Network Analysis tools in EwE6.  I have also included a
+% handful of Ecopath-specific indices that are not part of the NetIndices
+% package.    
 %
 % Input variables:
 %

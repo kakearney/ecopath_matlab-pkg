@@ -9,7 +9,7 @@ function A = networkindices(T)
 % Kones, J.K., Soetaert, K., van Oevelen, D. and J.Owino (2009). Are
 % network indices robust indicators of food web functioning? a Monte Carlo
 % approach. Ecological Modelling, 220, 370-382.  
-% (http://dx.doi.org/10.1016/j.ecolmodel.2008.10.012)
+% DOI: 10.1016/j.ecolmodel.2008.10.012
 %
 % Note that for this function, I expect the input matrix to group all
 % imports, exports, and dissipation terms into only 3 terms, rather than

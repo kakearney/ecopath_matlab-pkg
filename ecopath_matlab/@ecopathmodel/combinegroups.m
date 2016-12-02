@@ -133,7 +133,7 @@ end
 
 % Sum biomass (use balanced version)
 
-Ep = EM.ecopath;
+[Ep, epflag] = EM.ecopath;
 
 [~, b] = aggregate(aidxg, Ep.b);
 
@@ -223,9 +223,8 @@ hasba = cell2mat(hasba);
 gd.ba = zeros(size(gd.b));
 if any(hasba) % b/c floating point, only do if necessary
     batmp = P - Y - M2 - E - P.*(1-gd.ee);
-    gd.ba(hasba) = batmp(hasba);
+    gd.ba(hasba) = batmp(hasba);    
 end
-
 
 [~, detpb] = aggregate(aidxg, EM.groupdata.detpb, @nanmean);
 detpb = cat(1, detpb{:});
@@ -241,6 +240,11 @@ gd.areafrac = ones(ngnew,1);
 gd.immig = imig;
 gd.emig = emig;
 gd.detpb = detpb;
+
+% Rate inputs
+
+gd.baRate = gd.ba./gd.b;
+gd.emigRate = gd.emig./gd.b;
 
 
 % If parameter was missing from all sub-groups in the original model,

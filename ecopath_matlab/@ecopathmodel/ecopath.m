@@ -26,15 +26,17 @@ function varargout = ecopath(EM, varargin)
 %
 % Christensen, V. & Pauly, D. ECOPATH II--a software for balancing
 % steady-state ecosystem models and calculating network characteristics.
-% Ecological Modelling 61, 169?185 (1992).  
+% Ecological Modelling 61, 169-185 (1992).
+% DOI:10.1016/0304-3800(92)90016-8
 %
 % Christensen, V. & Walters, C. J. Ecopath with Ecosim: methods,
-% capabilities and limitations. Ecological Modelling 172, 109?139 (2004). 
+% capabilities and limitations. Ecological Modelling 172, 109-139 (2004). 
+% DOI: 10.1016/j.ecolmodel.2003.09.003
 %
 % Note: I developed this code based on the equations documented in
 % Appendix 4 of the EwE5 help files (this appendix is referenced in the EwE
-% User's Guide, but only seems to be available through the help menu of
-% EwE5), and continue to add updates based on the EwE6 source code.
+% User's Guide, but only seems to be available these days through the help
+% menu of EwE5).  I continue to add updates based on the EwE6 source code. 
 %
 % Input variables:
 %
@@ -44,7 +46,7 @@ function varargout = ecopath(EM, varargin)
 %
 %   ensemble:   nped x nset array of values.  Each column represents one
 %               set of values to be substituted into EM using the
-%               subpedigreevalsues method.  If this input is included, the
+%               subpedigreevalues method.  If this input is included, the
 %               Ecopath mass-balance calculation will be repeated for the
 %               "central model" defined by EM as well as for variations of
 %               that model where certain input parameters have been changed
@@ -109,18 +111,20 @@ function varargout = ecopath(EM, varargin)
 %                               biomass due to fishing (T^-1) 
 %
 %               predMortRate:   ngroup x 1 array, mortality per unit
-%                               biomass due to predation, M2 in some
-%                               documentation (T^-1)   
+%                               biomass due to predation.  Often referred
+%                               to in equations as M2. (T^-1)    
 %
 %               migrationRate:  ngroup x 1 array, net migration per unit
 %                               biomass (T^-1) 
 %
 %               otherMortRate:  ngroup x 1 array, mortality per unit
-%                               biomass due to anything else (T^-1) 
+%                               biomass due to anything other than fishing
+%                               and predation.  Often referred to in
+%                               equations as M0. (T^-1)
 %
 %               predMort:       ngroup x ngroup array, predation mortality
 %                               broken down by predator and prey,
-%                               C.predMoreRate = sum(C.predMort,2). (T^-1)
+%                               C.predMortRate = sum(C.predMort,2). (T^-1)
 %
 %               q0:             ngroup x ngroup array, q0(i,j) is the flux
 %                               of biomass from group i to group j.  For j
@@ -157,34 +161,40 @@ function varargout = ecopath(EM, varargin)
 %
 %               export:         (ngroup + ngear) x 1 array, export out of
 %                               the system by each group/gear.  Includes
+%                               fisheries landings, detritus export, and
 %                               nonpredatory and egested loss not directed
-%                               to detritus, fisheries landings, and
-%                               detritus export. 
+%                               to detritus.  
 %
 %               flow:           (ngroup + ngear + 1) x (ngroup + ngear + 2)
 %                               array, matrix of all flows in the system,
 %                               with  rows corresponding to source groups
 %                               and columns to sink groups.  Rows/columns
 %                               are in the order of live groups, detrital
-%                               groups, fishing gears, outside the system,
-%                               and respiration-destination.
+%                               groups, fishing gears, and outside the
+%                               system "boxes" (see Idx for details).
 %
 %               Idx:            structure of indices corresponding to the
 %                               rows and columns of the flow array,
 %                               categorized as living groups (liv),
 %                               detrital groups(det), fishing gears (gear),
-%                               outside the system (out), and the
+%                               generic outside the system (out), the
 %                               mysterious beyond where respiration goes
-%                               (res).                       
+%                               (res), destination for fisheries landings
+%                               (lan), and the source of primary production
+%                               (gpp).
+%                            
 %
 %   CE:         1 x nens structure with same format as C. Multi-ensemble
 %               runs only, where nens is the number of ensemble members
 %               described by the ensemble input variable.
 %
-%   flag:       false if all unknowns are filled, true if not.  This output
+%   flag:       Flag to signify a failure of the Ecopath algorithm, false
+%               if all unknowns are filled, true if not. This output
 %               was primarily added for testing purposes.  Unfilled
-%               unknowns are usually due to incorrect input, but may point
-%               to a bug in this implementation of the Ecopath algorithm.
+%               unknowns are usually due to incorrect input (not enough
+%               parameters provided), but may point to a bug in this
+%               implementation of the Ecopath algorithm. 
+%
 %               Output not available with multi-ensemble calculation
 %               (Assuming the main model of the ensemble can be filled, the
 %               other ensemble members should too, with one exception: the

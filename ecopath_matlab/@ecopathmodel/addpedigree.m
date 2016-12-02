@@ -1,24 +1,27 @@
 function EM = addpedigree(EM, prop, rowname, colname, value)
 %ADDPEDIGREE Add entries to the pedigree table
 %
-% B = addpedigree(A, prop, rowname, colname, value)
+% B = addpedigree(EM, prop, rowname, colname, value)
 %
-% This function provides a quick way to add values to the pedigree table.
+% This function provides a quick way to add values to the pedigree table
+% property of an ecopathmodel object. 
 %
 % Input variables:
 %
-%   A:          ecopathmodel object
+%   EM:         ecopathmodel object
 %
 %   prop:       string, property value for pedigree table, should
-%               correspond to one of the table properties A 
+%               correspond to one of the table properties in A
+%               ('groupdata', 'dc', 'landing', 'discard', 'df',
+%               'discardFate', or 'stanzadata')
 %
 %   rowname:    string or cell array of strings, table row names to which
 %               pedigree will be added.  If empty, it will be applied to
 %               all rows of the table.
 %
-%   colname:    string or cell array of strings, table column (variable)
-%               names to which pedigree will be added.  If empty, it will
-%               be applied to all columns of the table. 
+%   colname:    string or cell array of strings, table column (i.e.
+%               variable) names to which pedigree will be added.  If empty,
+%               it will be applied to all columns of the table.   
 %
 %   value:      pedigree value
 

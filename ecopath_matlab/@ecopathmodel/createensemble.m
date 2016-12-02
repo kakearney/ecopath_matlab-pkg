@@ -105,7 +105,7 @@ function [x, Out] = createensemble(A, nsample, varargin)
 %                       uniform  and triangular distributions of each
 %                       parameter
 %
-%               hi:     nset x 1 array, of the upper-end cutoff for the
+%               hi:     nset x 1 array, the upper-end cutoff for the
 %                       uniform and triangular distributions of each
 %                       parameter 
 %

@@ -3,8 +3,8 @@ function A = unitconvert(A, oldunit, newunit, varargin)
 %
 % A = unitconvert(EM, oldunit, newunit, varargin)
 %
-% This method recalculas parameters value, assuming a change in units of
-% the mass, area/volume, and/or time dimensions of the dataset.
+% This method recalculates parameter values, assuming a change in units of
+% the mass, area or volume, and/or time dimensions of an ecopathmodel object.
 %
 % Input variables:
 %
