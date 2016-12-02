@@ -115,9 +115,11 @@ end
 % Read all Ecopath table data
 
 err = cell(0,2);
+w = warning('off', 'MATLAB:table:ModifiedVarnames');
 for it = 1:length(tables)
+    mdbtmp = fullfile(csvfolder, [tables{it} '.csv']);
     try
-        
+   
         A.(tables{it}) = readtable(mdbtmp, 'Delimiter', ',');
         vname = A.(tables{it}).Properties.VariableNames;
         
@@ -161,6 +163,7 @@ for it = 1:length(tables)
         end
     end
 end
+warning(w);
 
 %----------------------------
 % Build ecopathmodel object
@@ -428,29 +431,29 @@ if ispc % Windows
             end
         end
     end
-    str = 'Python Error: ImportError: No module named';
+    modnotfound = @(ME) ~isempty(strfind(ME.message, 'No module named'));
     try
-        py.importlib.import_module('pyodbc')
+        py.importlib.import_module('pyodbc');
     catch ME
-        if strncmp(ME.message, str, length(str))
+        if modnotfound(ME)
             error('Could not import pyodbc python module; please make sure it is installed');
         else
             rethrow(ME);
         end
     end
     try
-        py.importlib.import_module('csv')
+        py.importlib.import_module('csv');
     catch ME
-        if strncmp(ME.message, str, length(str))
+        if modnotfound(ME)
             error('Could not import csv python module; please make sure it is installed');
         else
             rethrow(ME);
         end
     end
     try
-        py.importlib.import_module('mdbexport')
+        py.importlib.import_module('mdbexport');
     catch ME
-        if strncmp(ME.message, str, length(str))
+        if modnotfound(ME)
             pth = fileparts(which('mdb2ecopathmodel'));
             mdbpath = fullfile(pth, 'mdbexport', 'mdbexport');
             P = py.sys.path;
@@ -458,7 +461,7 @@ if ispc % Windows
                 insert(P,int32(0),mdbpath);
             end
             try
-                py.importlib.import_module('mdbexport')
+                py.importlib.import_module('mdbexport');
             catch
                 error('Could not import mdbexport python module; please check that you either installed it locally or kept it in its default location in the ecopath_matlab package');
             end
