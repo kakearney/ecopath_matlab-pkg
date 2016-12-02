@@ -41,28 +41,58 @@ if ~exist(file, 'file')
     error('Could not find file: %s', file);
 end
 
-% Translate file names such that they can be passed via command line
+% Check that mdb-querying tools are ready to go
 
-file = regexprep(file, '([\s,<>|:\(\)&;\?\*])', '\\$1');
+checkdeps;
 
-% Read table names
+% Dump tables to comma-delimited files
 
-cmd = sprintf('mdb-tables -d, %s', file);
-[s,r] = system(cmd);
-if s
-    if s == 127
-        msg = 'Error calling mdb-tables.  Please make sure you have installed the mdbtools utility and that it is accessible to Matlab (Note that your MATLAB system path, seen with getenv(''PATH''), may differ from your Matlab search path; the former is what matters here)';
-        msg = wraptext(msg, 70);
-        error('%s', msg);
-    else
+csvfolder = tempname;
+if ~exist(csvfolder, 'dir')
+    mkdir(csvfolder);
+end
+
+if ispc
+    
+    py.mdbexport.mdbexport(csvfolder, file);
+    
+    tables = dir(fullfile(csvfolder, '*.csv'));
+    tables = strrep({tables.name}, '.csv', '');
+else
+    % Translate file name such that it can be passed via command line
+
+    file = regexprep(file, '([\s,<>|:\(\)&;\?\*])', '\\$1'); 
+
+    % Read table names
+
+    cmd = sprintf('mdb-tables -1 %s', file); % one per line to account for commas, spaces in names
+    [s,r] = system(cmd);
+    if s
         error('Error reading table names: %s', r);
     end
-end
+
+    tables = regexp(r, '\n', 'split');
+    isemp = cellfun('isempty', tables);
+    tables = tables(~isemp); 
     
-tables = regexp(r, ',', 'split');
-tables = regexprep(tables, '\n', '');
-isemp = cellfun('isempty', tables);
-tables = tables(~isemp);  
+    % Extract to csv
+       
+    for it = 1:length(tables)
+        fname = fullfile(csvfolder, tables{it});
+        if regexpfound(tables{it}, '\s')
+            tbl = regexprep(tables{it}, '([\s,<>|:\(\)&;\?\*])', '\\$1');
+            tables{it} = regexprep(tables{it}, '\s', '_');
+            fname = regexprep(fname, '\s', '_');
+            cmd = sprintf('mdb-export %s %s > %s.csv', file, tbl, fname);
+        else
+            cmd = sprintf('mdb-export %s %s > %s.csv', file, tables{it}, fname);
+        end
+        [s,r] = system(cmd);
+        if s
+            err = [err; {tables{it} r}];
+        end
+    end
+end
 
 % Crazy regular expression for Excel-style comma-delimited stuff... find
 % commas that aren't imbedded within quotes.  No longer needed with
@@ -71,30 +101,28 @@ tables = tables(~isemp);
 
 pattern = ',(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))';
 
+% Check that this is an EwE6, not EwE5 (or any other random .mdb) file
+
+tbls = {'EcopathGroup', 'EcopathFleet', 'Stanza', 'EcopathDietComp', ...
+        'EcopathCatch', 'EcopathDiscardFate', 'StanzaLifeStage', ...
+        'EcopathGroupPedigree', 'Pedigree'};
+hastbl = ismember(tbls, tables);
+if ~all(hastbl)
+    str = sprintf('%s, ', tbls{~hastbl});
+    error('Expected tables (%s) not found in file; please check that this is an EwE6-formatted file', str(1:end-1));
+end
+
 % Read all Ecopath table data
 
 err = cell(0,2);
 for it = 1:length(tables)
-    
-    mdbtmp = [tempname '.txt'];
-    
-    if regexpfound(tables{it}, '\s')
-        tbl = regexprep(tables{it}, '([\s,<>|:\(\)&;\?\*])', '\\$1');
-        cmd = sprintf('mdb-export %s %s > %s', file, tbl, mdbtmp);
-        tables{it} = regexprep(tables{it}, '\s', '_');
-    else
-        cmd = sprintf('mdb-export %s %s > %s', file, tables{it}, mdbtmp);
-    end
-    [s,r] = system(cmd);
-    if s
-        err = [err; {tables{it} r}];
-        continue
-    end
-    
     try
         
         A.(tables{it}) = readtable(mdbtmp, 'Delimiter', ',');
         vname = A.(tables{it}).Properties.VariableNames;
+        
+        % Replace -9999 placeholders with NaNs, and strip unnecessary
+        % quotes
         
         for iv = 1:length(vname)
             if isnumeric(A.(tables{it}).(vname{iv}))
@@ -132,10 +160,6 @@ for it = 1:length(tables)
             
         end
     end
-end
-
-if ~isfield(A, 'EcopathGroup')
-    error('Expected tables not found in file; please check that this is an EwE6-formatted file');
 end
 
 %----------------------------
@@ -369,5 +393,91 @@ x = strtrim(x);
 % After that, rely on Matlab's autoconvert
 
 x = matlab.lang.makeValidName(x);
+
+%----------------------------
+% Dependency check
+%----------------------------
+
+function checkdeps
+%CHECKDEPS Check for necessary external software
+% On Linux or Mac: need mdbtools, compiled and on Matlab system path
+% On Windows: need python (3+), plus pyodbc and csv modules, plus mdbexport
+%             installed locally
+
+if ispc % Windows
+    [v,~,loaded] = pyversion;
+    if isempty(v)
+        error('Could not access python; please make sure python 3 is installed on your computer');
+    end
+    if str2double(v) < 3
+        if loaded
+            msg = 'The mdbexport.py module was written using python 3 syntax; you currently have python 2 loaded. To change versions, install python 3 if necessary, then restart Matlab and then call pyversion';
+            msg = wraptext(msg, 70);
+            error('%s', msg);
+        else
+            try
+                pyversion 3.5
+            catch
+                try
+                    pyversion 3.4
+                catch
+                    msg = 'The mdbexport.py module was written using python 3 syntax; I could only find version 2 on this computer.  Please install python 3 to use this function';
+                    msg = wraptext(msg, 70);
+                    error('%s', msg);
+                end
+            end
+        end
+    end
+    str = 'Python Error: ImportError: No module named';
+    try
+        py.importlib.import_module('pyodbc')
+    catch ME
+        if strncmp(ME.message, str, length(str))
+            error('Could not import pyodbc python module; please make sure it is installed');
+        else
+            rethrow(ME);
+        end
+    end
+    try
+        py.importlib.import_module('csv')
+    catch ME
+        if strncmp(ME.message, str, length(str))
+            error('Could not import csv python module; please make sure it is installed');
+        else
+            rethrow(ME);
+        end
+    end
+    try
+        py.importlib.import_module('mdbexport')
+    catch ME
+        if strncmp(ME.message, str, length(str))
+            pth = fileparts(which('mdb2ecopathmodel'));
+            mdbpath = fullfile(pth, 'mdbexport', 'mdbexport');
+            P = py.sys.path;
+            if count(P,mdbpath) == 0
+                insert(P,int32(0),mdbpath);
+            end
+            try
+                py.importlib.import_module('mdbexport')
+            catch
+                error('Could not import mdbexport python module; please check that you either installed it locally or kept it in its default location in the ecopath_matlab package');
+            end
+        else
+            rethrow(ME);
+        end
+    end
+else    % Linux, MacOS
+    [s,r] = system('mdb-ver -M');
+    if s
+        if s == 127
+            msg = 'Could not call mdbtools function.  Please make sure you have installed the mdbtools utilities and that they are accessible to Matlab (Note that your MATLAB system path, seen with getenv(''PATH''), may differ from your Matlab search path; the former is what matters here)';
+            msg = wraptext(msg, 70);
+            error('%s', msg);
+        else
+            error('Error calling mdb-ver: %s', r);
+        end
+    end
+end
+
 
 
