@@ -51,6 +51,10 @@ function G = graph(EM, varargin)
 
 % Copyright 2016 Kelly Kearney
 
+if verLessThan('matlab', 'R2015b')
+    error('The ecopathmodel graph method requires Matlab R2015b or later');
+end
+
 % Main nodes: groups, fleets, and out-of-system sources and sinks 
 
 p = inputParser;
