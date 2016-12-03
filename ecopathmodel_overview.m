@@ -902,7 +902,6 @@ StatsEns = Tb.networkindices('ensemble', x')
 % For example, we can use this method to combine some of the multistanza
 % groups in the Tampa Bay model into single functional groups. 
 
-
 grps = {...
     {...
     'Snook0_12'
@@ -928,7 +927,6 @@ grps = {...
 
 New = Tb.combinegroups(grps{:}, 'labels', ...
     {'SnookJuv', 'SnookAdult', 'RedDrum', 'SeaTrout', 'SandTrout'});
-
 
 
 

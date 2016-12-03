@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-08-19"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-02"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -69,7 +69,8 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
   </style></head><body><div class="content"><h1>An overview of the ecopathmodel class</h1><!--introduction--><p>The ecopathmodel class offers a Matlab-based implementation of the popular Ecopath mass-balance algorithm.  For information on the Ecopath concept, I refer you to the official Ecopath with Ecosim website: <a href="http://ecopath.org">http://ecopath.org</a>, as well as to the following journal articles:</p><div><ul><li>Christensen, V. &amp; Pauly, D. ECOPATH II--a software for balancing steady-state ecosystem models and calculating network characteristics. Ecological Modelling 61, 169-185 (1992).</li><li>Christensen, V. &amp; Walters, C. J. Ecopath with Ecosim: methods, capabilities and limitations. Ecological Modelling 172, 109-139 (2004).</li></ul></div><p>This overview assumes that you are already familiar with the Ecopath concept, and simply focuses on the use of this particular implementation.  Please note that this code is intended to replicate only the Ecopath algorithm, not Ecosim, Ecospace, or any of the other Ecopath-derived functionalities within the full EwE software.  Full documentation of the class and its associated methods can be accessed via the standard Matlab help format, e.g.:</p><pre class="language-matlab">help <span class="string">ecopathmodel</span>
 doc <span class="string">ecopathmodel</span>
 help <span class="string">ecopathmodel/ecopath</span>
-</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> class</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#7">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#17">Filling in multi-stanza group parameters</a></li><li><a href="#23">Calculating Ecopath mass balance</a></li><li><a href="#27">Generating an ensemble of Ecopath models</a></li><li><a href="#34">Calculating network indices</a></li><li><a href="#36">Consolidating groups in a model</a></li><li><a href="#37">Converting to graph objects</a></li><li><a href="#38"><tt>ecopathmodel</tt> vs <tt>ecopathlite.m</tt></a></li></ul></div><h2>The <tt>ecopathmodel</tt> class<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel class.  The properties of an <tt>ecopathmodel</tt> object store the input data related to a particular modeled ecosystem; this is the data that would be entered under the "Input data" panel in Ecopath with Ecosim 6.4 (EwE6), and includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there are three ways to create one of these objects:</p><div><ol><li>Load data from an EwE6 database file</li><li>Load data from a set of Rpath-formatted .csv files</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first two methods are preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original model.  Building a model manually has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but able to be checked for balance without popping up any warning messages), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and allowing you to comment on why parameters were changed from their original values (i.e. for balance, new data, reinterpretation of data, etc.).</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.  The <tt>mdb2ecopathmodel</tt> function will read data from one of these files into an <tt>ecopathmodel</tt> object, with two caveats:</p><div><ol><li>You need to first install the <tt>mdbtools</tt> set of command-line utilities. They're available for download here: <a href="https://github.com/brianb/mdbtools">https://github.com/brianb/mdbtools</a>. Install instructions for *nix systems are included on GitHub; for Mac, I recommend installing via either MacPorts or Homebrew.  Windows users (and I know that's most of the Ecopath-using community): I've never compiled this tool on a Windows machine, though I know it can be done.  I don't work with any Windows machines myself, so this is a big shortcoming in this code base at the moment. If any of you have compiled mdbtools on a Windows system, or have a better way of reading .mdb files into Matlab on a Windows machine (using the Database Toolbox, maybe?), please contact me!  I'd love to make this utility easier to use on Windows.</li><li>I expect all files to use the EwE6 format.  If you have older files (EwE5 .mdb files), you'll first need to import them into EwE6 and let its conversion tool convert to the newer format.  (There were some minor changes made to the file format between EwE6.4 and EwE6.5... the changed table properties are untouched by this routine, so either format is fine).</li></ol></div><p>This example reads in one of the example ecosystems that ships with the EwE6 software (and that I've included in this package under the examples folder):</p><pre class="codeinput">Gen37 = mdb2ecopathmodel(fullfile(<span class="string">'examples'</span>, <span class="string">'Generic_37.EwEmdb'</span>));
+</pre><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The <tt>ecopathmodel</tt> class</a></li><li><a href="#2">Importing Ecopath with Ecosim data</a></li><li><a href="#4">Importing Rpath data</a></li><li><a href="#7">Building an <tt>ecopathmodel</tt> object manually</a></li><li><a href="#17">Filling in multi-stanza group parameters</a></li><li><a href="#23">Calculating Ecopath mass balance</a></li><li><a href="#27">Generating an ensemble of Ecopath models</a></li><li><a href="#34">Calculating network indices</a></li><li><a href="#36">Consolidating groups in a model</a></li><li><a href="#37">Converting to graph objects</a></li><li><a href="#38"><tt>ecopathmodel</tt> vs <tt>ecopathlite.m</tt></a></li></ul></div><h2>The <tt>ecopathmodel</tt> class<a name="1"></a></h2><p>The foundation of this package is the ecopathmodel class.  The properties of an <tt>ecopathmodel</tt> object store the input data related to a particular modeled ecosystem; this is the data that would be entered under the "Input data" panel in Ecopath with Ecosim 6.4 (EwE6), and includes the  definition of functional groups and fishing fleets and the connections between them, as well as the many parameters associated with each state variable and group-to-group flow process.</p><p>Currently, there two primary methods to create one of these objects:</p><div><ol><li>Load data from one of the other flavors of Ecopath (from an EwE6 database file, Rpath set of .csv files, or EwE-F set of text files)</li><li>Build the model manually</li></ol></div><p>If you have a prexisting model, the first method is preferable to manual transcription, since in my experience it is very easy to accidentally mis-transcribe a value, or transcribe it using less precision than in the original software. Building a model manually, on the other hand, has the advantage of providing a clear "paper trail" for all your model parameters, but you have to be careful that you fill in all the necessary values.  While I provide a few basic checks of input, I'm not quite as good as EwE6 is at required vs. optional given the architecture of your specific ecosystem.</p><p>Personally, I prefer a combination of the two techniques, where possible. Use the EwE6 software during the initial data-gathering step of building an Ecopath model.  That will allow you to take advantage of all the graphical utilities that warn you when parameters are blatantly incorrect.  Once the model data is acceptable (not necessarily mass-balanced yet, but able to be checked for balance without popping up any warning messages), move over to this tool for project-specific parameter adjustments.  This process allows you to preserve one copy of the base model while also keeping project-specific details clearly documented, and allowing you to comment on why parameters were changed from their original values (i.e. for balance, new data, reinterpretation of data, etc.).</p><h2>Importing Ecopath with Ecosim data<a name="2"></a></h2><p>The current version of Ecopath with Ecosim stores data in specially-formatted Microsoft Access database files, with the .EwEmdb extension.</p><p>Freeing model data from these database files is not exactly a straightforward proposition.  The file format is proprietary and outdated, and typical use requires the proper (Windows-only) database drivers for access.  Because of this, most Ecopath-related tools I'm aware of (like Rpath or EwE-F) request users to copy and paste data from EwE into various spreadsheets for import. I dislike this solution because it's vulnerable to human error and the process needs to be repeated any time you update the model in the EwE GUI.  Also, there are a lot of smaller tables (pedigree lookup tables, stanza age-curve related stuff) that users tend to set and then forget about.</p><p>I say all this as a bit of an apology for the fact that in order to read these files into Matlab directly, you're going to need to install some third-party tools.  If you're using Linux or Mac OS, you need the mdbtools set of command-line utilities.  On Windows, you need python, the pyodbc module, and a Microsoft Access ODBC driver. For further details of this installation, type</p><pre class="language-matlab">help <span class="string">mdb2ecopathmodel</span>
+</pre><p>at the Matlab command prompt.  Once you've gotten the appropriate software set up, you can run the following example.</p><p>This example reads in one of the example ecosystems that ships with the EwE6 software (and that I've included in this package under the examples folder):</p><pre class="codeinput">Gen37 = mdb2ecopathmodel(fullfile(<span class="string">'examples'</span>, <span class="string">'Generic_37.EwEmdb'</span>));
 </pre><pre class="codeoutput">Warning: Some names changed to meet Matlab's variable name restrictions:
   Baleen whales -&gt; BaleenWhales
   Toothed whales -&gt; ToothedWhales
@@ -1102,7 +1103,7 @@ ans =
 
 </pre><p>Notice that pedigree values corresponding to variables that are 0 (such as the rows corresponding to critters that aren't part of the catfish diet) are automatically removed from the pedigree table.</p><p>With a pedigree in place, we can build an ensemble.  You can choose to return either all generated values, or only those sets that result in balanced models.</p><pre class="codeinput">x = Tb.createensemble(1000, <span class="string">'pdfname'</span>, <span class="string">'uniform'</span>, <span class="string">'collect'</span>, <span class="string">'balanced'</span>);
 </pre><pre class="codeoutput">Generating ensembles...
- 100% [=================================================&gt;] Attempted: 2110
+ 100% [=================================================&gt;] Attempted: 2106
 </pre><p>One thing to note is that the <tt>creatensemble</tt> method does not adjust parameters to meet Ecopath requirements.  That process is done by the <tt>subpedigreevalues</tt> method (which is usually called under the hood by the <tt>ecopath</tt> method).  For example, if we look at the diet composition values for the catfish (the first 17 entries in the pedigree table):</p><pre class="codeinput"><span class="comment">% Setup for histograms</span>
 
 hopts = {<span class="string">'normalization'</span>, <span class="string">'count'</span>, <span class="string">'displaystyle'</span>, <span class="string">'stairs'</span>};
@@ -1110,26 +1111,52 @@ cmap = jet(17);
 
 <span class="comment">% Plot histograms of createensemble output</span>
 
+calclims = @(x) [min(x(:)) max(x(:))];
+calcedges = @(x) linspace(x(1)-diff(x)*0.01, x(2)+diff(x)*0.01, 10);
+histoutline = @(edg,n,col) stairs([edg(1) reshape(edg,1,[]) edg(end)], [0 reshape(n,1,[]) 0], <span class="string">'color'</span>, col);
+
 figure;
 ax(1) = subplot(2,1,1);
 hold <span class="string">on</span>;
-hh = gobjects(17,1);
-<span class="keyword">for</span> ii = 1:17
-    hh(ii) = histogram(x(:,ii), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
+<span class="keyword">if</span> verLessThan(<span class="string">'matlab'</span>, <span class="string">'R2014b'</span>)
+    <span class="keyword">for</span> ii = 1:17
+        edg = calcedges(calclims(x(:,ii)));
+        ntmp = histc(x(:,ii), edg);
+        histoutline(edg, ntmp, cmap(ii,:));
+    <span class="keyword">end</span>
+    edg = calcedges(calclims(sum(x(:,1:17),2)));
+    ntmp = histc(sum(x(:,1:17),2), edg);
+    histoutline(edg, ntmp, <span class="string">'k'</span>);
+<span class="keyword">else</span>
+    <span class="keyword">for</span> ii = 1:17
+        histogram(x(:,ii), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
+    <span class="keyword">end</span>
+    histogram(sum(x(:,1:17),2), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>);
 <span class="keyword">end</span>
-htot = histogram(sum(x(:,1:17),2), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>);
 
 <span class="comment">% Run output through subpedigreevalues and plot histograms</span>
 
 B = Tb.subpedigreevalues(x');
 dc = reshape(B.dc, [], size(x,1));
 idx = sub2ind([Tb.ngroup Tb.ngroup], Tb.pedigree.row(1:17), Tb.pedigree.column(1:17));
+
 ax(2) = subplot(2,1,2);
 hold <span class="string">on</span>;
-<span class="keyword">for</span> ii = 1:17
-    histogram(dc(idx(ii),:), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
+<span class="keyword">if</span> verLessThan(<span class="string">'matlab'</span>, <span class="string">'R2014b'</span>)
+    <span class="keyword">for</span> ii = 1:17
+        edg = calcedges(calclims(dc(idx(ii),:)));
+        ntmp = histc(dc(idx(ii),:), edg);
+        histoutline(edg, ntmp, cmap(ii,:));
+    <span class="keyword">end</span>
+    edg = linspace(0.9,1.1,10);
+    ntmp = histc(sum(dc(idx,:),1), edg);
+    histoutline(edg, ntmp, <span class="string">'k'</span>);
+<span class="keyword">else</span>
+    <span class="keyword">for</span> ii = 1:17
+        histogram(dc(idx(ii),:), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
+    <span class="keyword">end</span>
+    histogram(sum(dc(idx,:),1), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>, <span class="string">'BinLimits'</span>, [0.99 1.01]);
 <span class="keyword">end</span>
-histogram(sum(dc(idx,:),1), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>, <span class="string">'binlimits'</span>, [0.999 1.001]);
 
 <span class="comment">% Legend</span>
 
@@ -1331,21 +1358,22 @@ axis <span class="string">off</span>;
 % connections between them, as well as the many parameters associated with
 % each state variable and group-to-group flow process.  
 %
-% Currently, there are three ways to create one of these objects:
+% Currently, there two primary methods to create one of these objects:
 %
-% # Load data from an EwE6 database file
-% # Load data from a set of Rpath-formatted .csv files
+% # Load data from one of the other flavors of Ecopath (from an EwE6
+% database file, Rpath set of .csv files, or EwE-F set of text
+% files)
 % # Build the model manually
 %
-% If you have a prexisting model, the first two methods are preferable to
+% If you have a prexisting model, the first method is preferable to
 % manual transcription, since in my experience it is very easy to
 % accidentally mis-transcribe a value, or transcribe it using less
-% precision than in the original model.  Building a model manually has the
-% advantage of providing a clear "paper trail" for all your model
-% parameters, but you have to be careful that you fill in all the necessary
-% values.  While I provide a few basic checks of input, I'm not quite as
-% good as EwE6 is at required vs. optional given the architecture of your
-% specific ecosystem.
+% precision than in the original software. Building a model manually, on
+% the other hand, has the advantage of providing a clear "paper trail" for
+% all your model parameters, but you have to be careful that you fill in
+% all the necessary values.  While I provide a few basic checks of input,
+% I'm not quite as good as EwE6 is at required vs. optional given the
+% architecture of your specific ecosystem. 
 %
 % Personally, I prefer a combination of the two techniques, where possible.
 % Use the EwE6 software during the initial data-gathering step of building
@@ -1364,26 +1392,30 @@ axis <span class="string">off</span>;
 %
 % The current version of Ecopath with Ecosim stores data in
 % specially-formatted Microsoft Access database files, with the .EwEmdb
-% extension.  The |mdb2ecopathmodel| function will read data from one of
-% these files into an |ecopathmodel| object, with two caveats:
+% extension.
 %
-% # You need to first install the |mdbtools| set of command-line utilities.
-% They're available for download here: <https://github.com/brianb/mdbtools>.
-% Install instructions for *nix systems are included on GitHub; for Mac, I
-% recommend installing via either MacPorts or Homebrew.  Windows users (and
-% I know that's most of the Ecopath-using community): I've never compiled
-% this tool on a Windows machine, though I know it can be done.  I don't
-% work with any Windows machines myself, so this is a big shortcoming in
-% this code base at the moment. If any of you have compiled mdbtools on a
-% Windows system, or have a better way of reading .mdb files into Matlab on
-% a Windows machine (using the Database Toolbox, maybe?), please contact
-% me!  I'd love to make this utility easier to use on Windows.
-% # I expect all files to use the EwE6 format.  If you have older files
-% (EwE5 .mdb files), you'll first need to import them into EwE6 and let its
-% conversion tool convert to the newer format.  (There were some minor
-% changes made to the file format between EwE6.4 and EwE6.5... the changed
-% table properties are untouched by this routine, so either format is
-% fine). 
+% Freeing model data from these database files is not exactly a
+% straightforward proposition.  The file format is proprietary and
+% outdated, and typical use requires the proper (Windows-only) database
+% drivers for access.  Because of this, most Ecopath-related tools I'm aware of (like Rpath
+% or EwE-F) request users to copy and paste data from EwE into various
+% spreadsheets for import. I dislike this solution because it's vulnerable
+% to human error and the process needs to be repeated any time you update
+% the model in the EwE GUI.  Also, there are a lot of smaller tables
+% (pedigree lookup tables, stanza age-curve related stuff) that users tend
+% to set and then forget about.    
+%
+% I say all this as a bit of an apology for the fact that in order to read
+% these files into Matlab directly, you're going to need to install
+% some third-party tools.  If you're using Linux or Mac OS, you need the
+% mdbtools set of command-line utilities.  On Windows, you need python, the
+% pyodbc module, and a Microsoft Access ODBC driver. For further details of
+% this installation, type 
+% 
+%   help mdb2ecopathmodel
+%
+% at the Matlab command prompt.  Once you've gotten the appropriate
+% software set up, you can run the following example.
 %
 % This example reads in one of the example ecosystems that ships with the
 % EwE6 software (and that I've included in this package under the examples
@@ -2034,26 +2066,52 @@ cmap = jet(17);
 
 % Plot histograms of createensemble output
 
+calclims = @(x) [min(x(:)) max(x(:))];
+calcedges = @(x) linspace(x(1)-diff(x)*0.01, x(2)+diff(x)*0.01, 10);
+histoutline = @(edg,n,col) stairs([edg(1) reshape(edg,1,[]) edg(end)], [0 reshape(n,1,[]) 0], 'color', col);
+
 figure;
 ax(1) = subplot(2,1,1);
 hold on;
-hh = gobjects(17,1);
-for ii = 1:17
-    hh(ii) = histogram(x(:,ii), hopts{:}, 'edgecolor', cmap(ii,:));
+if verLessThan('matlab', 'R2014b')
+    for ii = 1:17
+        edg = calcedges(calclims(x(:,ii)));
+        ntmp = histc(x(:,ii), edg);
+        histoutline(edg, ntmp, cmap(ii,:));
+    end
+    edg = calcedges(calclims(sum(x(:,1:17),2)));
+    ntmp = histc(sum(x(:,1:17),2), edg);
+    histoutline(edg, ntmp, 'k');
+else
+    for ii = 1:17
+        histogram(x(:,ii), hopts{:}, 'edgecolor', cmap(ii,:));
+    end
+    histogram(sum(x(:,1:17),2), hopts{:}, 'edgecolor', 'k');
 end
-htot = histogram(sum(x(:,1:17),2), hopts{:}, 'edgecolor', 'k');
 
 % Run output through subpedigreevalues and plot histograms
 
 B = Tb.subpedigreevalues(x');
 dc = reshape(B.dc, [], size(x,1));
 idx = sub2ind([Tb.ngroup Tb.ngroup], Tb.pedigree.row(1:17), Tb.pedigree.column(1:17));
+
 ax(2) = subplot(2,1,2);
 hold on;
-for ii = 1:17
-    histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
+if verLessThan('matlab', 'R2014b')
+    for ii = 1:17
+        edg = calcedges(calclims(dc(idx(ii),:)));
+        ntmp = histc(dc(idx(ii),:), edg);
+        histoutline(edg, ntmp, cmap(ii,:));
+    end
+    edg = linspace(0.9,1.1,10);
+    ntmp = histc(sum(dc(idx,:),1), edg);
+    histoutline(edg, ntmp, 'k');
+else
+    for ii = 1:17
+        histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
+    end
+    histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'BinLimits', [0.99 1.01]);
 end
-histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'binlimits', [0.999 1.001]);
 
 % Legend
 
@@ -2169,7 +2227,6 @@ StatsEns = Tb.networkindices('ensemble', x')
 % For example, we can use this method to combine some of the multistanza
 % groups in the Tampa Bay model into single functional groups. 
 
-
 grps = {...
     {...
     'Snook0_12'
@@ -2195,7 +2252,6 @@ grps = {...
 
 New = Tb.combinegroups(grps{:}, 'labels', ...
     {'SnookJuv', 'SnookAdult', 'RedDrum', 'SeaTrout', 'SandTrout'});
-
 
 
 
