@@ -12,15 +12,15 @@ import os
 def mdbexport(outdir, mdbfile):
 	"""
 	Export tables from a MS Access Database (.mdb) to csv files
-	
+
 	Input arguments:
 	outdir:		name of folder where .csv files will be saved.  
 				If it doesn't exisit, it will be created
 	mdbfile:	name of database file
-	
+
 	The resulting files will be named according to the table
 	names in the database.
-	
+
 	"""
 
 	# Create output folder if necessary
@@ -51,13 +51,22 @@ def mdbexport(outdir, mdbfile):
 	# Dump tables to csv
 
 	for tbl in tablenames:
+
+		# Column names
+		
+		cols = [colrow.column_name for colrow in cur.columns(table=tbl)]
+		
+		# Main data
 		
 		SQL = 'SELECT * FROM {}'.format(tbl)
 		rows = cur.execute(SQL).fetchall()
 		
+		# Write to file
+		
 		csvname = os.path.join(outdir, tbl + '.csv')
 		with open(csvname, 'w') as fou:
 			c = csv.writer(fou)
+			c.writerow(cols)
 			c.writerows(rows)
 
 	cur.close()
