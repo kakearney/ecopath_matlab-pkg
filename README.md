@@ -14,7 +14,7 @@ This software is intended for people already familiar with the Ecopath concept w
 
 ### Prerequisites
 
-This software requires [Matlab R2015b](http://www.mathworks.com/products/matlab/) or later.  It also requires the [Statistics and Machine Learning Toolbox](http://www.mathworks.com/products/statistics/).
+This software requires [Matlab R2015b](http://www.mathworks.com/products/matlab/) or later (everything except the graph method should be functional in R2014b or later).  It also requires the [Statistics and Machine Learning Toolbox](http://www.mathworks.com/products/statistics/).
 
 No OS limitations beyond those required for Matlab itself.
 
@@ -30,22 +30,19 @@ Alternatively, you may download a zipped version of the source code via the _Clo
 
 ### Installation
 
-Once downloaded (and unzipped, if necessary), all code subfolders in the main folder (i.e all folders except the `examples` and `html` folders) need to be added to your Matlab path:
+The following folders need to be added to you Matlab Path (via `pathtool`, `addpath`, etc.):
 
-```matlab
-% Replace with location of the downloaded folder
-pth = './ecopath_matlab-pkg/';
-
-addpath(fullfile(pth, 'ConsoleProgressBar')); 
-addpath(fullfile(pth, 'aggregate')); 
-addpath(fullfile(pth, 'cellstr2')); 
-addpath(fullfile(pth, 'cprintf')); 
-addpath(fullfile(pth, 'ecopath_matlab')); 
-addpath(fullfile(pth, 'legendflex')); 
-addpath(fullfile(pth, 'readtext')); 
-addpath(fullfile(pth, 'regexpfound')); 
-addpath(fullfile(pth, 'setgetpos_V1.2')); 
-addpath(fullfile(pth, 'wraptext')); 
+```
+ecopath_matlab-pkg/ConsoleProgressBar
+ecopath_matlab-pkg/aggregate
+ecopath_matlab-pkg/cellstr2 
+ecopath_matlab-pkg/cprintf
+ecopath_matlab-pkg/ecopath_matlab
+ecopath_matlab-pkg/legendflex
+ecopath_matlab-pkg/readtext
+ecopath_matlab-pkg/regexpfound
+ecopath_matlab-pkg/setgetpos_V1.2
+ecopath_matlab-pkg/wraptext
 ```
 
 ## Package Contents
