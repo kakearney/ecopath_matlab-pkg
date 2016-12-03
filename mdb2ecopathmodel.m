@@ -158,7 +158,7 @@ for it = 1:length(tables)
             if nargout > 1
                 warning('Ecopathmodel:mdb2ecopathmodel:parse', 'Could not parse table: %s', tables{it});
             end
-            A.(tables{it}) = r;
+            A.(tables{it}) = fileread(mdbtmp);
             
         end
     end
