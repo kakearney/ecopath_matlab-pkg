@@ -11,12 +11,14 @@ function [EM, A] = mdb2ecopathmodel(file)
 % saved with a .ewemdb (or .EwEmdb) file extension, as opposed to older
 % ones that simply carried the .mdb extension.
 %
-% This function relies on the mdbtools utilities to read the MS Access
-% database files (https://github.com/brianb/mdbtools).  Mac users can get
-% it via either MacPorts or Homebrew if they don't want to compile from
-% source. Please make sure this utility is properly compiled prior to
-% calling mdb2ecopathmodel.m.  Windows users: you will need a C compiler (I
-% believe you can get one for free via Visual Studio Express).
+% In order to extract data from an MS Access database, this function needs
+% to use an ODBC database driver.  It does so in one of two ways, depending
+% on your operating system:
+%
+% - Linux/MacOS: mdbtools utilities
+% - Windows: pyodbc python module, using locally-installed ODBC driver
+%
+% See below for installation instructions for either of these options.
 %
 % Input variables:
 %
@@ -28,8 +30,42 @@ function [EM, A] = mdb2ecopathmodel(file)
 %
 %   EM:     ecopathmodel object
 %
-%   A:      structure of dataset arrays holding all data from the file in
+%   A:      structure of table arrays holding all data from the file in
 %           its original tables.
+%
+% External software installation instructions:
+%
+% * Linux:
+% 
+%   The mdbtools source code can be acquired from GitHub:
+%   https://github.com/brianb/mdbtools.  Instructions to compile from
+%   source are included in the download.
+%
+% * MacOS:
+%
+%   Ports of mdbtools are available through either Homebrew or MacPorts. 
+%   Install either Homebrew or MacPorts if you don't already have them on
+%   your system, then run:
+%     brew install mdbtools       <-- from Terminal, Homebrew
+%     port install mdbtools       <-- from Terminal, MacPorts
+%
+% * Windows:
+%
+%   On Windows, first check your computer to make sure you have the MS
+%   Access driver installed (the driver list is buried in the Control
+%   Panel... search ODBC Data Sources as a quick way to find it).  You need
+%   the 'Microsoft Access Driver (*.mdb)'.  Next, you need python 3.x.
+%   There are many options for downloading and installing python if you
+%   don't already have it; I personally like the Anaconda Python
+%   distribution (https://www.continuum.io/downloads) for scientific use.
+%   Finally, download and install the pyodbc module; easy installation can
+%   be done via pip:     
+%     pip install pyodbc   <-- from Command Prompt 
+%   or via conda, if you use Anaconda Python
+%     conda install pyodbc <-- from Command Prompt 
+%   My mdbexport.py script also requires the csv and os modules; these are
+%   installed automatically with most commom python distributions.
+
 
 % Copyright 2016 Kelly Kearney
 
