@@ -47,6 +47,8 @@ else
     grps = varargin(:);
     labels = cellstr(num2str((1:length(grps))', 'newgroup%d'));
 end
+labels = labels(:);
+grps = grps(:);
 
 iscellstr = @(x) iscell(x) && all(cellfun(@ischar, x));
 
