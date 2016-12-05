@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-02"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-05"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -161,7 +161,7 @@ ans =
     BenthicPlants                     2      10      0    NaN       0      0    0        NaN       1    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
     Detritus                        100       0      0    NaN       0      0    0        NaN       2    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
 
-</pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sean Lucey and Kerim Aydin.  It is currently in beta-testing and available for download on GitHub: <a href="https://github.com/slucey/RpathDev">https://github.com/slucey/RpathDev</a>. Rpath primarily bases its calculations around R data tables, but it also provides some utilities to read and write parameter data from .csv files. In order to maintain some consistency across all the Ecopath flavors, I've adopted this format as an alternative input format.  The <tt>rpath2ecopathmodel</tt> and <tt>ecopathmodel2rpath</tt> methods in this package perform the same reading and writing tasks as the <tt>read.rpath.params</tt> and <tt>write.rpath.params</tt> functions in Rpath, respectively.</p><p>The following example reads in the model described in the Rpath vignette (the rpath_example.R script, found in the examples folder, holds the code to recreate these files).</p><pre class="codeinput">REco = rpath2ecopathmodel(fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco'</span>));
+</pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sean Lucey and Kerim Aydin.  It is currently in beta-testing and available for download on GitHub: <a href="https://github.com/slucey/RpathDev">https://github.com/slucey/RpathDev</a>. Rpath primarily bases its calculations around R data tables, but it also provides some utilities to read and write parameter data from .csv files. In order to maintain some consistency across all the Ecopath flavors, I've adopted this format as an alternative input format.  The <tt>rpath2ecopathmodel</tt> and <tt>ecopathmodel2rpath</tt> methods in this package perform the same reading and writing tasks as the <tt>read.rpath.params</tt> and <tt>write.rpath.params</tt> functions in Rpath, respectively.</p><p>This file format is also an option if you cannot get the direct-read EwE6 function (described above) working on your computer.  I've included Rpath-formatted versions of both the Generic 37 and Tampa Bay models that are used in this overview in the example folder (in examples/Gen37 and examples/TampBay, respectively).  You can use these as templates to copy and paste your own model into the proper format.</p><p>The following example reads in the model described in the Rpath vignette (the rpath_example.R script, found in the examples folder, holds the code to recreate these files).</p><pre class="codeinput">REco = rpath2ecopathmodel(fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco'</span>));
 </pre><pre class="codeoutput">Warning: Variable names were modified to make them valid MATLAB identifiers. 
 Warning: Detritus groups found with missing biomass; replacing with 0:
   Detritus (NaN)
@@ -1103,7 +1103,7 @@ ans =
 
 </pre><p>Notice that pedigree values corresponding to variables that are 0 (such as the rows corresponding to critters that aren't part of the catfish diet) are automatically removed from the pedigree table.</p><p>With a pedigree in place, we can build an ensemble.  You can choose to return either all generated values, or only those sets that result in balanced models.</p><pre class="codeinput">x = Tb.createensemble(1000, <span class="string">'pdfname'</span>, <span class="string">'uniform'</span>, <span class="string">'collect'</span>, <span class="string">'balanced'</span>);
 </pre><pre class="codeoutput">Generating ensembles...
- 100% [=================================================&gt;] Attempted: 2106
+ 100% [=================================================&gt;] Attempted: 2116
 </pre><p>One thing to note is that the <tt>creatensemble</tt> method does not adjust parameters to meet Ecopath requirements.  That process is done by the <tt>subpedigreevalues</tt> method (which is usually called under the hood by the <tt>ecopath</tt> method).  For example, if we look at the diet composition values for the catfish (the first 17 entries in the pedigree table):</p><pre class="codeinput"><span class="comment">% Setup for histograms</span>
 
 hopts = {<span class="string">'normalization'</span>, <span class="string">'count'</span>, <span class="string">'displaystyle'</span>, <span class="string">'stairs'</span>};
@@ -1155,7 +1155,7 @@ hold <span class="string">on</span>;
     <span class="keyword">for</span> ii = 1:17
         histogram(dc(idx(ii),:), hopts{:}, <span class="string">'edgecolor'</span>, cmap(ii,:));
     <span class="keyword">end</span>
-    histogram(sum(dc(idx,:),1), hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>, <span class="string">'BinLimits'</span>, [0.99 1.01]);
+    histogram(sum(dc(idx,:),1), 10, hopts{:}, <span class="string">'edgecolor'</span>, <span class="string">'k'</span>, <span class="string">'BinLimits'</span>, [0.99 1.01]);
 <span class="keyword">end</span>
 
 <span class="comment">% Legend</span>
@@ -1397,13 +1397,13 @@ axis <span class="string">off</span>;
 % Freeing model data from these database files is not exactly a
 % straightforward proposition.  The file format is proprietary and
 % outdated, and typical use requires the proper (Windows-only) database
-% drivers for access.  Because of this, most Ecopath-related tools I'm aware of (like Rpath
-% or EwE-F) request users to copy and paste data from EwE into various
-% spreadsheets for import. I dislike this solution because it's vulnerable
-% to human error and the process needs to be repeated any time you update
-% the model in the EwE GUI.  Also, there are a lot of smaller tables
-% (pedigree lookup tables, stanza age-curve related stuff) that users tend
-% to set and then forget about.    
+% drivers for access.  Because of this, most Ecopath-related tools I'm
+% aware of (like Rpath or EwE-F) request users to copy and paste data from
+% EwE into various spreadsheets for import. I dislike this solution because
+% it's vulnerable to human error and the process needs to be repeated any
+% time you update the model in the EwE GUI.  Also, there are a lot of
+% smaller tables (pedigree lookup tables, stanza age-curve related stuff)
+% that users tend to set and then forget about.
 %
 % I say all this as a bit of an apology for the fact that in order to read
 % these files into Matlab directly, you're going to need to install
@@ -1450,7 +1450,14 @@ Gen37.groupdata
 % I've adopted this format as an alternative input format.  The
 % |rpath2ecopathmodel| and |ecopathmodel2rpath| methods in this package
 % perform the same reading and writing tasks as the |read.rpath.params| and
-% |write.rpath.params| functions in Rpath, respectively.     
+% |write.rpath.params| functions in Rpath, respectively.   
+%
+% This file format is also an option if you cannot get the direct-read
+% EwE6 function (described above) working on your computer.  I've included
+% Rpath-formatted versions of both the Generic 37 and Tampa Bay models that
+% are used in this overview in the example folder (in examples/Gen37 and
+% examples/TampBay, respectively).  You can use these as templates to copy
+% and paste your own model into the proper format.
 %
 % The following example reads in the model described in the Rpath vignette
 % (the rpath_example.R script, found in the examples folder, holds the code
@@ -2110,7 +2117,7 @@ else
     for ii = 1:17
         histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
     end
-    histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'BinLimits', [0.99 1.01]);
+    histogram(sum(dc(idx,:),1), 10, hopts{:}, 'edgecolor', 'k', 'BinLimits', [0.99 1.01]);
 end
 
 % Legend
