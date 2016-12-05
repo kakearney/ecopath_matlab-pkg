@@ -72,13 +72,13 @@
 % Freeing model data from these database files is not exactly a
 % straightforward proposition.  The file format is proprietary and
 % outdated, and typical use requires the proper (Windows-only) database
-% drivers for access.  Because of this, most Ecopath-related tools I'm aware of (like Rpath
-% or EwE-F) request users to copy and paste data from EwE into various
-% spreadsheets for import. I dislike this solution because it's vulnerable
-% to human error and the process needs to be repeated any time you update
-% the model in the EwE GUI.  Also, there are a lot of smaller tables
-% (pedigree lookup tables, stanza age-curve related stuff) that users tend
-% to set and then forget about.    
+% drivers for access.  Because of this, most Ecopath-related tools I'm
+% aware of (like Rpath or EwE-F) request users to copy and paste data from
+% EwE into various spreadsheets for import. I dislike this solution because
+% it's vulnerable to human error and the process needs to be repeated any
+% time you update the model in the EwE GUI.  Also, there are a lot of
+% smaller tables (pedigree lookup tables, stanza age-curve related stuff)
+% that users tend to set and then forget about.
 %
 % I say all this as a bit of an apology for the fact that in order to read
 % these files into Matlab directly, you're going to need to install
@@ -125,7 +125,14 @@ Gen37.groupdata
 % I've adopted this format as an alternative input format.  The
 % |rpath2ecopathmodel| and |ecopathmodel2rpath| methods in this package
 % perform the same reading and writing tasks as the |read.rpath.params| and
-% |write.rpath.params| functions in Rpath, respectively.     
+% |write.rpath.params| functions in Rpath, respectively.   
+%
+% This file format is also an option if you cannot get the direct-read
+% EwE6 function (described above) working on your computer.  I've included
+% Rpath-formatted versions of both the Generic 37 and Tampa Bay models that
+% are used in this overview in the example folder (in examples/Gen37 and
+% examples/TampBay, respectively).  You can use these as templates to copy
+% and paste your own model into the proper format.
 %
 % The following example reads in the model described in the Rpath vignette
 % (the rpath_example.R script, found in the examples folder, holds the code
@@ -785,7 +792,7 @@ else
     for ii = 1:17
         histogram(dc(idx(ii),:), hopts{:}, 'edgecolor', cmap(ii,:));
     end
-    histogram(sum(dc(idx,:),1), hopts{:}, 'edgecolor', 'k', 'BinLimits', [0.99 1.01]);
+    histogram(sum(dc(idx,:),1), 10, hopts{:}, 'edgecolor', 'k', 'BinLimits', [0.99 1.01]);
 end
 
 % Legend
