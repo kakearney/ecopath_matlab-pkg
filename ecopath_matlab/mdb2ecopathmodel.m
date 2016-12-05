@@ -1,4 +1,4 @@
-function [EM, A] = mdb2ecopathmodel(file)
+function [EM, A, D] = mdb2ecopathmodel(file)
 %MDB2ECOPATHMODEL Create ecopathmodel object from EwE6 data file
 %
 % EM = mdb2ecopathmodel(file)
@@ -20,6 +20,20 @@ function [EM, A] = mdb2ecopathmodel(file)
 %
 % See below for installation instructions for either of these options.
 %
+% Please note: This function uses text .csv files as an intermediary when
+% extracting the tables from the .mdb files, necessitating several
+% conversions between ascii and binary storage of numeric data values
+% (ascii input by user in EwE6 GUI, stored as either double or single
+% precision in the EwE6 code and mdb, exported to ascii by csv table write,
+% converted to double when imported to Matlab).  The format written to the
+% CSV file varies between the Linux/Mac and Windows options, so reading the
+% same file on different operating systems may result values that differ
+% due to this rounding error.  This rounding error many orders of magnitude
+% less than the error in the actual input data of any Ecopath model, and
+% therefore should not be of concern from a scientific standpoint.
+% However, it may be a problem if you are looking for exact replicability
+% across operating systems.    
+%
 % Input variables:
 %
 %   file:   name of Ecopath file.  Ecopath 6 uses Microsoft Access 2003
@@ -32,6 +46,16 @@ function [EM, A] = mdb2ecopathmodel(file)
 %
 %   A:      structure of table arrays holding all data from the file in
 %           its original tables.
+%
+%   D:      Additional data, primarily for debugging purposes
+%
+%           folder:     temporary folder where csv files were saved
+%
+%           readmethod: ntable x 1 array, corresponding to the fields in A,
+%                       indicating which method was used to read in the
+%                       data from csv file.  1 = readtable, 2 = readtext
+%                       then converted to table, 3 = fileread with no table
+%                       conversion
 %
 % External software installation instructions:
 %
@@ -84,6 +108,8 @@ checkdeps;
 % Dump tables to comma-delimited files
 
 csvfolder = tempname;
+D.folder = csvfolder;
+
 if ~exist(csvfolder, 'dir')
     mkdir(csvfolder);
 end
@@ -152,6 +178,7 @@ end
 
 err = cell(0,2);
 w = warning('off', 'MATLAB:table:ModifiedVarnames');
+D.readmethod = ones(length(tables),1);
 for it = 1:length(tables)
     mdbtmp = fullfile(csvfolder, [tables{it} '.csv']);
     try
@@ -185,6 +212,7 @@ for it = 1:length(tables)
             data(s.numberMask) = num2cell(tmp);
             
             A.(tables{it})  = cell2table(data(2:end,:), 'VariableNames', data(1,:));
+            D.readmethod(it) = 2;
             
         catch
             
@@ -195,6 +223,7 @@ for it = 1:length(tables)
                 warning('Ecopathmodel:mdb2ecopathmodel:parse', 'Could not parse table: %s', tables{it});
             end
             A.(tables{it}) = fileread(mdbtmp);
+            D.readmethod(it) = 3;
             
         end
     end

@@ -65,7 +65,7 @@ def mdbexport(outdir, mdbfile):
 		
 		csvname = os.path.join(outdir, tbl + '.csv')
 		with open(csvname, 'w') as fou:
-			c = csv.writer(fou)
+			c = csv.writer(fou, lineterminator='\n', quoting=csv.QUOTE_NONNUMERIC)
 			c.writerow(cols)
 			c.writerows(rows)
 
