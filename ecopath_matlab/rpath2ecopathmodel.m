@@ -1,4 +1,4 @@
-function [EM,B] = rpath2ecopathmodel(basename, varargin)
+function [EM,B] = rpath2ecopathmodel(varargin)
 %RPATH2ECOPATHMODEL Create ecopathmodel object from Rpath data files
 %
 % [A, B] = rpath2ecopathmodel(basename, p1, v1, ...)
@@ -7,37 +7,55 @@ function [EM,B] = rpath2ecopathmodel(basename, varargin)
 % https://github.com/slucey/RpathDev) allows model data be imported from
 % and exported to .csv files.  This function reads data from a set of these
 % files into an ecopathmodel object.
+%
+% A model *must* include at least two files: the main model table (see
+% modfile input) and the diet table (see dietfile input).  All other files
+% are optional (though the stanza and stanza group tables should always be
+% present or absent as a pair).  If those files are empty, this function
+% assumes that they are not relevant to the model being imported. Note that
+% the write.rpath.params R function in the Rpath package exports all
+% tables, regardless of whether they are empty or not; this function can
+% handle those empty tables if you choose to list them as input parameters,
+% but they aren't necessary. 
 % 
 % Input variables:
 %
-%   basename:   Base file name for the 4 input files
+%   modfile:            Name of base model data table file (full path, with
+%                       .csv extension)  
+%                       columns: 
 %
-% Optional input variables (passed as paramete/value pairs)
+%   dietfile:           Name of diet data table file (full path, with .csv
+%                       extension)   
 %
-%   basestr:    string appended to basename for basic data, not including
-%               .csv extension ['_model']
+% Optional input variables (passed as parameter/value pairs)
 %
-%   dietstr:    string appended to basename for diet data, not including
-%               .csv extension ['_diet']
+%   pedfile:            Name of pedigree data table file (full path, with
+%                       .csv extension).  If empty, no pedigree data will
+%                       be read. Please note that the pedigree values used
+%                       by Rpath right now (by default, a table of all
+%                       ones) are just placeholders, and are unlikely to be
+%                       appropriate to an ecopathmodel.  This may change in
+%                       the future as Rpath development continues, but for
+%                       now I recommend not using that table at all when
+%                       importing Rpath data.
+%                       [''] 
 %
-%   juvsstr:    string appended to basename for old-style stanza data (only 
-%               applicable if old = true), not including .csv extension
-%               ['_juvs'] 
+%   stanzafile:         Name of stanza table file (full path, with .csv
+%                       extension).  Must be accompanied by a
+%                       stanzagroupfile input.  If empty, assumes that no
+%                       groups refer to multi-stanza sets. ['']
 %
-%   pedstr:     string appended to basename for pedigree data, not
-%               including .csv extension ['_pedigree'] 
+%   stanzagroupfile:    Name of stanza groups table file (full path, with
+%                       .csv extension).  Must be accompanied by a
+%                       stanzafile input.  If empty, assumes that no groups
+%                       refer to multi-stanza sets. ['']
 %
-%   stanzastr:  string appended to basename for stanza data (only 
-%               applicable if old = false), not including .csv extension
-%               ['_stanzas']
-%
-%   stgrpstr:   string appended to basename for stanza group data (only 
-%               applicable if old = false), not including .csv extension
-%               ['_staanza_groups']
-%
-%   old:        logical scalar, true if model has Kerim's old single-table
-%               _juvs file rather than the newer 2-table stanza and
-%               stanza_groups files. [false]
+%   juvsfile:           Name of old-style adult/juveniles table file (full
+%                       path, with .csv extension).  This type of file was
+%                       used by older versions of Rpath, prior to the
+%                       introduction of stanza/stanzagroup tables, so this
+%                       code can also use it in place of the
+%                       stanza/stanzagroup pair of files. [''] 
 %
 % Output variables:
 %
@@ -45,22 +63,75 @@ function [EM,B] = rpath2ecopathmodel(basename, varargin)
 %
 %   B:          structure with full input tables from files
 
+% Copyright 2016-2017 Kelly Kearney
+
 %--------------------
 % Parse input
 %--------------------
 
 p = inputParser;
-p.addParameter('basestr', '_model',    @(x) validateattributes(x, {'char'}, {}));
-p.addParameter('dietstr', '_diet',     @(x) validateattributes(x, {'char'}, {}));
-p.addParameter('juvsstr', '_juvs',     @(x) validateattributes(x, {'char'}, {}));
-p.addParameter('pedstr',  '_pedigree', @(x) validateattributes(x, {'char'}, {}));
-p.addParameter('stanzastr', '_stanzas', @(x) validateattributes(x, {'char'}, {}));
-p.addParameter('stgrpstr', '_stanza_groups', @(x) validateattributes(x, {'char'}, {}));
-p.addParameter('old', false, @(x) validateattributes(x, {'logical'}, {'scalar'}));
+p.addRequired( 'modfile',             @(x) validateattributes(x, {'char'}, {}));
+p.addRequired( 'dietfile',            @(x) validateattributes(x, {'char'}, {}));
+p.addParameter('pedfile',         '', @(x) validateattributes(x, {'char'}, {}));
+p.addParameter('stanzagroupfile', '', @(x) validateattributes(x, {'char'}, {}));
+p.addParameter('stanzafile',      '', @(x) validateattributes(x, {'char'}, {}));
+p.addParameter('juvsfile',        '', @(x) validateattributes(x, {'char'}, {}));
 p.parse(varargin{:});
 
 Opt = p.Results;
 
+% Check that files exist
+
+if ~exist(Opt.modfile, 'file')
+    error('Could not find specified model file (%s); check name', Opt.modfile);
+end
+
+if ~exist(Opt.dietfile, 'file')
+    error('Could not find specified diet file (%s); check name', Opt.dietfile);
+end
+
+if ~isempty(Opt.pedfile) && ~exist(Opt.pedfile, 'file')
+    error('Could not find specified pedigree file (%s); check name', Opt.pedfile);
+end
+
+if ~isempty(Opt.stanzagroupfile) && ~exist(Opt.stanzagroupfile, 'file')
+    error('Could not find specified stanza group file (%s); check name', Opt.stanzagroupfile);
+end
+
+if ~isempty(Opt.stanzafile) && ~exist(Opt.stanzafile, 'file')
+    error('Could not find specified stanza file (%s); check name', Opt.stanzafile);
+end
+
+% Check that stanza files as present/absent together
+
+if (~isempty(Opt.stanzafile) &&  isempty(Opt.stanzafile)) || ...
+   ( isempty(Opt.stanzafile) && ~isempty(Opt.stanzafile))    
+    error('Stanza and stanza group files must be provided as a pair');
+end
+
+if ~isempty(Opt.juvsfile)
+    if ~isempty(Opt.stanzafile) || ~isempty(Opt.stanzagroupfile)
+        error('Multi-stanza groups can be defined by a juvs file or stanza+stanzagroup files, not both');
+    end
+    Opt.old = true;
+else
+    Opt.old = false;
+end
+
+hasped = ~isempty(Opt.pedfile);
+hasstz = ~isempty(Opt.stanzafile) || ~isempty(Opt.juvsfile);
+
+% p = inputParser;
+% p.addParameter('basestr', '_model',    @(x) validateattributes(x, {'char'}, {}));
+% p.addParameter('dietstr', '_diet',     @(x) validateattributes(x, {'char'}, {}));
+% p.addParameter('juvsstr', '_juvs',     @(x) validateattributes(x, {'char'}, {}));
+% p.addParameter('pedstr',  '_pedigree', @(x) validateattributes(x, {'char'}, {}));
+% p.addParameter('stanzastr', '_stanzas', @(x) validateattributes(x, {'char'}, {}));
+% p.addParameter('stgrpstr', '_stanza_groups', @(x) validateattributes(x, {'char'}, {}));
+% p.addParameter('old', false, @(x) validateattributes(x, {'logical'}, {'scalar'}));
+% p.parse(varargin{:});
+% 
+% Opt = p.Results;
 
 %--------------------
 % Read tables
@@ -68,69 +139,85 @@ Opt = p.Results;
 
 % Read file data into tables
 
-Base = readtable([basename Opt.basestr '.csv'], 'TreatAsEmpty', 'NA');
-Diet = readtable([basename Opt.dietstr '.csv'], 'ReadRowNames', true, 'TreatAsEmpty', 'NA');
-Ped  = readtable([basename Opt.pedstr '.csv'], 'TreatAsEmpty', 'NA');
+Base = readtable(Opt.modfile, 'TreatAsEmpty', 'NA');
+Diet = readtable(Opt.dietfile, 'ReadRowNames', true, 'TreatAsEmpty', 'NA');
 
-if Opt.old
-    Juvs = readtable([basename Opt.juvsstr '.csv']);
-   
-    ns = height(Juvs);
-    
-    Sgrp = table((1:ns)', Juvs.StanzaName, ones(ns,1)*2, Juvs.VonBK, ...
-        Juvs.VonBD, Juvs.Wmat50, Juvs.RecPower, 'VariableNames', ...
-        {'StGroupNum', 'StanzaGroup', 'nstanzas', 'VBGF_Ksp', 'VBGF_d', ...
-        'Wmat', 'RecPower'});
-    
-    grpnum = [Juvs.JuvNum Juvs.AduNum]';
-    grpnum = grpnum(:);
-    
-    nsg = length(grpnum);
-    
-    z = Base.PB(grpnum) - Base.BioAcc(grpnum); % Note: this is prob. wrong, but it's just a placeholder for now (I don't use it; Rpath does).
-    
-    Stan = table(kron((1:ns)', ones(2,1)), repmat([1;2],ns,1), grpnum, ...
-        Base.Group(grpnum), nan(nsg,1), nan(nsg,1), z, false(nsg,1), ...
-        'VariableNames', {'StGroupNum', 'Stanza', 'GroupNum', 'Group', ...
-        'First', 'Last', 'Z', 'Leading'});
-    Stan.First(Stan.Stanza == 1) = 0;
-    Stan.First(Stan.Stanza == 2) = Juvs.RecAge*12;
-    
-    Stan.Last(Stan.Stanza == 1) = Juvs.RecAge*12 - 1;
-    Stan.Last(Stan.Stanza == 2) = 999;
-    
-    Stan.Leading = Stan.Stanza == 2;
-    
-else
-    Stan = readtable([basename Opt.stanzastr '.csv'], 'TreatAsEmpty', 'NA');
-    Sgrp = readtable([basename Opt.stgrpstr '.csv'], 'TreatAsEmpty', 'NA');
- 
-    isn = isnan(Stan.StGroupNum);
-    Stan = Stan(~isn,:);
-    
-    isn = isnan(Sgrp.StGroupNum);
-    Sgrp = Sgrp(~isn,:);
-    
+if hasped
+    Ped  = readtable(Opt.pedfile, 'TreatAsEmpty', 'NA');
+end
+
+if hasstz
+    if Opt.old
+        Juvs = readtable(Opt.juvsfile);
+
+        ns = height(Juvs);
+
+        Sgrp = table((1:ns)', Juvs.StanzaName, ones(ns,1)*2, Juvs.VonBK, ...
+            Juvs.VonBD, Juvs.Wmat50, Juvs.RecPower, 'VariableNames', ...
+            {'StGroupNum', 'StanzaGroup', 'nstanzas', 'VBGF_Ksp', 'VBGF_d', ...
+            'Wmat', 'RecPower'});
+
+        grpnum = [Juvs.JuvNum Juvs.AduNum]';
+        grpnum = grpnum(:);
+
+        nsg = length(grpnum);
+
+        z = Base.PB(grpnum) - Base.BioAcc(grpnum); % Note: this is prob. wrong, but it's just a placeholder for now (I don't use it; Rpath does).
+
+        Stan = table(kron((1:ns)', ones(2,1)), repmat([1;2],ns,1), grpnum, ...
+            Base.Group(grpnum), nan(nsg,1), nan(nsg,1), z, false(nsg,1), ...
+            'VariableNames', {'StGroupNum', 'Stanza', 'GroupNum', 'Group', ...
+            'First', 'Last', 'Z', 'Leading'});
+        Stan.First(Stan.Stanza == 1) = 0;
+        Stan.First(Stan.Stanza == 2) = Juvs.RecAge*12;
+
+        Stan.Last(Stan.Stanza == 1) = Juvs.RecAge*12 - 1;
+        Stan.Last(Stan.Stanza == 2) = 999;
+
+        Stan.Leading = Stan.Stanza == 2;
+
+    else
+        Stan = readtable(Opt.stanzafile, 'TreatAsEmpty', 'NA');
+        Sgrp = readtable(Opt.stanzagroupfile, 'TreatAsEmpty', 'NA');
+
+        isn = isnan(Stan.StGroupNum);
+        Stan = Stan(~isn,:);
+
+        isn = isnan(Sgrp.StGroupNum);
+        Sgrp = Sgrp(~isn,:);
+    end
 end
 
 B.Base = Base;
 B.Diet = Diet;
-B.Ped = Ped;
-B.Stan = Stan;
-B.Sgrp = Sgrp;
-if Opt.old
-    B.Juvs = Juvs;
+if hasped
+    B.Ped = Ped;
 else
+    B.Ped = [];
+end
+if hasstz
+    B.Stan = Stan;
+    B.Sgrp = Sgrp;
+    if Opt.old
+        B.Juvs = Juvs;
+    else
+        B.Juvs = [];
+    end
+else
+    B.Stan = [];
+    B.Sgrp = [];
     B.Juvs = [];
 end
 
-sflag = ~isempty(Stan);
+% sflag = ~isempty(Stan);
 
 % Parse column names
 
 bcol = parsecolname(Base);
 dcol = parsecolname(Diet);
-pcol = parsecolname(Ped);
+if hasped
+    pcol = parsecolname(Ped);
+end
 
 isgroup = Base.Type <= 2;
 isgear  = Base.Type == 3;
@@ -147,7 +234,7 @@ pp     = Base.Type(isgroup);
 
 groups = strtrim(Base.Group(isgroup));
 fleets = strtrim(Base.Group(isgear));
-if sflag
+if hasstz
     stanzas = Sgrp.StanzaGroup;
 else
     stanzas = {};
@@ -156,7 +243,6 @@ end
 grp = alternames(groups);
 flt = alternames(fleets);
 stz = alternames(stanzas);
-
 
 old = [groups; fleets; stanzas];
 new = [grp; flt; stz];
@@ -215,14 +301,16 @@ EM.discardFate(:,:) = Base(isgear,idxdet);
 
 % Stanza data
 
-EM.groupdata.stanza(Stan.GroupNum) = Stan.StGroupNum;
-EM.groupdata.ageStart(Stan.GroupNum) = Stan.First;
+if hasstz
+    EM.groupdata.stanza(Stan.GroupNum) = Stan.StGroupNum;
+    EM.groupdata.ageStart(Stan.GroupNum) = Stan.First;
 
-[tf, loc] = ismember(EM.groupdata.stanza, Sgrp.StGroupNum);
+    [tf, loc] = ismember(EM.groupdata.stanza, Sgrp.StGroupNum);
 
-EM.groupdata.vbK(tf) = Sgrp.VBGF_Ksp(loc(tf));
+    EM.groupdata.vbK(tf) = Sgrp.VBGF_Ksp(loc(tf));
 
-EM.stanzadata.stanzaID = Sgrp.StGroupNum;
+    EM.stanzadata.stanzaID = Sgrp.StGroupNum;
+end
 
 % The way Rpath deals with BA across stanza sets has changed over time, and
 % still isn't completely clear to me... some of Kerim's tables include
@@ -259,43 +347,43 @@ end
 % same value is applied to all prey components of a group's diet.  For
 % catch, the same value is applied to landing and discard of each pairing.  
 
-[~,loc] = ismember({'b','pb','qb','dc'}, EM.groupdata.Properties.VariableNames);
+if hasped
+    [~,loc] = ismember({'b','pb','qb','dc'}, EM.groupdata.Properties.VariableNames);
 
-pedprop = repmat({'groupdata'}, ngroup*3,1);
-pedrow = repmat((1:ngroup)', 3, 1);
-pedcol = kron(loc(1:3)', ones(ngroup,1));
-pedval = [Ped.B(1:ngroup); Ped.PB(1:ngroup); Ped.QB(1:ngroup)];
+    pedprop = repmat({'groupdata'}, ngroup*3,1);
+    pedrow = repmat((1:ngroup)', 3, 1);
+    pedcol = kron(loc(1:3)', ones(ngroup,1));
+    pedval = [Ped.B(1:ngroup); Ped.PB(1:ngroup); Ped.QB(1:ngroup)];
 
-dc = table2array(EM.dc);
-dcped = repmat(Ped.Diet(1:ngroup)', ngroup, 1);
-[ipry, iprd] = find(dc);
+    dc = table2array(EM.dc);
+    dcped = repmat(Ped.Diet(1:ngroup)', ngroup, 1);
+    [ipry, iprd] = find(dc);
 
-pedprop = [pedprop; repmat({'dc'}, length(ipry), 1)];
-pedrow = [pedrow; ipry];
-pedcol = [pedcol; iprd];
-pedval = [pedval; dcped(dc > 0)];
+    pedprop = [pedprop; repmat({'dc'}, length(ipry), 1)];
+    pedrow = [pedrow; ipry];
+    pedcol = [pedcol; iprd];
+    pedval = [pedval; dcped(dc > 0)];
 
-gearped = table2array(Ped(1:ngroup,5:end));
-land = table2array(EM.landing);
-disc = table2array(EM.discard);
-[ipry,iflt] = find(land);
+    gearped = table2array(Ped(1:ngroup,5:end));
+    land = table2array(EM.landing);
+    disc = table2array(EM.discard);
+    [ipry,iflt] = find(land);
 
-pedprop = [pedprop; repmat({'landing'}, length(ipry), 1)];
-pedrow = [pedrow; ipry];
-pedcol = [pedcol; iflt];
-pedval = [pedval; gearped(land > 0)];
+    pedprop = [pedprop; repmat({'landing'}, length(ipry), 1)];
+    pedrow = [pedrow; ipry];
+    pedcol = [pedcol; iflt];
+    pedval = [pedval; gearped(land > 0)];
 
-[ipry,iflt] = find(disc);
+    [ipry,iflt] = find(disc);
 
-pedprop = [pedprop; repmat({'discard'}, length(ipry), 1)];
-pedrow = [pedrow; ipry];
-pedcol = [pedcol; iflt];
-pedval = [pedval; gearped(disc > 0)];
+    pedprop = [pedprop; repmat({'discard'}, length(ipry), 1)];
+    pedrow = [pedrow; ipry];
+    pedcol = [pedcol; iflt];
+    pedval = [pedval; gearped(disc > 0)];
 
-EM.pedigree = table(pedprop, pedrow, pedcol, pedval, ...
-    'VariableNames', {'property', 'row', 'column', 'pedigree'});
-
-
+    EM.pedigree = table(pedprop, pedrow, pedcol, pedval, ...
+        'VariableNames', {'property', 'row', 'column', 'pedigree'});
+end
 
 %--------------------
 % Subfunctions
