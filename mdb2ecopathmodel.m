@@ -27,12 +27,12 @@ function [EM, A, D] = mdb2ecopathmodel(file)
 % precision in the EwE6 code and mdb, exported to ascii by csv table write,
 % converted to double when imported to Matlab).  The format written to the
 % CSV file varies between the Linux/Mac and Windows options, so reading the
-% same file on different operating systems may result values that differ
-% due to this rounding error.  This rounding error many orders of magnitude
-% less than the error in the actual input data of any Ecopath model, and
-% therefore should not be of concern from a scientific standpoint.
-% However, it may be a problem if you are looking for exact replicability
-% across operating systems.    
+% same file on different operating systems may result in values that differ
+% due to this rounding error.  This rounding error is many orders of
+% magnitude less than the error in the actual input data of any Ecopath
+% model, and therefore should not be of concern from a scientific
+% standpoint. However, it may be a problem if you are looking for exact
+% replicability across operating systems.
 %
 % Input variables:
 %
