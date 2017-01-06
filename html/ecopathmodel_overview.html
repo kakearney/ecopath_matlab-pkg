@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-12-05"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
+      --><title>An overview of the ecopathmodel class</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-01-06"><meta name="DC.source" content="ecopathmodel_overview.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -113,7 +113,7 @@ zero:
   BenthicPlants (NaN)
   Detritus (NaN)
  
-</pre><p>When importing, you'll usually encounter a few warnings like those seen above.  EwE6 uses a few NaN-placeholders in its data files, which are then converted to 0s when it performs the Ecopath calculation.  My code replaces those placeholders on reading, and lets you know.  It also alters names, if necessary.  If you're not happy with the "translation", you can  alter the <tt>name</tt>, <tt>fleet</tt>, or <tt>stanza</tt> properties of the <tt>ecopathmodel</tt> object, and these changes will propagate to the rest of the tables.  For example, I don't like those trailing underscores on a couple groups:</p><pre class="codeinput">Gen37.name{11} = <span class="string">'Pelagics_Small_Carniv'</span>;
+</pre><p>When importing, you'll usually encounter a few warnings like those seen above.  EwE6 uses a few NaN-placeholders in its data files, which are then converted to 0s when it performs the Ecopath calculation.  My code replaces those placeholders on reading, and lets you know.  It also alters names, if necessary.  If you're not happy with the "translation", you can  alter the <tt>name</tt>, <tt>fleet</tt>, or <tt>stanza</tt> properties of the <tt>ecopathmodel</tt> object, and these changes will propagate to the rest of the tables.  For example, the 'Pelagics, small, carniv.' group was converted to 'Pelagics_Small_Carniv_' to make it valid as a table row/column name; I personally don't like the trailing underscore, so I can remove it:</p><pre class="codeinput">Gen37.name{11} = <span class="string">'Pelagics_Small_Carniv'</span>;
 Gen37.name{12} = <span class="string">'Pelagics_Small_Herbiv'</span>;
 
 Gen37.groupdata
@@ -161,7 +161,13 @@ ans =
     BenthicPlants                     2      10      0    NaN       0      0    0        NaN       1    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
     Detritus                        100       0      0    NaN       0      0    0        NaN       2    1           0     NaN       0        0       NaN         0         0           NaN    NaN      0     
 
-</pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sean Lucey and Kerim Aydin.  It is currently in beta-testing and available for download on GitHub: <a href="https://github.com/slucey/RpathDev">https://github.com/slucey/RpathDev</a>. Rpath primarily bases its calculations around R data tables, but it also provides some utilities to read and write parameter data from .csv files. In order to maintain some consistency across all the Ecopath flavors, I've adopted this format as an alternative input format.  The <tt>rpath2ecopathmodel</tt> and <tt>ecopathmodel2rpath</tt> methods in this package perform the same reading and writing tasks as the <tt>read.rpath.params</tt> and <tt>write.rpath.params</tt> functions in Rpath, respectively.</p><p>This file format is also an option if you cannot get the direct-read EwE6 function (described above) working on your computer.  I've included Rpath-formatted versions of both the Generic 37 and Tampa Bay models that are used in this overview in the example folder (in examples/Gen37 and examples/TampBay, respectively).  You can use these as templates to copy and paste your own model into the proper format.</p><p>The following example reads in the model described in the Rpath vignette (the rpath_example.R script, found in the examples folder, holds the code to recreate these files).</p><pre class="codeinput">REco = rpath2ecopathmodel(fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco'</span>));
+</pre><h2>Importing Rpath data<a name="4"></a></h2><p>Rpath is an R-based implementation of Ecopath with Ecosim, written by Sean Lucey and Kerim Aydin.  It is currently in beta-testing and available for download on GitHub: <a href="https://github.com/slucey/RpathDev">https://github.com/slucey/RpathDev</a>. Rpath primarily bases its calculations around R data tables, but it also provides some utilities to read and write parameter data from .csv files. In order to maintain some consistency across all the Ecopath flavors, I've adopted this format as an alternative input format.  The <tt>rpath2ecopathmodel</tt> and <tt>ecopathmodel2rpath</tt> methods in this package perform the same reading and writing tasks as the <tt>read.rpath.params</tt> and <tt>write.rpath.params</tt> functions in Rpath, respectively.</p><p>This file format is also an option if you cannot get the direct-read EwE6 function (described above) working on your computer.  I've included Rpath-formatted versions of both the Generic 37 and Tampa Bay models that are used in this overview in the example folder (in examples/Gen37 and examples/TampBay, respectively).  You can use these as templates to copy and paste your own model into the proper format.</p><p>The following example reads in the model described in the Rpath vignette (the rpath_example.R script, found in the examples folder, holds the code to install Rpath and then recreate these files in R).</p><pre class="codeinput">basefile = fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco_model.csv'</span>);
+dietfile = fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco_diet.csv'</span>);
+stanfile = fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco_stanzas.csv'</span>);
+sgrpfile = fullfile(<span class="string">'examples'</span>, <span class="string">'REcoPreStanza'</span>, <span class="string">'REco_stanza_groups.csv'</span>);
+
+REco = rpath2ecopathmodel(basefile, dietfile, <span class="string">'stanzafile'</span>, stanfile, <span class="keyword">...</span>
+    <span class="string">'stanzagroupfile'</span>, sgrpfile);
 </pre><pre class="codeoutput">Warning: Variable names were modified to make them valid MATLAB identifiers. 
 Warning: Detritus groups found with missing biomass; replacing with 0:
   Detritus (NaN)
@@ -206,13 +212,11 @@ Warning: NaN found in detritus import, replacing with 0:
   Zooplankton (NaN)
   Phytoplankton (NaN)
  
-Warning: Cannot set pedigree value for non-leading stanza group B, PB, or QB;
-removing from table 
-</pre><p>Again, this function will typically issue several warnings related to the differing ways this code and Rpath use NaNs vs 0s as placeholders for certain parameters.  Rpath also assigns pedigree values to all groups, even non-leading stanza groups; my code doesn't allow that so those values are stripped out of the pedigree table and a warning issued.</p><p>Note that Rpath adds additional data to these files as its calculations progress.  This set of files was produced before any calculations (including stanza-related ones) were performed.</p><p>To reverse the process and send data from Matlab to Rpath, use <tt>ecopathmodel2rpath</tt>:</p><pre class="codeinput"><span class="keyword">if</span> ~exist(fullfile(<span class="string">'examples'</span>, <span class="string">'Gen37'</span>), <span class="string">'dir'</span>)
+</pre><p>Again, this function will typically issue several warnings related to the differing ways this code and Rpath use NaNs vs 0s as placeholders for certain parameters.  Rpath also assigns pedigree values to all groups, even non-leading stanza groups; my code doesn't allow that so those values are stripped out of the pedigree table and a warning issued. (Really, I recommend leaving the pedigree table input out, as I did in the preceding line, since Rpath is only using those values as placeholders at the moment.  I've written the code to be able to read these numbers if you insist; this may change, or some translation calculations may be added, as Rpath development continues, so use this wih caution for now).</p><p>Note that Rpath adds additional data to these files as its calculations progress.  This set of files was produced before any calculations (including stanza-related ones) were performed.</p><p>To reverse the process and send data from Matlab to Rpath, use <tt>ecopathmodel2rpath</tt>:</p><pre class="codeinput"><span class="keyword">if</span> ~exist(fullfile(<span class="string">'examples'</span>, <span class="string">'Gen37'</span>), <span class="string">'dir'</span>)
     mkdir(<span class="string">'examples'</span>, <span class="string">'Gen37'</span>);
 <span class="keyword">end</span>
 ecopathmodel2rpath(Gen37, fullfile(<span class="string">'examples'</span>, <span class="string">'Gen37'</span>, <span class="string">'gen37'</span>));
-</pre><p>This can be read into R via</p><pre>Gen37 = read.rpath.params('Gen37/gen37_model.csv', 'Gen37/gen37_diet.csv')</pre><h2>Building an <tt>ecopathmodel</tt> object manually<a name="7"></a></h2><p>As I mentioned above, I don't really recommend that you start a model from scratch using just this tool.  My focus when developing this code was to increase the flexibility of the Ecopath algorithm, not to replicate the EwE6 GUI capabilities (including its many data validation checks).</p><p>However, Ecopath models are very often published in peer-reviewed journals or technical reports without accompanying data files.  In these cases, you many need to manually transcribe the data from various printed tables in order to carry out additional calculations.</p><p>For this example, I'm going to use the Eastern Pacific Subarctic Gyre ecosystem model, which is the one I happened to be working with during the development of this class, and which required manual transcription. The details of that model were published in</p><div><ul><li>Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci Rep 25</li></ul></div><p>Start by creating an empty <tt>ecopathmodel</tt> object.  For this, you need 3 parameters:</p><div><ul><li>number of total groups</li><li>number of live groups</li><li>number of fishing gears/fleets.</li></ul></div><p>While not required, it's highly recommended that you also add the names of all groups, fleets, and stanzas, since that data is used to set up and label all the table columns and rows, and the type of each group (i.e. whether consumer, producer, or mixotroph), since that is used to validate other parameters' values as they're added.</p><pre class="codeinput">names = {<span class="keyword">...</span>
+</pre><p>This can be read into R via</p><pre>Gen37 = read.rpath.params('examples/Gen37/gen37_model.csv', 'examples/Gen37/gen37_diet.csv')</pre><h2>Building an <tt>ecopathmodel</tt> object manually<a name="7"></a></h2><p>As I mentioned above, I don't really recommend that you start a model from scratch using just this tool.  My focus when developing this code was to increase the flexibility of the Ecopath algorithm, not to replicate the EwE6 GUI capabilities (including its many data validation checks).</p><p>However, Ecopath models are very often published in peer-reviewed journals or technical reports without accompanying data files.  In these cases, you many need to manually transcribe the data from various printed tables in order to carry out additional calculations.</p><p>For this example, I'm going to use the Eastern Pacific Subarctic Gyre ecosystem model, which is the one I happened to be working with during the development of this class, and which required manual transcription. The details of that model were published in</p><div><ul><li>Aydin KY, McFarlane GA, King JR, Megrey BA (2003) The BASS/MODEL report on trophic models of the Subarctic Pacific Basin ecosystems. PICES Sci Rep 25</li></ul></div><p>Start by creating an empty <tt>ecopathmodel</tt> object.  For this, you need 3 parameters:</p><div><ul><li>number of total groups</li><li>number of live groups</li><li>number of fishing gears/fleets.</li></ul></div><p>While not required, it's highly recommended that you also add the names of all groups, fleets, and stanzas, since that data is used to set up and label all the table columns and rows, and the type of each group (i.e. whether consumer, producer, or mixotroph), since that is used to validate other parameters' values as they're added.</p><pre class="codeinput">names = {<span class="keyword">...</span>
 <span class="string">'Sperm whales'</span>
 <span class="string">'Toothed whales'</span>
 <span class="string">'Fin whales'</span>
@@ -1103,7 +1107,7 @@ ans =
 
 </pre><p>Notice that pedigree values corresponding to variables that are 0 (such as the rows corresponding to critters that aren't part of the catfish diet) are automatically removed from the pedigree table.</p><p>With a pedigree in place, we can build an ensemble.  You can choose to return either all generated values, or only those sets that result in balanced models.</p><pre class="codeinput">x = Tb.createensemble(1000, <span class="string">'pdfname'</span>, <span class="string">'uniform'</span>, <span class="string">'collect'</span>, <span class="string">'balanced'</span>);
 </pre><pre class="codeoutput">Generating ensembles...
- 100% [=================================================&gt;] Attempted: 2116
+ 100% [=================================================&gt;] Attempted: 2111
 </pre><p>One thing to note is that the <tt>creatensemble</tt> method does not adjust parameters to meet Ecopath requirements.  That process is done by the <tt>subpedigreevalues</tt> method (which is usually called under the hood by the <tt>ecopath</tt> method).  For example, if we look at the diet composition values for the catfish (the first 17 entries in the pedigree table):</p><pre class="codeinput"><span class="comment">% Setup for histograms</span>
 
 hopts = {<span class="string">'normalization'</span>, <span class="string">'count'</span>, <span class="string">'displaystyle'</span>, <span class="string">'stairs'</span>};
@@ -1431,8 +1435,10 @@ Gen37 = mdb2ecopathmodel(fullfile('examples', 'Generic_37.EwEmdb'));
 % alters names, if necessary.  If you're not happy with the "translation", 
 % you can  alter the |name|, |fleet|, or |stanza| properties of the
 % |ecopathmodel| object, and these changes will propagate to the rest of
-% the tables.  For example, I don't like those trailing underscores on a
-% couple groups:   
+% the tables.  For example, the 'Pelagics, small, carniv.' group was
+% converted to 'Pelagics_Small_Carniv_' to make it valid as a table
+% row/column name; I personally don't like the trailing underscore, so I
+% can remove it:
 
 Gen37.name{11} = 'Pelagics_Small_Carniv';
 Gen37.name{12} = 'Pelagics_Small_Herbiv';
@@ -1461,9 +1467,15 @@ Gen37.groupdata
 %
 % The following example reads in the model described in the Rpath vignette
 % (the rpath_example.R script, found in the examples folder, holds the code
-% to recreate these files).  
+% to install Rpath and then recreate these files in R).
 
-REco = rpath2ecopathmodel(fullfile('examples', 'REcoPreStanza', 'REco'));
+basefile = fullfile('examples', 'REcoPreStanza', 'REco_model.csv');
+dietfile = fullfile('examples', 'REcoPreStanza', 'REco_diet.csv');
+stanfile = fullfile('examples', 'REcoPreStanza', 'REco_stanzas.csv');
+sgrpfile = fullfile('examples', 'REcoPreStanza', 'REco_stanza_groups.csv');
+
+REco = rpath2ecopathmodel(basefile, dietfile, 'stanzafile', stanfile, ...
+    'stanzagroupfile', sgrpfile);
 
 %%
 % Again, this function will typically issue several warnings related to the
@@ -1471,6 +1483,12 @@ REco = rpath2ecopathmodel(fullfile('examples', 'REcoPreStanza', 'REco'));
 % certain parameters.  Rpath also assigns pedigree values to all groups,
 % even non-leading stanza groups; my code doesn't allow that so those
 % values are stripped out of the pedigree table and a warning issued.
+% (Really, I recommend leaving the pedigree table input out, as I did in
+% the preceding line, since Rpath is only using those values as
+% placeholders at the moment.  I've written the code to be able to
+% read these numbers if you insist; this may change, or some translation
+% calculations may be added, as Rpath development continues, so use this
+% wih caution for now).
 %
 % Note that Rpath adds additional data to these files as its calculations
 % progress.  This set of files was produced before any calculations
@@ -1487,7 +1505,7 @@ ecopathmodel2rpath(Gen37, fullfile('examples', 'Gen37', 'gen37'));
 %%
 % This can be read into R via
 %
-%  Gen37 = read.rpath.params('Gen37/gen37_model.csv', 'Gen37/gen37_diet.csv')
+%  Gen37 = read.rpath.params('examples/Gen37/gen37_model.csv', 'examples/Gen37/gen37_diet.csv')
 
 %% Building an |ecopathmodel| object manually
 %

@@ -106,8 +106,10 @@ Gen37 = mdb2ecopathmodel(fullfile('examples', 'Generic_37.EwEmdb'));
 % alters names, if necessary.  If you're not happy with the "translation", 
 % you can  alter the |name|, |fleet|, or |stanza| properties of the
 % |ecopathmodel| object, and these changes will propagate to the rest of
-% the tables.  For example, I don't like those trailing underscores on a
-% couple groups:   
+% the tables.  For example, the 'Pelagics, small, carniv.' group was
+% converted to 'Pelagics_Small_Carniv_' to make it valid as a table
+% row/column name; I personally don't like the trailing underscore, so I
+% can remove it:
 
 Gen37.name{11} = 'Pelagics_Small_Carniv';
 Gen37.name{12} = 'Pelagics_Small_Herbiv';
@@ -136,9 +138,15 @@ Gen37.groupdata
 %
 % The following example reads in the model described in the Rpath vignette
 % (the rpath_example.R script, found in the examples folder, holds the code
-% to recreate these files).  
+% to install Rpath and then recreate these files in R).
 
-REco = rpath2ecopathmodel(fullfile('examples', 'REcoPreStanza', 'REco'));
+basefile = fullfile('examples', 'REcoPreStanza', 'REco_model.csv');
+dietfile = fullfile('examples', 'REcoPreStanza', 'REco_diet.csv');
+stanfile = fullfile('examples', 'REcoPreStanza', 'REco_stanzas.csv');
+sgrpfile = fullfile('examples', 'REcoPreStanza', 'REco_stanza_groups.csv');
+
+REco = rpath2ecopathmodel(basefile, dietfile, 'stanzafile', stanfile, ...
+    'stanzagroupfile', sgrpfile);
 
 %%
 % Again, this function will typically issue several warnings related to the
@@ -146,6 +154,12 @@ REco = rpath2ecopathmodel(fullfile('examples', 'REcoPreStanza', 'REco'));
 % certain parameters.  Rpath also assigns pedigree values to all groups,
 % even non-leading stanza groups; my code doesn't allow that so those
 % values are stripped out of the pedigree table and a warning issued.
+% (Really, I recommend leaving the pedigree table input out, as I did in
+% the preceding line, since Rpath is only using those values as
+% placeholders at the moment.  I've written the code to be able to
+% read these numbers if you insist; this may change, or some translation
+% calculations may be added, as Rpath development continues, so use this
+% wih caution for now).
 %
 % Note that Rpath adds additional data to these files as its calculations
 % progress.  This set of files was produced before any calculations
@@ -162,7 +176,7 @@ ecopathmodel2rpath(Gen37, fullfile('examples', 'Gen37', 'gen37'));
 %%
 % This can be read into R via
 %
-%  Gen37 = read.rpath.params('Gen37/gen37_model.csv', 'Gen37/gen37_diet.csv')
+%  Gen37 = read.rpath.params('examples/Gen37/gen37_model.csv', 'examples/Gen37/gen37_diet.csv')
 
 %% Building an |ecopathmodel| object manually
 %
