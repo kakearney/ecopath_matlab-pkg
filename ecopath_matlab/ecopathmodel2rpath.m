@@ -82,7 +82,7 @@ if hasstz
 
     % Stanza group data table
 
-    colname = addquotes({'StGroupNum', 'StanzaGroup', 'nstanzas', 'VGBF_Ksp', 'VGBF_d', 'Wmat', 'RecPower'});
+    colname = addquotes({'StGroupNum', 'StanzaGroup', 'nstanzas', 'VBGF_Ksp', 'VBGF_d', 'Wmat', 'RecPower'});
 
     sid = EM.stanzaindices;
 
