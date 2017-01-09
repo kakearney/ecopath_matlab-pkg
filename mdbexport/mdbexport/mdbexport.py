@@ -29,16 +29,16 @@ def mdbexport(outdir, mdbfile):
 		os.mkdir(outdir)
 
     # Look for mdb driver
-    
-    DRV = ['{{{}}}'.format(s) for s in pyodbc.drivers() if 'Microsoft Access Driver' in s]
-    if not DRV:
-        raise ValueError('mdbexport did not find a valid Microsoft Access Driver on this computer')
+
+	DRV = ['{{{}}}'.format(s) for s in pyodbc.drivers() if 'Microsoft Access Driver' in s]
+	if not DRV:
+		raise ValueError('mdbexport did not find a valid Microsoft Access Driver on this computer')
 
 	# Connect to database
 
 	PWD = 'pw'
 
-	con = pyodbc.connect('DRIVER={};DBQ={};PWD={};CHARSET=UTF8'.format(drv,mdbfile,PWD))            
+	con = pyodbc.connect('DRIVER={};DBQ={};PWD={};CHARSET=UTF8'.format(DRV[0],mdbfile,PWD))            
 	cur = con.cursor()
 
 	# List tables in file, filtering out system tables
