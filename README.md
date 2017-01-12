@@ -114,6 +114,8 @@ doc ecopathmodel
 
 For an overview of the class, along with several examples of usage, please see the overview document: `ecopathmodel_overview.m`.  A published version of this file can be found in [html/ecopathmodel_overview.html](https://rawgit.com/kakearney/ecopath_matlab-pkg/master/html/ecopathmodel_overview.html).
 
+If you use this code in a scientific publication, please cite using the Journal of Open Source Software documentation paper (see JOSS badge link above).
+
 ## Contributions
 
 Community contributions to this package are welcome!
@@ -137,4 +139,4 @@ I maintain tagged versions of this software for citation purposes only.  Actual 
 - 1.x: The mostly-stable ecopathlite.m code suite (available on GitHub as [ecopathlite-pkg](https://github.com/kakearney/ecopathlite-pkg)).  I plan to keep that code around for back-compatibility and previous citation purposes, but am no longer making any updates to it.
 - 2.x: Rewrite of ecopathlite.m and its companion functions with an object-oriented approach; reorganized, fully-documented, and now intended for full use by others.
 
-I began syncing the GitHub repository and the MatlabCentral File Exchange (FEX) entry in May 2015; the FEX labels that entry as "1.3". Version numbers on the FEX prior to that point were automatically assigned by MatlabCentral, and do not match up to the tagged versions in the GitHub repo.  Please only use the GitHub tagged release numbers, and not the FEX numbers, for citation purposes.
+I began syncing the GitHub repository and the MatlabCentral File Exchange (FEX) entry in May 2015; the FEX labels that entry as "1.3". Version numbers on the FEX prior to that point were automatically assigned by MatlabCentral, and do not match up to the tagged versions in the GitHub repo.  Please only use the GitHub tagged release numbers, and not the FEX numbers, if you need to reference a particular release.  As noted above, the preferred method of citation for this code is to cite its companion documentation paper (see JOSS badge above).
