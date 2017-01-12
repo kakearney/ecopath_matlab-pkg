@@ -1,4 +1,6 @@
 [![status](http://joss.theoj.org/papers/55cdc396174664e690bec9b2fa7c50bf/status.svg)](http://joss.theoj.org/papers/55cdc396174664e690bec9b2fa7c50bf)
+[![DOI](https://zenodo.org/badge/66112224.svg)](https://zenodo.org/badge/latestdoi/66112224)
+
 
 
 <img src="./matlabEcopathLogo.png" width="100">
