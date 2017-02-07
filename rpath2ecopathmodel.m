@@ -1,7 +1,8 @@
 function [EM,B] = rpath2ecopathmodel(varargin)
 %RPATH2ECOPATHMODEL Create ecopathmodel object from Rpath data files
 %
-% [A, B] = rpath2ecopathmodel(basename, p1, v1, ...)
+% [A, B] = rpath2ecopathmodel(modfile, dietfile)
+% [A, B] = rpath2ecopathmodel(modfile, dietfile, p1, v1, ...)
 %
 % Rpath (the R-based version of Ecopath/Ecosim, available from
 % https://github.com/slucey/RpathDev) allows model data be imported from
