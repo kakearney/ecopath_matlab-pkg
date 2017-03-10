@@ -6,7 +6,10 @@ tags:
   - network analysis
 authors:
  - name: Kelly A. Kearney
-   affiliation: University of Washington, JISAO
+   affiliation: 1
+affiliations:
+ - index: 1
+   name: University of Washington, JISAO
 date: 14 September 2016
 bibliography: paper.bib
 ---
