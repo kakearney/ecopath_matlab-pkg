@@ -170,7 +170,7 @@ switch Opt.collect
         
         % Generate samples
         
-        p = samplepoints(Opt.sample, nsample, nvar);
+        p = samplepoints(Opt.sample, nsample, nvar, Opt.lhsiter);
         x = transformpoints(Opt.pdfname, p, lo, hi, mu, sigma, vmid);
 
         nall = nsample;
@@ -198,7 +198,7 @@ switch Opt.collect
             
             % Generate samples
 
-            ptmp = samplepoints(Opt.sample, Opt.testsize, nvar);
+            ptmp = samplepoints(Opt.sample, Opt.testsize, nvar, Opt.lhsiter);
             xtmp = transformpoints(Opt.pdfname, ptmp, lo, hi, mu, sigma, vmid);
 
             % Keep only balanced sets
@@ -260,7 +260,7 @@ end
 
 % Generate prescribed number of uniformly-distributed points
 
-function p = samplepoints(method, nsample, nvar)
+function p = samplepoints(method, nsample, nvar, niter)
 
 switch method
     case 'mcs'
@@ -268,7 +268,7 @@ switch method
     case 'lhs'
        p = lhsdesign(nsample, nvar, ...
            'criterion', 'maximin', ...
-           'iterations', Opt.lhsiter);
+           'iterations', niter);
 end
 
 

@@ -114,7 +114,7 @@ end
 pptype = cellfun(@(x) x(1), pptype);
 
 [~, stz] = aggregate(aidxg, EM.groupdata.stanza);
-if any(cellfun(@(x) length(unique(x)), stz) > 1)
+if any(cellfun(@(x) length(unique(x(~isnan(x)))), stz) > 1)
     error('Cannot combine groups from different stanza sets');
 end
 
