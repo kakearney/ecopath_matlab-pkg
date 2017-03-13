@@ -12,6 +12,10 @@ This package provides a Matlab-based implementation of the Ecopath algorithm (pa
 
 This software is intended for people already familiar with the Ecopath concept who wish to perform that particular calculation, as well as related analysis of food web properties, outside of the GUI environment provided by the original EwE software.  It assumes a basic working knowledge of Matlab.
 
+If you use this code in your research, please cite as follows:
+
+K. A. Kearney, “ecopath_matlab: A Matlab-based implementation of the Ecopath food web algorithm,” Journal of Open Source Software, vol. 2, no. 9, 2017.
+
 ## Getting Started
 
 ### Prerequisites
