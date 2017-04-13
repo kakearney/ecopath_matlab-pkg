@@ -84,6 +84,7 @@ newstr(length(newstr)+1:length(newstr)+length(lastbit)) = lastbit;
 
 % Output: 
 if nargout==1
+    newstr = regexprep(newstr, '%', '%%');
     strw = sprintf(newstr); 
 else
     fprintf([newstr,'\n'])
