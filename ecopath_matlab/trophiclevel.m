@@ -51,6 +51,11 @@ if nargin == 1
     end
 end
 
+% Sort based on pp
+
+[pp, isrt] = sort(pp);
+dc = dc(isrt,isrt);
+
 %--------------------------
 % Set up set of left-hand 
 % side based on type of 
@@ -112,4 +117,5 @@ lhs(isdet & isdiag) = 1;
 %--------------------------
 
 level = lhs\tl;
+level(isrt) = level; % sort back to input order
 
