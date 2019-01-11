@@ -7,7 +7,7 @@ function S = networkindices(EM, varargin)
 % This function calculates a variety of network indices for an Ecopath
 % model.  It was inspired by the following study:
 %
-% Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-Béat B, Karimi B,
+% Guesnet V, Lassalle G, Chaalali A, Kearney K, Saint-Bï¿½at B, Karimi B,
 % Grami B, Tecchio S, Niquil N, Lobry J (2015) Incorporating food-web
 % parameter uncertainty into Ecopath-derived ecological network indicators.
 % Ecol Modell 313:29?40   
@@ -160,7 +160,7 @@ end
 
 T = permute(T, [2 1 3]); % T_ij, i = sink, j = source
 
-if any(T(:)) < 0
+if any(T(:) < 0)
     error('Negative fluxes found in flow matrix T');
 end
 
