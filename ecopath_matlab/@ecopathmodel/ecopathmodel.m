@@ -625,7 +625,8 @@ classdef ecopathmodel
             end
             if ~all(cellfun(@isvarname, val))
                 warning('Names must meet variable name restirctions; modfying');
-                val = matlab.lang.makeValidName(val, 'delete');
+%                 val = matlab.lang.makeValidName(val, 'delete');
+                val = matlab.lang.makeValidName(val, 'ReplacementStyle', 'delete'); % may make non-backcompatible
             end
             
             obj.name = val;
