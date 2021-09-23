@@ -1,5 +1,6 @@
 [![status](http://joss.theoj.org/papers/10.21105/joss.00064/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00064)
 [![DOI](https://zenodo.org/badge/66112224.svg)](https://zenodo.org/badge/latestdoi/66112224)
+[![View ecopath_matlab: A Matlab implementation of Ecopath on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/40082-ecopath_matlab-a-matlab-implementation-of-ecopath)
 
 
 <img src="./matlabEcopathLogo.png" width="100">
