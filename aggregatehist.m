@@ -51,8 +51,13 @@ if size(y,1) ~= nrow
     error('x and y must have same number of rows');
 end
 
-Opt.combineupper = true;
-Opt = parsepv(Opt, varargin);
+p = inputParser;
+p.addParameter('combineupper', true, @(x) validateattributes(x,{'logical'}, {'scalar'}));
+p.parse(varargin{:});
+Opt = p.Results;
+
+% Opt.combineupper = true;
+% Opt = parsepv(Opt, varargin);
 
 % Bin x data
 
