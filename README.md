@@ -103,6 +103,7 @@ A few additional functions are provided alonside the `ecopathmodel` class, inclu
 
 * `ecopathmodel2rpath`: Print ecopathmodel data to comma-delimited files
 * `editstanzacalcs`: Replicate multi-stanza calculations from Ecopath
+* `eiixml2ecopathmodel`: Create ecopathmodel object from EwE6 .eiixml file
 * `mdb2ecopathmodel`: Create ecopathmodel object from EwE6 data file
 * `networkindices`: Calculate network indices for a food web
 * `rpath2ecopathmodel`: Create ecopathmodel object from Rpath data files
