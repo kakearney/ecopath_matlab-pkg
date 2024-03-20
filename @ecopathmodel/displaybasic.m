@@ -92,7 +92,7 @@ if cflag
     fprintf('\n');
 
     for ir = 1:nrow
-        fmt = sprintf('%%2d: %%-%ds', gwidth+1);
+        fmt = sprintf('%%3d: %%-%ds', gwidth+1);
         fprintf(fmt, ir, In.name{ir});
         for ic = 1:ncol
             fmt = sprintf('%%%ds', wdth(ic)+1);
@@ -112,17 +112,11 @@ else
     fprintf('\n');
 
     for ir = 1:nrow
-        fmt = sprintf('%%2d: %%-%ds', gwidth+1);
+        fmt = sprintf('%%3d: %%-%ds', gwidth+1);
         fprintf(fmt, ir, In.name{ir});
         for ic = 1:ncol
             fmt = sprintf('%%%ds', wdth(ic)+1);
-            if isoutofrange(ir,ic)
-                fprintf(fmt, dispstr{ir,ic});
-            elseif isfilled(ir,ic)
-                fprintf(fmt, dispstr{ir,ic});
-            else
-                fprintf(fmt, dispstr{ir,ic});
-            end
+            fprintf(fmt, dispstr{ir,ic});
         end
         fprintf('\n');
     end
